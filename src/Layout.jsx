@@ -1,7 +1,17 @@
-import { Button, Menu, MenuHandler, MenuItem, MenuList } from "@material-tailwind/react";
+import { Button, Menu, MenuItem } from "@mui/material";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 export function Layout() {
+ const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <>
       <div className="site-mobile-menu site-navbar-target">
@@ -13,7 +23,7 @@ export function Layout() {
         <div className="site-mobile-menu-body"></div>
       </div>
 
-
+      {/*<div id="sticky-wrapper" class="sticky-wrapper" style={{height: "58.9625px"}}>      */}
       <header className="site-navbar py-4 js-sticky-header site-navbar-target" role="banner">
 
         <div className="container-fluid" style={{ paddingRight: "0px" }}>
@@ -35,15 +45,38 @@ export function Layout() {
               <nav className="site-navigation position-relative text-right" role="navigation">
                 <ul className="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0">
                   <li className="cta"><a href="#contact-section" class="nav-link"><span>Contact Us</span></a></li>
-                  <li className="cta"><Menu>
-                    <MenuHandler>
+                  <li className="cta">
+                    <Button
+                        id="basic-button"
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                        onClick={handleClick}
+                      >
+                        Dashboard
+                      </Button>
+                      <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                          'aria-labelledby': 'basic-button',
+                        }}
+                      >
+                        <MenuItem onClick={handleClose}>Profile</MenuItem>
+                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                        <MenuItem onClick={handleClose}>Logout</MenuItem>
+                      </Menu>
+      {/*<Menu>
+      <MenuHandler>
                       <Button>Tư cách:</Button>
                     </MenuHandler>
                     <MenuList>
                       <MenuItem>Học viên</MenuItem>
                       <MenuItem>Gia sư</MenuItem>
                     </MenuList>
-                  </Menu></li>
+                  </Menu>*/}</li>
                 </ul>
               </nav>
               <a href="#" className="d-inline-block d-lg-none site-menu-toggle js-menu-toggle text-black float-right"><span class="icon-menu h3"></span></a>
@@ -52,6 +85,8 @@ export function Layout() {
         </div>
 
       </header>
+
+      {/*</div>*/}
       <Outlet />
     </>
   );

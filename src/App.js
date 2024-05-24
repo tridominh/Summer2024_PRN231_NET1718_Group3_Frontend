@@ -7,6 +7,7 @@ import useToken from './services/useToken';
 import { Login } from './component/Login';
 import { StudentHome } from './pages/StudentHome';
 
+
 function App() {
 
   const { token, setToken, removeToken } = useToken();
@@ -19,6 +20,7 @@ function App() {
             </Route>
             <Route path="student-home" element={<StudentHome token={token} setToken={setToken}/>} />
             <Route path="login" element={<Login />}/>
+             {/* <Route path="login" element={<Login />}/> */}
         </Routes>
     </BrowserRouter>
   );

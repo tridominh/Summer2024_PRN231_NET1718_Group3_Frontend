@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
+import { Button, Menu, MenuItem } from "@mui/material";
 import { Outlet } from "react-router-dom";
+import parseJwt from "../services/parseJwt";
 
-export default function Heading() {
+export default function Heading({ token, setToken, removeToken }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const name = token ? parseJwt(token).given_name : null;
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const logout = () => {
+    removeToken();
+    //setToken(null);
+  };
+
   return (
     <>
       <div className="site-mobile-menu site-navbar-target">
@@ -64,20 +82,44 @@ export default function Heading() {
                       <span>Contact Us</span>
                     </a>
                   </li>
+                  <li className="cta">
+                    <Button
+                        className={`nav-link ${name ? "" : "d-none"}`}
+                        id="basic-button"
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                        onClick={handleClick}
+                      >
+                        {name && "Welcome "+name}
+                      </Button>
+                      <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                          'aria-labelledby': 'basic-button',
+                        }}
+                      >
+                        <MenuItem onClick={handleClose}>Profile</MenuItem>
+                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                        <MenuItem onClick={(e) => {handleClose(); logout()}}>Logout</MenuItem>
+                      </Menu>
+                    </li>
                 </ul>
               </nav>
               <a
                 href="#"
                 className="d-inline-block d-lg-none site-menu-toggle js-menu-toggle text-black float-right"
               >
-                <span class="icon-menu h3"></span>
+                <span className="icon-menu h3"></span>
               </a>
             </div>
           </div>
         </div>
       </header>
 
-      <Outlet />
     </>
   );
 }

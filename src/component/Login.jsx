@@ -1,12 +1,12 @@
 import { Button } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowForward } from "@mui/icons-material";
 import { useState } from "react";
 import { LoginService } from "../services/ApiServices/AuthorizeServices";
 
 export function Login({ token, setSignIn, setToken }) {
-    
-    //const [tutorSignIn, setTutorSignIn] = useState(null);
+  const navigate = useNavigate();
+  //const [tutorSignIn, setTutorSignIn] = useState(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -15,10 +15,15 @@ export function Login({ token, setSignIn, setToken }) {
     const handleLogin = async (e) => {
         e.preventDefault();
         let data = null;
-        try{
-            data = await LoginService({email, password});
-            //console.log(data);
-            setToken(data)
+        try {
+          data = await LoginService({ email, password });
+          setToken(data);
+          
+          // Check if the user role is a student
+          if (data.role === "student") {
+              // Redirect to StudentHome
+              navigate("/student-home");
+          }
         }
         catch(err){
             if (err.response.data.message) {

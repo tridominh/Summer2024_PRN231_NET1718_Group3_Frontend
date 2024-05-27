@@ -7,6 +7,7 @@ import { RegisterStudentService, RegisterTutorService } from "../services/ApiSer
 export function Register({ token, setSignIn }) {
     //const navigate = useNavigate();
     const [tutorSignUp, setTutorSignUp] = useState(null);
+    const [otp, setOtp] = useState(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -64,10 +65,10 @@ export function Register({ token, setSignIn }) {
 
             </div>
 
-            {!token && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
+            {!token  && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
               <form action="" method="post" className="form-box">
                 <h3 className="h4 text-black mb-4">Sign Up</h3>
-                {tutorSignUp==null &&
+                {tutorSignUp==null && !otp &&
                     <div className="form-group">
                         <Button className="py-4 w-full block mb-3" variant="outlined" endIcon={<ArrowForward />}
                             onClick={() => setTutorSignUp("tutor")}>
@@ -112,10 +113,16 @@ export function Register({ token, setSignIn }) {
                         onClick={() => setTutorSignUp(null)}>
                         Back
                     </Button>
-                    <input type="submit" onClick={(e) => handleSignUp(e)} 
+                    <input type="submit" onClick={(e) => {setOtp("aaa"); setTutorSignUp(null);}} 
                     className="btn btn-primary btn-pill" value="Sign up"/>
                 </div></>)}
 
+                {otp && (
+                    <div className="form-group">
+                        <input type="text" className="form-control" placeholder="Enter OTP"
+                            value={otp} onChange={(e) => setOtp(e.target.value)}/>
+                    </div>
+                )}
 
                 <div className="form-group">
                   <p className="text-black">Already have an account? <Link to="#" onClick={() => setSignIn(true)}>Sign In</Link>

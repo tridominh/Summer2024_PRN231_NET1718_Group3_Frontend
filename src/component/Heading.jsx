@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import parseJwt from "../services/parseJwt";
 
 export default function Heading({ token, setToken, removeToken }) {
@@ -35,10 +35,10 @@ export default function Heading({ token, setToken, removeToken }) {
         className="site-navbar py-4 js-sticky-header site-navbar-target"
         role="banner"
       >
-        <div className="container-fluid">
+        <div className="container-fluid" >
           <div className="d-flex align-items-center">
             <div className="site-logo mr-auto w-25">
-              <a href="index.html">OneSchool</a>
+              <a href="index.html">SmartHead</a>
             </div>
 
             <div className="mx-auto text-center">
@@ -48,7 +48,7 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu js-clone-nav mx-auto d-none d-lg-block  m-0 p-0">
                   <li>
-                    <a href="#home-section" className="nav-link">
+                    <a href="" className="nav-link">
                       Home
                     </a>
                   </li>
@@ -59,12 +59,12 @@ export default function Heading({ token, setToken, removeToken }) {
                   </li>
                   <li>
                     <a href="#programs-section" className="nav-link">
-                      Programs
+                      Features
                     </a>
                   </li>
                   <li>
                     <a href="#teachers-section" className="nav-link">
-                      Teachers
+                      Cost
                     </a>
                   </li>
                 </ul>
@@ -102,8 +102,7 @@ export default function Heading({ token, setToken, removeToken }) {
                           'aria-labelledby': 'basic-button',
                         }}
                       >
-                        <MenuItem onClick={handleClose}>Profile</MenuItem>
-                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                        <MenuItem onClick={handleClose}> <Link to="Profile">Profile</Link></MenuItem>
                         <MenuItem onClick={(e) => {handleClose(); logout()}}>Logout</MenuItem>
                       </Menu>
                     </li>

@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 import parseJwt from "../services/parseJwt";
 
 export default function Heading({ token, setToken, removeToken }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const name = token ? parseJwt(token).given_name : null;
+  const parsedToken = token ? parseJwt(token) : null;
+  const name = parsedToken ? parsedToken.given_name : null;
+  const role = parsedToken ? parsedToken.role : null;
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -17,7 +20,18 @@ export default function Heading({ token, setToken, removeToken }) {
 
   const logout = () => {
     removeToken();
-    //setToken(null);
+  };
+
+  const getProfileLink = () => {
+    switch(role) {
+      case 'Tutor':
+        return 'ProfileTutor';
+      case 'Student':
+      case 'Admin':
+      case 'Moderator':
+      default:
+        return 'Profile';
+    }
   };
 
   return (
@@ -84,36 +98,28 @@ export default function Heading({ token, setToken, removeToken }) {
                   </li>
                   <li className="cta">
                     <Button
-                      className={`nav-link ${name ? "" : "d-none"}`}
-                      id="basic-button"
-                      aria-controls={open ? "basic-menu" : undefined}
-                      aria-haspopup="true"
-                      aria-expanded={open ? "true" : undefined}
-                      onClick={handleClick}
-                    >
-                      {name && "Welcome " + name}
-                    </Button>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        "aria-labelledby": "basic-button",
-                      }}
-                    >
-                      <MenuItem onClick={handleClose}>Profile</MenuItem>
-                      <MenuItem onClick={handleClose}>My account</MenuItem>
-                      <MenuItem
-                        onClick={(e) => {
-                          handleClose();
-                          logout();
+                        className={`nav-link ${name ? "" : "d-none"}`}
+                        id="basic-button"
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                        onClick={handleClick}
+                      >
+                        {name && "Welcome " + name}
+                      </Button>
+                      <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                          'aria-labelledby': 'basic-button',
                         }}
                       >
-                        Logout
-                      </MenuItem>
-                    </Menu>
-                  </li>
+                        <MenuItem onClick={handleClose}> <Link to={getProfileLink()}>Profile</Link></MenuItem>
+                        <MenuItem onClick={(e) => { handleClose(); logout(); }}>Logout</MenuItem>
+                      </Menu>
+                    </li>
                 </ul>
               </nav>
               <a

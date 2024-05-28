@@ -3,8 +3,10 @@ import { Layout } from "./Layout";
 import { Home } from "./pages/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import useToken from "./services/useToken";
+import { Login } from "./component/Login";
+import { StudentHome } from "./pages/StudentHome";
+import { Profile } from "./pages/Profile";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
-
 function App() {
   const { token, setToken, removeToken } = useToken();
 
@@ -22,8 +24,17 @@ function App() {
           }
         >
           <Route index element={<Home token={token} setToken={setToken} />} />
-          <Route path="/student-booking" element={<StudentBookingRequest />} />
+          <Route
+            path="Profile"
+            element={<Profile token={token} setToken={setToken} />}
+          />
+          <Route
+            path="student-home"
+            element={<StudentHome token={token} setToken={setToken} />}
+          />
         </Route>
+        <Route path="login" element={<Login />} />
+        <Route path="/student-booking" element={<StudentBookingRequest />} />
       </Routes>
     </BrowserRouter>
   );

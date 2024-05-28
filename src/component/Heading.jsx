@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import parseJwt from "../services/parseJwt";
 
 export default function Heading({ token, setToken, removeToken }) {
@@ -38,7 +38,7 @@ export default function Heading({ token, setToken, removeToken }) {
         <div className="container-fluid">
           <div className="d-flex align-items-center">
             <div className="site-logo mr-auto w-25">
-              <a href="/">OneSchool</a>
+              <a href="index.html">SmartHead</a>
             </div>
 
             <div className="mx-auto text-center">

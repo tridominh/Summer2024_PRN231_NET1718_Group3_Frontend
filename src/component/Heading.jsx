@@ -32,13 +32,13 @@ export default function Heading({ token, setToken, removeToken }) {
       </div>
 
       <header
-        className="site-navbar py-4 js-sticky-header site-navbar-target"
+        className="site-navbar bg-stone-900 py-4 js-sticky-header site-navbar-target"
         role="banner"
       >
         <div className="container-fluid">
           <div className="d-flex align-items-center">
             <div className="site-logo mr-auto w-25">
-              <a href="index.html">OneSchool</a>
+              <a href="/">OneSchool</a>
             </div>
 
             <div className="mx-auto text-center">
@@ -48,22 +48,22 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu js-clone-nav mx-auto d-none d-lg-block  m-0 p-0">
                   <li>
-                    <a href="#home-section" className="nav-link">
+                    <a href="/" className="nav-link">
                       Home
                     </a>
                   </li>
                   <li>
-                    <a href="#courses-section" className="nav-link">
+                    <a href="/" className="nav-link">
                       Courses
                     </a>
                   </li>
                   <li>
-                    <a href="#programs-section" className="nav-link">
+                    <a href="/" className="nav-link">
                       Programs
                     </a>
                   </li>
                   <li>
-                    <a href="#teachers-section" className="nav-link">
+                    <a href="/" className="nav-link">
                       Teachers
                     </a>
                   </li>
@@ -78,35 +78,42 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0">
                   <li className="cta">
-                    <a href="#contact-section" class="nav-link">
+                    <a href="/" class="nav-link">
                       <span>Contact Us</span>
                     </a>
                   </li>
                   <li className="cta">
                     <Button
-                        className={`nav-link ${name ? "" : "d-none"}`}
-                        id="basic-button"
-                        aria-controls={open ? 'basic-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                        onClick={handleClick}
-                      >
-                        {name && "Welcome "+name}
-                      </Button>
-                      <Menu
-                        id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        MenuListProps={{
-                          'aria-labelledby': 'basic-button',
+                      className={`nav-link ${name ? "" : "d-none"}`}
+                      id="basic-button"
+                      aria-controls={open ? "basic-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? "true" : undefined}
+                      onClick={handleClick}
+                    >
+                      {name && "Welcome " + name}
+                    </Button>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        "aria-labelledby": "basic-button",
+                      }}
+                    >
+                      <MenuItem onClick={handleClose}>Profile</MenuItem>
+                      <MenuItem onClick={handleClose}>My account</MenuItem>
+                      <MenuItem
+                        onClick={(e) => {
+                          handleClose();
+                          logout();
                         }}
                       >
-                        <MenuItem onClick={handleClose}>Profile</MenuItem>
-                        <MenuItem onClick={handleClose}>My account</MenuItem>
-                        <MenuItem onClick={(e) => {handleClose(); logout()}}>Logout</MenuItem>
-                      </Menu>
-                    </li>
+                        Logout
+                      </MenuItem>
+                    </Menu>
+                  </li>
                 </ul>
               </nav>
               <a
@@ -119,7 +126,6 @@ export default function Heading({ token, setToken, removeToken }) {
           </div>
         </div>
       </header>
-
     </>
   );
 }

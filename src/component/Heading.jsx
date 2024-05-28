@@ -46,7 +46,7 @@ export default function Heading({ token, setToken, removeToken }) {
       </div>
 
       <header
-        className="site-navbar py-4 js-sticky-header site-navbar-target"
+        className="site-navbar bg-stone-900 py-4 js-sticky-header site-navbar-target"
         role="banner"
       >
         <div className="container-fluid">
@@ -62,23 +62,23 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu js-clone-nav mx-auto d-none d-lg-block  m-0 p-0">
                   <li>
-                    <a href="" className="nav-link">
+                    <a href="/" className="nav-link">
                       Home
                     </a>
                   </li>
                   <li>
-                    <a href="#courses-section" className="nav-link">
+                    <a href="/" className="nav-link">
                       Courses
                     </a>
                   </li>
                   <li>
-                    <a href="#programs-section" className="nav-link">
-                      Features
+                    <a href="/" className="nav-link">
+                      Programs
                     </a>
                   </li>
                   <li>
-                    <a href="#teachers-section" className="nav-link">
-                      Cost
+                    <a href="/" className="nav-link">
+                      Teachers
                     </a>
                   </li>
                 </ul>
@@ -92,7 +92,7 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0">
                   <li className="cta">
-                    <a href="#contact-section" className="nav-link">
+                    <a href="/" class="nav-link">
                       <span>Contact Us</span>
                     </a>
                   </li>

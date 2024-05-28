@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import useToken from './services/useToken';
 import { Login } from './component/Login';
 import { StudentHome } from './pages/StudentHome';
+import { Profile } from './pages/Profile';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Routes>
             <Route path="/" element={<Layout token={token} setToken={setToken} removeToken={removeToken}/>}>
                 <Route index element={<Home token={token} setToken={setToken}/>}/>
+                <Route path="profile" element={<Profile token={token} setToken={setToken}/>}/>
             </Route>
             <Route path="student-home" element={<StudentHome token={token} setToken={setToken}/>} />
             <Route path="login" element={<Login />}/>

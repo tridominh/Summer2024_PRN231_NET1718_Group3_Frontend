@@ -2,19 +2,78 @@ import { Button } from "@mui/material";
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { RegisterStudentService, RegisterTutorService } from "../services/ApiServices/AuthorizeServices";
+import { RegisterStudentService, RegisterTutorService, RequestOtpService, VerifyOtpService } from "../services/ApiServices/AuthorizeServices";
 
 export function Register({ token, setSignIn }) {
     //const navigate = useNavigate();
-    const [tutorSignUp, setTutorSignUp] = useState(null);
-    const [otp, setOtp] = useState(null);
-
+    const [signUpType, setSignUpType] = useState(null);
+    const [showFirst, setShowFirst] = useState(null);
+    const [showSecond, setShowSecond] = useState(null);
+    const [showThird, setShowThird] = useState(null);
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
+    const [otp, setOtp] = useState("");
+
+    const [correctOtp, setCorrectOtp] = useState("");
 
     const [error, setError] = useState("");
+
+    const handleSendOtp = async (e) => {
+        e.preventDefault();
+        let data = null;
+        try{
+            data = await RequestOtpService({email});
+            //setCorrectOtp(data.otp);
+            setError("");
+        }
+        catch(err){
+            if (err.response.data.message) {
+                // If the error response contains a message, set it as the error message
+                setError(err.response.data.message);
+            }
+            else if(err.response.data[0].description){
+                setError(err.response.data[0].description);
+            }
+            else if(err.response.data){
+                setError(err.response.data);
+            }
+            else {
+                // If the error is something else, set a generic error message
+                setError('An error occurred. Please try again later.');
+            }
+            return;
+        }
+    }
+
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        let data = null;
+        try{
+            data = await VerifyOtpService({email, otp});
+            console.log(data);
+            setError("");
+        }
+        catch(err){
+            if (err.response.data.message) {
+                // If the error response contains a message, set it as the error message
+                setError(err.response.data.message);
+            }
+            else if(err.response.data[0].description){
+                setError(err.response.data[0].description);
+            }
+            else if(err.response.data){
+                setError(err.response.data);
+            }
+            else {
+                // If the error is something else, set a generic error message
+                setError('An error occurred. Please try again later.');
+            }
+            return;
+        }
+    }
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -24,11 +83,11 @@ export function Register({ token, setSignIn }) {
             return;
         }
         try{
-            if(tutorSignUp == "tutor"){
-                data = await RegisterTutorService({name, email, password});
+            if(signUpType == "tutor"){
+                data = await RegisterTutorService({name, email, password, otp});
             }
-            else if(tutorSignUp == "student"){
-                data = await RegisterStudentService({name, email, password});
+            else if(signUpType == "student"){
+                data = await RegisterStudentService({name, email, password, otp});
             }
             setSignIn(true);
             setError("");
@@ -68,19 +127,19 @@ export function Register({ token, setSignIn }) {
             {!token  && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
               <form action="" method="post" className="form-box">
                 <h3 className="h4 text-black mb-4">Sign Up</h3>
-                {tutorSignUp==null && !otp &&
+                {showFirst==null && showSecond==null && showThird==null &&
                     <div className="form-group">
                         <Button className="py-4 w-full block mb-3" variant="outlined" endIcon={<ArrowForward />}
-                            onClick={() => setTutorSignUp("tutor")}>
+                            onClick={() => { setSignUpType("tutor"); setShowFirst(true)}}>
                           Tutor
                         </Button>
                         <Button className="py-4 w-full block" variant="outlined" endIcon={<ArrowForward />}
-                            onClick={() => setTutorSignUp("student")}>
+                            onClick={() => {setSignUpType("student"); setShowFirst(true)}}>
                           Student
                         </Button>
                     </div>
                 }
-                {tutorSignUp && 
+                {showFirst!=null && 
                 (<>
                 <div className="form-group">
                   <input type="text" className="form-control" placeholder="Name" 
@@ -110,18 +169,30 @@ export function Register({ token, setSignIn }) {
                 </div>
                 <div className="form-group">
                     <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
-                        onClick={() => setTutorSignUp(null)}>
+                        onClick={() => { setSignUpType(null); setShowFirst(null)}}>
                         Back
                     </Button>
-                    <input type="submit" onClick={(e) => {setOtp("aaa"); setTutorSignUp(null);}} 
+                    <input type="submit" onClick={(e) => {setShowSecond(true); setShowFirst(null); handleSendOtp(e)}} 
                     className="btn btn-primary btn-pill" value="Sign up"/>
                 </div></>)}
 
-                {otp && (
+                {showSecond!=null && (
+                  <>
                     <div className="form-group">
+                        <p className="text-black">Enter OTP sent to your email</p>
                         <input type="text" className="form-control" placeholder="Enter OTP"
                             value={otp} onChange={(e) => setOtp(e.target.value)}/>
                     </div>
+                    <div className="form-group">
+                        <p className="text-xl text-danger">{error}</p>
+                    </div>
+                    <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
+                        onClick={() => { setOtp(null); setShowSecond(null); setShowFirst(true); }}>
+                        Back
+                    </Button>
+                    <input type="button" onClick={(e) => {handleSignUp(e)}} 
+                    className="btn btn-primary btn-pill" value="Submit"/>
+                  </>
                 )}
 
                 <div className="form-group">

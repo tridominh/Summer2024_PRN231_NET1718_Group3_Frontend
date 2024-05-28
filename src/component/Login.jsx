@@ -20,11 +20,14 @@ export function Login({ token, setSignIn, setToken }) {
           data = await LoginService({ email, password });
           setToken(data);
           
-          // Check if the user role is a student
           if (parseJwt(data).role === "Student") {
               // Redirect to StudentHome
               navigate("/student-home");
           }
+          if (parseJwt(data).role === "Tutor") {
+            // Redirect to StudentHome
+            navigate("/tutor-home");
+        }
         }
         catch(err){
             if (err.response.data.message) {

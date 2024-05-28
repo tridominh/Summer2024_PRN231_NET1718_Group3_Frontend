@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 import parseJwt from "../services/parseJwt";
 
 export default function Heading({ token, setToken, removeToken }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const name = token ? parseJwt(token).given_name : null;
+  const parsedToken = token ? parseJwt(token) : null;
+  const name = parsedToken ? parsedToken.given_name : null;
+  const role = parsedToken ? parsedToken.role : null;
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -17,7 +20,18 @@ export default function Heading({ token, setToken, removeToken }) {
 
   const logout = () => {
     removeToken();
-    //setToken(null);
+  };
+
+  const getProfileLink = () => {
+    switch(role) {
+      case 'Tutor':
+        return 'ProfileTutor';
+      case 'Student':
+      case 'Admin':
+      case 'Moderator':
+      default:
+        return 'Profile';
+    }
   };
 
   return (
@@ -35,7 +49,7 @@ export default function Heading({ token, setToken, removeToken }) {
         className="site-navbar py-4 js-sticky-header site-navbar-target"
         role="banner"
       >
-        <div className="container-fluid" >
+        <div className="container-fluid">
           <div className="d-flex align-items-center">
             <div className="site-logo mr-auto w-25">
               <a href="index.html">SmartHead</a>
@@ -78,7 +92,7 @@ export default function Heading({ token, setToken, removeToken }) {
               >
                 <ul className="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0">
                   <li className="cta">
-                    <a href="#contact-section" class="nav-link">
+                    <a href="#contact-section" className="nav-link">
                       <span>Contact Us</span>
                     </a>
                   </li>
@@ -91,7 +105,7 @@ export default function Heading({ token, setToken, removeToken }) {
                         aria-expanded={open ? 'true' : undefined}
                         onClick={handleClick}
                       >
-                        {name && "Welcome "+name}
+                        {name && "Welcome " + name}
                       </Button>
                       <Menu
                         id="basic-menu"
@@ -102,8 +116,8 @@ export default function Heading({ token, setToken, removeToken }) {
                           'aria-labelledby': 'basic-button',
                         }}
                       >
-                        <MenuItem onClick={handleClose}> <Link to="Profile">Profile</Link></MenuItem>
-                        <MenuItem onClick={(e) => {handleClose(); logout()}}>Logout</MenuItem>
+                        <MenuItem onClick={handleClose}> <Link to={getProfileLink()}>Profile</Link></MenuItem>
+                        <MenuItem onClick={(e) => { handleClose(); logout(); }}>Logout</MenuItem>
                       </Menu>
                     </li>
                 </ul>
@@ -118,7 +132,6 @@ export default function Heading({ token, setToken, removeToken }) {
           </div>
         </div>
       </header>
-
     </>
   );
 }

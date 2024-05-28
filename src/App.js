@@ -7,6 +7,8 @@ import useToken from './services/useToken';
 import { Login } from './component/Login';
 import { StudentHome } from './pages/StudentHome';
 import {Profile} from './pages/Profile';
+import { ProfileTutor } from './pages/ProfileTutor';
+import { TutorHome } from './pages/TutorHome';
 
 
 function App() {
@@ -19,7 +21,9 @@ function App() {
             <Route path="/" element={<Layout token={token} setToken={setToken} removeToken={removeToken}/>}>
                 <Route index element={<Home token={token} setToken={setToken}/>}/>
             <Route path="Profile" element={<Profile token={token} setToken={setToken}/>} />
+            <Route path="ProfileTutor" element={<ProfileTutor token={token} setToken={setToken}/>} />
             <Route path="student-home" element={<StudentHome token={token} setToken={setToken}/>} />
+            <Route path="tutor-home" element={<TutorHome token={token} setToken={setToken}/>} />
             </Route>
             <Route path="login" element={<Login />}/>
         </Routes>

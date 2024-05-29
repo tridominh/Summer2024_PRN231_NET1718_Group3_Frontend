@@ -117,12 +117,12 @@ export function Register({ token, setSignIn }) {
 
     return (
         <div className="row align-items-center">
-            <div className="col-lg-6 mb-4">
+            {/* <div className="col-lg-6 mb-4">
               <h1  data-aos="fade-up" data-aos-delay="100">SmartHead - Ứng dụng kết nối gia sư</h1>
               <p className="mb-4"  data-aos="fade-up" data-aos-delay="200">Không những giúp con chủ động tìm kiếm gia sư phù hợp với bản thân mà còn được cá nhân hóa lộ trình học tập dựa trên từng điểm mạnh của con.</p>
               <p data-aos="fade-up" data-aos-delay="300"><a href="#" className="btn btn-primary py-3 px-5 btn-pill">Admission Now</a></p>
 
-            </div>
+            </div> */}
 
             {!token  && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
               <form action="" method="post" className="form-box">

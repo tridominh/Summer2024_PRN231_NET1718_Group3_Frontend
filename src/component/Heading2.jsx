@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import parseJwt from "../services/parseJwt";
 
 const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Dashboard", "Logout"];
 
 function ResponsiveAppBar({ token, setToken, removeToken }) {
   const navigate = useNavigate();
@@ -41,6 +41,18 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
   const logout = () => {
     removeToken();
     navigate("/");
+  }
+  const getProfileLink = () => {
+    switch (userRole) {
+      case 'Student':
+      case 'Admin':
+      case 'Moderator':
+        return "/profile";
+      case 'Tutor':
+        return "/ProfileTutor";
+      default:
+        return "/profile";
+    }
   };
 
   return (
@@ -166,7 +178,13 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
                     else if(setting === "Profile")
                       navigate("/profile");
                   }}>
-                  <Typography textAlign="center">{setting}</Typography>
+                  <Typography
+                    textAlign="center"
+                    component="a"
+                    href={setting === "Profile" ? getProfileLink() : "#"}
+                  >
+                    {setting}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -176,4 +194,5 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
     </AppBar>
   );
 }
+
 export default ResponsiveAppBar;

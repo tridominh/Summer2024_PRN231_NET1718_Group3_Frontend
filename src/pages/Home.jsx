@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
 
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
+
+ 
 
   return (
     <>

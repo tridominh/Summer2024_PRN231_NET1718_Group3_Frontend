@@ -118,7 +118,7 @@ export function Login({ token, setSignIn, setToken }) {
             <div className="form-group">
               <p className="text-black">
                 Don't have an account?{" "}
-                <Link to="#" onClick={() => setSignIn(false)}>
+                <Link to="#" onClick={(e) => { e.stopPropagation(); setSignIn(false);}}>
                   Sign Up
                 </Link>
               </p>

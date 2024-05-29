@@ -13,12 +13,11 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
-import parseJwt from "../services/parseJwt";
 
 const pages = ["Request", "Features", "Cost"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
-function ResponsiveAppBar({ token, setToken, removeToken }) {
+function ResponsiveAppBar({ token, setToken, removeToken, userRole }) {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -26,6 +25,7 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -41,14 +41,15 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
   const logout = () => {
     removeToken();
     navigate("/");
-  }
+  };
+
   const getProfileLink = () => {
     switch (userRole) {
-      case 'Student':
-      case 'Admin':
-      case 'Moderator':
+      case "Student":
+      case "Admin":
+      case "Moderator":
         return "/profile";
-      case 'Tutor':
+      case "Tutor":
         return "/ProfileTutor";
       default:
         return "/profile";
@@ -63,8 +64,8 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#"
+            component="div"
+            onClick={() => navigate(userRole === "Student" ? "/student-home" : "/tutor-home")}
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -72,6 +73,7 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
+              cursor: "pointer",
               textDecoration: "none",
             }}
           >
@@ -118,8 +120,8 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component="div"
+            onClick={() => navigate(userRole === "Student" ? "/student-home" : "/tutor-home")}
             sx={{
               mr: 2,
               display: { xs: "flex", md: "none" },
@@ -128,10 +130,11 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
+              cursor: "pointer",
               textDecoration: "none",
             }}
           >
-            LOGO
+            SMARTHEAD
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
@@ -145,50 +148,49 @@ function ResponsiveAppBar({ token, setToken, removeToken }) {
             ))}
           </Box>
 
-        {token && <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-             <MenuItem onClick={() => {handleCloseUserMenu();}}>
-               <Typography textAlign="center">{token ? parseJwt(token).role : ""}</Typography>
-              </MenuItem>
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={() => {
-                    handleCloseUserMenu(); 
-                    if(setting === "Logout")
-                      logout();
-                    else if(setting === "Profile")
-                      navigate("/profile");
-                  }}>
-                  <Typography
-                    textAlign="center"
-                    component="a"
-                    href={setting === "Profile" ? getProfileLink() : "#"}
+          {token && (
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem
+                    key={setting}
+                    onClick={() => {
+                      handleCloseUserMenu();
+                      if (setting === "Logout") {
+                        logout();
+                      } else if (setting === "Profile") {
+                        navigate(getProfileLink());
+                      }
+                    }}
                   >
-                    {setting}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>}
+                    <Typography textAlign="center">
+                      {setting}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

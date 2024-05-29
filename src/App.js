@@ -10,6 +10,7 @@ import { Profile } from "./pages/Profile";
 import { ProfileTutor } from "./pages/ProfileTutor";
 import {TutorHome} from "./pages/TutorHome"
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
+import PrivateRoute from './services/PrivateRoute';
 function App() {
   const { token, setToken, removeToken } = useToken();
 
@@ -37,6 +38,13 @@ function App() {
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
+
+          {/*Tutor paths*/}
+          <Route path="/about" element={
+                <PrivateRoute role="Tutor">
+                    <ProfileTutor token={token} setToken={setToken}/>
+                </PrivateRoute>
+            }></Route>
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="/student-booking" element={<StudentBookingRequest />} />

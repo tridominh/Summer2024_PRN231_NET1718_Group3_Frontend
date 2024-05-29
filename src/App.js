@@ -7,7 +7,7 @@ import { Login } from "./component/Login";
 import { StudentHome } from "./pages/StudentHome";
 import { Profile } from "./pages/Profile";
 import { ProfileTutor } from "./pages/ProfileTutor";
-import {TutorHome} from "./pages/TutorHome"
+import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -30,15 +30,21 @@ function App() {
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
-          <Route path="tutor-home" element={<TutorHome token={token} setToken={setToken}/>} />
-          <Route path="ProfileTutor" element={<ProfileTutor token={token} setToken={setToken}/>} /> 
+          <Route
+            path="tutor-home"
+            element={<TutorHome token={token} setToken={setToken} />}
+          />
+          <Route
+            path="ProfileTutor"
+            element={<ProfileTutor token={token} setToken={setToken} />}
+          />
           <Route
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
+          <Route path="/student-booking" element={<StudentBookingRequest />} />
         </Route>
         <Route path="login" element={<Login />} />
-        <Route path="/student-booking" element={<StudentBookingRequest />} />
       </Routes>
     </BrowserRouter>
   );

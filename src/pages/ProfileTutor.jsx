@@ -354,6 +354,7 @@ export function ProfileTutor({ token, setToken }) {
                         <TextField
                             margin="dense"
                             label="Email"
+                            disabled
                             fullWidth
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -579,8 +580,8 @@ onClose={handleSnackbarClose}
 >
 <Alert onClose={handleSnackbarClose} severity="success">
     {snackbarOpen && (selectedCredential.id ? "Credential updated successfully" : "Credential added successfully")}
-    {userInfoSnackbarOpen && "User information updated successfully"}
-    {credentialSnackbarOpen && "Credential updated successfully"}
+    {userInfoSnackbarOpen && "User information updated successfully. Please refresh!"}
+    {credentialSnackbarOpen && "Credential updated successfully. Please refresh!"}
 </Alert>
 </Snackbar>
 </>

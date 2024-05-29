@@ -11,32 +11,45 @@ export function Login({ token, setSignIn, setToken }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    let data = null;
-    try {
-      data = await LoginService({ email, password });
-      setToken(data);
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        let data = null;
+        try {
+          data = await LoginService({ email, password });
+          setToken(data);
+          
+          if (parseJwt(data).role === "Student") {
+              // Redirect to StudentHome
+              navigate("/student-home");
+          }
+          if (parseJwt(data).role === "Tutor") {
+            // Redirect to StudentHome
+            navigate("/tutor-home");
+        }
+        }
+        catch(err){
+            if (err.response.data.message) {
+                // If the error response contains a message, set it as the error message
+                setError(err.response.data.message);
+            }
+            else if(err.response.data[0].description){
+                setError(err.response.data[0].description);
+            }
+            else if(err.response.data){
+                setError(err.response.data);
+            }
+            else {
+                // If the error is something else, set a generic error message
+                setError('An error occurred. Please try again later.');
+            }
+            return;
 
       // Check if the user role is a student
       if (parseJwt(data).role === "Student") {
         // Redirect to StudentHome
         navigate("/student-home");
       }
-    } catch (err) {
-      if (err.response.data.message) {
-        // If the error response contains a message, set it as the error message
-        setError(err.response.data.message);
-      } else if (err.response.data[0].description) {
-        setError(err.response.data[0].description);
-      } else if (err.response.data) {
-        setError(err.response.data);
-      } else {
-        // If the error is something else, set a generic error message
-        setError("An error occurred. Please try again later.");
-      }
-      return;
-    }
+    } 
   };
   return (
     <div className="row align-items-center">

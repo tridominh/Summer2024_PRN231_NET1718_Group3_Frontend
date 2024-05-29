@@ -7,7 +7,7 @@ import { Login } from "./component/Login";
 import { StudentHome } from "./pages/StudentHome";
 import { Profile } from "./pages/Profile";
 import { ProfileTutor } from "./pages/ProfileTutor";
-import {TutorHome} from "./pages/TutorHome"
+import {TutorHome} from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 function App() {
   const { token, setToken, removeToken } = useToken();

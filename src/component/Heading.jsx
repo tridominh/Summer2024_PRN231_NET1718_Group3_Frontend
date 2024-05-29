@@ -1,137 +1,211 @@
-import React, { useState } from "react";
-import { Button, Menu, MenuItem } from "@mui/material";
-import { Link } from "react-router-dom";
-import parseJwt from "../services/parseJwt";
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import MenuIcon from "@mui/icons-material/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import AdbIcon from "@mui/icons-material/Adb";
+import { useNavigate } from "react-router-dom";
 
-export default function Heading({ token, setToken, removeToken }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+const pages = ["Request", "Features", "Cost"];
+const settings = ["Profile", "Dashboard", "Logout"];
 
-  const parsedToken = token ? parseJwt(token) : null;
-  const name = parsedToken ? parsedToken.given_name : null;
-  const role = parsedToken ? parsedToken.role : null;
+function Heading({ token, setToken, removeToken, userRole }) {
+  const navigate = useNavigate();
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
   };
-  const handleClose = () => {
-    setAnchorEl(null);
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
 
   const logout = () => {
     removeToken();
+    navigate("/");
   };
-
   const getProfileLink = () => {
-    switch(role) {
-      case 'Tutor':
-        return 'ProfileTutor';
-      case 'Student':
-      case 'Admin':
-      case 'Moderator':
+    switch (userRole) {
+      case "Student":
+      case "Admin":
+      case "Moderator":
+        return "/profile";
+      case "Tutor":
+        return "/ProfileTutor";
       default:
-        return 'Profile';
+        return "/profile";
     }
   };
 
   return (
-    <>
-      <div className="site-mobile-menu site-navbar-target">
-        <div className="site-mobile-menu-header">
-          <div className="site-mobile-menu-close mt-3">
-            <span className="icon-close2 js-menu-toggle"></span>
-          </div>
-        </div>
-        <div className="site-mobile-menu-body"></div>
-      </div>
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            onClick={() =>
+              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+            }
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              cursor: "pointer",
+              textDecoration: "none",
+            }}
+          >
+            SMARTHEAD
+          </Typography>
 
-      <header
-        className="site-navbar bg-stone-900 py-4 js-sticky-header site-navbar-target"
-        role="banner"
-      >
-        <div className="container-fluid">
-          <div className="d-flex align-items-center">
-            <div className="site-logo mr-auto w-25">
-              <a href="index.html">SmartHead</a>
-            </div>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "flex", md: "none" },
+            }}
+          >
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <Typography
+            variant="h5"
+            noWrap
+            component="div"
+            onClick={() =>
+              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+            }
+            sx={{
+              mr: 2,
+              display: { xs: "flex", md: "none" },
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              cursor: "pointer",
+              textDecoration: "none",
+            }}
+          >
+            SMARTHEAD
+          </Typography>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+            }}
+          >
+            {pages.map((page) => (
+              <Button
+                key={page}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
 
-            <div className="mx-auto text-center">
-              <nav
-                className="site-navigation position-relative text-right"
-                role="navigation"
+          {token && (
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
               >
-                <ul className="site-menu main-menu js-clone-nav mx-auto d-none d-lg-block  m-0 p-0">
-                  <li>
-                    <a href="/" className="nav-link">
-                      Home
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/" className="nav-link">
-                      Courses
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/" className="nav-link">
-                      Programs
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/" className="nav-link">
-                      Teachers
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-
-            <div className="ml-auto w-25">
-              <nav
-                className="site-navigation position-relative text-right"
-                role="navigation"
-              >
-                <ul className="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0">
-                  <li className="cta">
-                    <a href="/" class="nav-link">
-                      <span>Contact Us</span>
-                    </a>
-                  </li>
-                  <li className="cta">
-                    <Button
-                        className={`nav-link ${name ? "" : "d-none"}`}
-                        id="basic-button"
-                        aria-controls={open ? 'basic-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                        onClick={handleClick}
-                      >
-                        {name && "Welcome " + name}
-                      </Button>
-                      <Menu
-                        id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        MenuListProps={{
-                          'aria-labelledby': 'basic-button',
-                        }}
-                      >
-                        <MenuItem onClick={handleClose}> <Link to={getProfileLink()}>Profile</Link></MenuItem>
-                        <MenuItem onClick={(e) => { handleClose(); logout(); }}>Logout</MenuItem>
-                      </Menu>
-                    </li>
-                </ul>
-              </nav>
-              <a
-                href="#"
-                className="d-inline-block d-lg-none site-menu-toggle js-menu-toggle text-black float-right"
-              >
-                <span className="icon-menu h3"></span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </header>
-    </>
+                {settings.map((setting) => (
+                  <MenuItem
+                    key={setting}
+                    onClick={() => {
+                      handleCloseUserMenu();
+                      if (setting === "Logout") {
+                        logout();
+                      } else if (setting === "Profile") {
+                        navigate(getProfileLink());
+                      }
+                    }}
+                  >
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          )}
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
+
+export default Heading;

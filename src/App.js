@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import "./App.css";
 import { Layout } from "./Layout";
 import { Home } from "./pages/Home";
@@ -8,9 +7,10 @@ import { Login } from "./component/Login";
 import { StudentHome } from "./pages/StudentHome";
 import { Profile } from "./pages/Profile";
 import { ProfileTutor } from "./pages/ProfileTutor";
-import {TutorHome} from "./pages/TutorHome";
+import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
-import PrivateRoute from './services/PrivateRoute';
+import PrivateRoute from "./services/PrivateRoute";
+
 function App() {
   const { token, setToken, removeToken } = useToken();
 
@@ -32,22 +32,31 @@ function App() {
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
-          <Route path="tutor-home" element={<TutorHome token={token} setToken={setToken}/>} />
-          <Route path="ProfileTutor" element={<ProfileTutor token={token} setToken={setToken}/>} /> 
+          <Route
+            path="tutor-home"
+            element={<TutorHome token={token} setToken={setToken} />}
+          />
+          <Route
+            path="ProfileTutor"
+            element={<ProfileTutor token={token} setToken={setToken} />}
+          />
           <Route
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
+          <Route path="/student-booking" element={<StudentBookingRequest />} />
 
           {/*Tutor paths*/}
-          <Route path="/about" element={
-                <PrivateRoute role="Tutor">
-                    <ProfileTutor token={token} setToken={setToken}/>
-                </PrivateRoute>
-            }></Route>
+          <Route
+            path="/about"
+            element={
+              <PrivateRoute role="Tutor">
+                <ProfileTutor token={token} setToken={setToken} />
+              </PrivateRoute>
+            }
+          ></Route>
         </Route>
         <Route path="login" element={<Login />} />
-        <Route path="/student-booking" element={<StudentBookingRequest />} />
       </Routes>
     </BrowserRouter>
   );

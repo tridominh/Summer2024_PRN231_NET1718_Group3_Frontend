@@ -5,7 +5,7 @@ import ResponsiveAppBar from "./component/Heading2";
 import parseJwt from "./services/parseJwt";
 
 export function Layout({ token, setToken, removeToken }) {
-  const role = parseJwt(token).role;
+  const role = token ? parseJwt(token).role : "";
   return (
     <>
       {/* <Heading token={token} setToken={setToken} removeToken={removeToken} /> */}

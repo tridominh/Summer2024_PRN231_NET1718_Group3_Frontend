@@ -196,7 +196,7 @@ export function Register({ token, setSignIn }) {
                 )}
 
                 <div className="form-group">
-                  <p className="text-black">Already have an account? <Link to="#" onClick={() => setSignIn(true)}>Sign In</Link>
+                  <p className="text-black">Already have an account? <Link to="#" onClick={(e) =>{e.stopPropagation(); setSignIn(true)}}>Sign In</Link>
                 </p>
                 </div>
 

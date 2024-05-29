@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { Layout } from "./Layout";
 import { Home } from "./pages/Home";
@@ -11,6 +10,7 @@ import { ProfileTutor } from "./pages/ProfileTutor";
 import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
+
 function App() {
   const { token, setToken, removeToken } = useToken();
 

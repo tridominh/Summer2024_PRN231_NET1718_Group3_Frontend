@@ -10,6 +10,7 @@ import {
     UpdateCredential,
     UploadCredentialImage,
 } from "../services/ApiServices/CredentialService";
+
 import {
     Dialog,
     DialogContent,
@@ -30,6 +31,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import parseJwt from "../services/parseJwt";
 import { TableVirtuoso } from "react-virtuoso";
@@ -49,8 +52,7 @@ export function ProfileTutor({ token, setToken }) {
     const [errorMessage, setErrorMessage] = useState("");
     const [open, setOpen] = useState(false);
     const [openCredential, setOpenCredential] = useState(false);
-    const [selectedCredentialDetails, setSelectedCredentialDetails] =
-        useState(null);
+    const [selectedCredentialDetails, setSelectedCredentialDetails] = useState(null);
 
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState(userInfo.email);
@@ -58,6 +60,7 @@ export function ProfileTutor({ token, setToken }) {
     const [address, setAddress] = useState(userInfo.address);
     const [avatar, setAvatar] = useState(userInfo.avatar);
     const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarFileName, setAvatarFileName] = useState("");
     const [gender, setGender] = useState(userInfo.gender);
 
     const [credentials, setCredentials] = useState([]);
@@ -70,6 +73,20 @@ export function ProfileTutor({ token, setToken }) {
         status: true,
     });
     const [credentialImageFile, setCredentialImageFile] = useState(null);
+    const [credentialFileName, setCredentialFileName] = useState("");
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [userInfoSnackbarOpen, setUserInfoSnackbarOpen] = useState(false);
+    const [credentialSnackbarOpen, setCredentialSnackbarOpen] = useState(false);
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+        setSnackbarOpen(false);
+        setUserInfoSnackbarOpen(false);
+        setCredentialSnackbarOpen(false);
+    };
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -105,7 +122,7 @@ export function ProfileTutor({ token, setToken }) {
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
-                    "An error occurred. Please try again later."
+                "An error occurred. Please try again later."
             );
         }
     };
@@ -117,7 +134,7 @@ export function ProfileTutor({ token, setToken }) {
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
-                    "An error occurred. Please try again later."
+                "An error occurred. Please try again later."
             );
         }
     };
@@ -150,18 +167,17 @@ export function ProfileTutor({ token, setToken }) {
                     console.error("No avatar file selected.");
                 }
             };
-            // console.log(updatedUser);
+
             const user = await UpdateUserInfo(updatedUser);
-            console.log(userInfo);
             const avatarResponse = await handleUploadAvatar(user.id);
-            console.log(avatarResponse);
             user.avatar = avatarResponse?.avatar;
             setUserInfo(user);
+            setUserInfoSnackbarOpen(true);
             handleClose();
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
-                    "An error occurred. Please try again later."
+                "An error occurred. Please try again later."
             );
             console.error(error);
         }
@@ -178,30 +194,51 @@ export function ProfileTutor({ token, setToken }) {
                 status: selectedCredential.status,
             };
 
+            let addCredential = {
+                tutorId: selectedCredential.tutorId,
+                name: selectedCredential.name,
+                type: selectedCredential.type,
+                image: selectedCredential.image,
+                status: false,
+            };
+
             if (credentialImageFile) {
                 const formData = new FormData();
                 formData.append("file", credentialImageFile);
                 formData.append("credentialId", selectedCredential.id);
                 try {
-                    const uploadResponse = await UploadCredentialImage(
-                        formData
-                    );
+                    const uploadResponse = await UploadCredentialImage(formData);
                     updatedCredential.image = uploadResponse?.imageUrl;
                 } catch (error) {
                     console.error("Image upload failed:", error);
                 }
             }
 
-            if (selectedCredential.id)
+            if (selectedCredential.id) {
                 await UpdateCredential(updatedCredential);
-            else await AddCredential(updatedCredential);
+                setCredentialSnackbarOpen(true);
+            } else {
+                const credentials = await AddCredential(addCredential);
+                if (credentialImageFile) {
+                    const formData = new FormData();
+                    formData.append("file", credentialImageFile);
+                    formData.append("credentialId", credentials.id);
+                    try {
+                        const uploadResponse = await UploadCredentialImage(formData);
+                        addCredential.image = uploadResponse?.imageUrl;
+                    } catch (error) {
+                        console.error("Image upload failed:", error);
+                    }
+                }
+                setSnackbarOpen(true);
+            }
 
             fetchCredentials();
             handleCloseCredential();
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
-                    "An error occurred. Please try again later."
+                "An error occurred. Please try again later."
             );
             console.error(error);
         }
@@ -213,7 +250,7 @@ export function ProfileTutor({ token, setToken }) {
     }, []);
 
     const columns = [
-        { width: 150, label: "Name", dataKey: "name" },
+        { width: 150, label: "Name", dataKey: "name"},
         { width: 100, label: "Type", dataKey: "type" },
         { width: 100, label: "Status", dataKey: "status" },
         { width: 100, label: "Actions", dataKey: "actions" },
@@ -258,326 +295,294 @@ export function ProfileTutor({ token, setToken }) {
 
     return (
         <>
-            <div
-                className="flex content-center items-center"
-                style={{ flexDirection: "column", alignItems: "center" }}
+            <Box
+                className="user-info-wrapper"
+                sx={{
+                    p: 4,
+                    bgcolor: "background.paper",
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    maxWidth: 1200,
+                    width: "100%",
+                    mt: 4,
+                    mx: "auto",
+                }}
             >
-                <Box
-                    className="user-info-wrapper"
-                    sx={{
-                        p: 4,
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        boxShadow: 3,
-                        maxWidth: 800,
-                        width: "90%",
-                        mx: "auto",
-                        display: "flex",
-                        gap: 4,
+                <Typography
+                    variant="h4"
+                    gutterBottom
+                    style={{
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        color: "#5c6bc0",
                     }}
                 >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="h4" gutterBottom>
-                            <strong>USER INFORMATION</strong>
-                        </Typography>
-                        <Typography variant="body1">
-                            <strong>Name:</strong> {userInfo.userName}
-                        </Typography>
-                        <Typography variant="body1">
-                            <strong>Email:</strong> {userInfo.email}
-                        </Typography>
-                        <Typography variant="body1">
-                            <strong>Phone number:</strong>{" "}
-                            {userInfo.phoneNumber}
-                        </Typography>
-                        <Typography variant="body1">
-                            <strong>Address:</strong> {userInfo.address}
-                        </Typography>
-                        <Typography variant="body1">
-                            <strong>Gender:</strong> {userInfo.gender}
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleOpen}
-                            sx={{ mt: 2 }}
-                        >
-                            Edit
-                        </Button>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <Avatar
-                            src={userInfo.avatar}
-                            alt="User Avatar"
-                            sx={{ width: 150, height: 150, mb: 2 }}
-                        />
-                        <Typography variant="body1">
-                            <strong>Avatar</strong>
-                        </Typography>
-                    </Box>
-                </Box>
-
-                <br></br>
-                <Box sx={{ width: "50%" }}>
-                    <Typography variant="h4" gutterBottom sx={{ mt: 4 }}>
-                        <strong>CREDENTIALS</strong>
-                    </Typography>
-                    <Paper
-                        sx={{ height: 200, width: "100%", overflow: "hidden" }}
-                    >
-                        <TableContainer sx={{ maxHeight: 200 }}>
-                            <Table stickyHeader>
-                                <TableHead>
-                                    <TableRow>
-                                        {columns.map((column) => (
-                                            <TableCell
-                                                key={column.dataKey}
-                                                align={
-                                                    column.numeric || false
-                                                        ? "right"
-                                                        : "left"
-                                                }
-                                                style={{
-                                                    minWidth: column.width,
-                                                }}
-                                            >
-                                                {column.label}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {credentials.map((row, index) => (
-                                        <TableRow
-                                            hover
-                                            tabIndex={-1}
-                                            key={row.id}
-                                        >
-                                            {rowContent(index, row)}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
+                    User Information
+                </Typography>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <Avatar
+                        alt="User Avatar"
+                        src={avatar}
+                        sx={{ width: 100, height: 100 }}
+                    />
+                </div>
+                <div style={{ textAlign: "center", marginTop: 15 }}>
                     <Button
                         variant="contained"
-                        style={{ float: "right" }}
                         color="primary"
-                        onClick={() => handleOpenCredential()}
-                        sx={{ mt: 2 }}
+                        onClick={handleOpen}
                     >
-                        Add New Credential
+                        Update Information
                     </Button>
-                </Box>
-
+                </div>
                 <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Edit User Information</DialogTitle>
+                    <DialogTitle>Update User Information</DialogTitle>
                     <DialogContent>
-                        <form
-                            onSubmit={async (event) => {
-                                event.preventDefault();
-                                await updateUserInfo();
-                                handleClose();
-                            }}
+                        <TextField
+                            margin="dense"
+                            label="Username"
+                            fullWidth
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Email"
+                            fullWidth
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Phone Number"
+                            fullWidth
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Address"
+                            fullWidth
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                        />
+                        <InputLabel>Gender</InputLabel>
+                        <Select
+                            fullWidth
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
                         >
-                            <TextField
-                                label="Username"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                                disabled
-                            />
-                            <TextField
-                                label="Phone Number"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Address"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <InputLabel id="gender-label">Gender</InputLabel>
-                            <Select
-                                labelId="gender-label"
-                                value={gender}
-                                onChange={(e) => setGender(e.target.value)}
-                                fullWidth
-                                margin="normal"
+                            <MenuItem value="Male">Male</MenuItem>
+                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value="Other">Other</MenuItem>
+                        </Select>
+                        <div style={{ marginTop: 16 }}>
+                            <Button
+                                variant="contained"
+                                component="label"
                             >
-                                <MenuItem value="Male">Male</MenuItem>
-                                <MenuItem value="Female">Female</MenuItem>
-                                <MenuItem value="Prefer not to say">
-                                    Prefer not to say
-                                </MenuItem>
-                            </Select>
-                            <TextField
-                                label="Avatar"
-                                type="file"
-                                onChange={(e) =>
-                                    setAvatarFile(e.target.files[0])
-                                }
-                                fullWidth
-                                margin="normal"
-                            />
-                            <DialogActions>
-                                <Button onClick={handleClose} color="secondary">
-                                    Cancel
-                                </Button>
-                                <Button type="submit" color="primary">
-                                    Save
-                                </Button>
-                            </DialogActions>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-
-                <Dialog
-                    open={selectedCredentialDetails !== null}
-                    onClose={() => setSelectedCredentialDetails(null)}
-                >
-                    <DialogTitle>Credential Details</DialogTitle>
-                    <DialogContent>
-                        {selectedCredentialDetails && (
-                            <>
-                                <Typography variant="body1">
-                                    <strong>Name:</strong>{" "}
-                                    {selectedCredentialDetails.name}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Type:</strong>{" "}
-                                    {selectedCredentialDetails.type}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Status:</strong>{" "}
-                                    {selectedCredentialDetails.status
-                                        ? "Active"
-                                        : "Inactive"}
-                                </Typography>
-                                {selectedCredentialDetails.image && (
-                                    <Box>
-                                        <Typography variant="body1">
-                                            <strong>Image:</strong>
-                                        </Typography>
-                                        <Avatar
-                                            src={
-                                                selectedCredentialDetails.image
-                                            }
-                                            alt="Credential Image"
-                                            sx={{ width: 150, height: 150 }}
-                                        />
-                                    </Box>
-                                )}
-                            </>
-                        )}
+                                Upload Avatar
+                                <input
+                                    type="file"
+                                    hidden
+                                    onChange={(e) => {
+                                        setAvatarFile(e.target.files[0]);
+                                        setAvatarFileName(e.target.files[0].name);
+                                    }}
+                                />
+                            </Button>
+                            <span style={{ marginLeft: 8 }}>
+                                {avatarFileName}
+                            </span>
+                        </div>
                     </DialogContent>
                     <DialogActions>
-                        <Button
-                            onClick={() => setSelectedCredentialDetails(null)}
-                            color="primary"
-                        >
-                            Close
-                        </Button>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button onClick={updateUserInfo}>Save</Button>
                     </DialogActions>
                 </Dialog>
-                <Dialog open={openCredential} onClose={handleCloseCredential}>
-                    <DialogTitle>
-                        {selectedCredential.id
-                            ? "Edit Credential"
-                            : "Add New Credential"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <form
-                            onSubmit={async (event) => {
-                                event.preventDefault();
-                                await handleSaveCredential();
-                                handleCloseCredential();
-                            }}
-                        >
-                            <TextField
-                                label="Name"
-                                value={selectedCredential.name}
-                                onChange={(e) =>
-                                    setSelectedCredential({
-                                        ...selectedCredential,
-                                        name: e.target.value,
-                                    })
-                                }
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Type"
-                                value={selectedCredential.type}
-                                onChange={(e) =>
-                                    setSelectedCredential({
-                                        ...selectedCredential,
-                                        type: e.target.value,
-                                    })
-                                }
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Image"
-                                type="file"
-                                onChange={(e) =>
-                                    setCredentialImageFile(e.target.files[0])
-                                }
-                                fullWidth
-                                margin="normal"
-                            />
-                            <InputLabel id="status-label">Status</InputLabel>
-                            <Select
-                                labelId="status-label"
-                                value={selectedCredential.status}
-                                onChange={(e) =>
-                                    setSelectedCredential({
-                                        ...selectedCredential,
-                                        status: e.target.value,
-                                    })
-                                }
-                                fullWidth
-                                margin="normal"
-                            >
-                                <MenuItem value={true}>Active</MenuItem>
-                                <MenuItem value={false}>Inactive</MenuItem>
-                            </Select>
-                            <DialogActions>
-                                <Button
-                                    onClick={handleCloseCredential}
-                                    color="secondary"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" color="primary">
-                                    Save
-                                </Button>
-                            </DialogActions>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
+            </Box>
+
+            <Box
+                sx={{
+                    p: 4,
+                    bgcolor: "background.paper",
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    maxWidth: 1200,
+                    width: "100%",
+                    mt: 4,
+                    mx: "auto",
+                }}
+            >
+                <Typography
+                    variant="h4"
+                    gutterBottom
+                    style={{
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        color: "#5c6bc0",
+                    }}
+                >
+                    Credentials
+                </Typography>
+                <div style={{ textAlign: "center", marginBottom: 16 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleOpenCredential()}
+                    >
+                        Add Credential
+                    </Button>
+                </div>
+                <Paper style={{ height: 400, width: "100%" }}>
+                    <TableVirtuoso
+                        data={credentials}
+                        components={{
+                            Scroller: TableContainer,
+                            Table: (props) => (
+                                <Table {...props} sx={{ borderCollapse: "separate" }} />
+                            ),
+                            TableHead,
+                            TableRow: ({ item: _item, ...props }) => (
+                                <TableRow {...props} />
+                            ),
+                            TableBody: React.forwardRef((props, ref) => (
+                                <TableBody {...props} ref={ref} />
+                            )),
+                        }}
+                        fixedHeaderContent={() => (
+                            <TableRow>
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={column.dataKey}
+                                        align={column.numeric || false ? "right" : "left"}
+                                        style={{ width: column.width }}
+                                    >
+                                        {column.label}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        )}
+                        itemContent={rowContent}
+                    />
+                </Paper>
+            </Box>
+            <br></br>
+<Dialog
+open={openCredential}
+onClose={handleCloseCredential}
+aria-labelledby="form-dialog-title"
+>
+<DialogTitle id="form-dialog-title">
+    {selectedCredential.id ? "Update Credential" : "Add Credential"}
+</DialogTitle>
+<DialogContent>
+    <TextField
+        autoFocus
+        margin="dense"
+        label="Name"
+        fullWidth
+        value={selectedCredential.name}
+        onChange={(e) =>
+            setSelectedCredential({
+                ...selectedCredential,
+                name: e.target.value,
+            })
+        }
+    />
+    <TextField
+        margin="dense"
+        label="Type"
+        fullWidth
+        value={selectedCredential.type}
+        onChange={(e) =>
+            setSelectedCredential({
+                ...selectedCredential,
+                type: e.target.value,
+            })
+        }
+    />
+    <div style={{ marginTop: 16 }}>
+        <Button variant="contained" component="label">
+            Upload Image
+            <input
+                type="file"
+                hidden
+                onChange={(e) => {
+                    setCredentialImageFile(e.target.files[0]);
+                    setCredentialFileName(e.target.files[0].name);
+                }}
+            />
+        </Button>
+        <span style={{ marginLeft: 8 }}>{credentialFileName}</span>
+    </div>
+</DialogContent>
+<DialogActions>
+    <Button onClick={handleCloseCredential} color="primary">
+        Cancel
+    </Button>
+    <Button onClick={handleSaveCredential} color="primary">
+        Save
+    </Button>
+</DialogActions>
+</Dialog>
+
+<Dialog
+open={selectedCredentialDetails !== null}
+onClose={() => setSelectedCredentialDetails(null)}
+aria-labelledby="credential-details-title"
+>
+<DialogTitle id="credential-details-title">
+    Credential Details
+</DialogTitle>
+<DialogContent>
+    {selectedCredentialDetails && (
+        <>
+            <Typography variant="body1">
+                <strong>Name:</strong> {selectedCredentialDetails.name}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Type:</strong> {selectedCredentialDetails.type}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Status:</strong>{" "}
+                {selectedCredentialDetails.status ? "Active" : "Inactive"}
+            </Typography>
+            {selectedCredentialDetails.image && (
+                <img
+                    src={selectedCredentialDetails.image}
+                    alt="Credential"
+                    style={{ width: "100%", marginTop: 16 }}
+                />
+            )}
         </>
-    );
+    )}
+</DialogContent>
+<DialogActions>
+    <Button onClick={() => setSelectedCredentialDetails(null)} color="primary">
+        Close
+    </Button>
+</DialogActions>
+</Dialog>
+
+<Snackbar
+open={snackbarOpen || userInfoSnackbarOpen || credentialSnackbarOpen}
+autoHideDuration={6000}
+onClose={handleSnackbarClose}
+>
+<Alert onClose={handleSnackbarClose} severity="success">
+    {snackbarOpen && (selectedCredential.id ? "Credential updated successfully" : "Credential added successfully")}
+    {userInfoSnackbarOpen && "User information updated successfully"}
+    {credentialSnackbarOpen && "Credential updated successfully"}
+</Alert>
+</Snackbar>
+</>
+);
 }

@@ -12,11 +12,14 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import { useNavigate } from "react-router-dom";
+import parseJwt from "../services/parseJwt";
 
 const pages = ["Request", "Features", "Cost"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
-function ResponsiveAppBar({ userRole }) {
+function ResponsiveAppBar({ token, setToken, removeToken }) {
+  const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -35,6 +38,10 @@ function ResponsiveAppBar({ userRole }) {
     setAnchorElUser(null);
   };
 
+  const logout = () => {
+    removeToken();
+    navigate("/");
+  }
   const getProfileLink = () => {
     switch (userRole) {
       case 'Student':
@@ -138,7 +145,7 @@ function ResponsiveAppBar({ userRole }) {
             ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
+        {token && <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
@@ -160,8 +167,17 @@ function ResponsiveAppBar({ userRole }) {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+             <MenuItem onClick={() => {handleCloseUserMenu();}}>
+               <Typography textAlign="center">{token ? parseJwt(token).role : ""}</Typography>
+              </MenuItem>
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={() => {
+                    handleCloseUserMenu(); 
+                    if(setting === "Logout")
+                      logout();
+                    else if(setting === "Profile")
+                      navigate("/profile");
+                  }}>
                   <Typography
                     textAlign="center"
                     component="a"
@@ -172,7 +188,7 @@ function ResponsiveAppBar({ userRole }) {
                 </MenuItem>
               ))}
             </Menu>
-          </Box>
+          </Box>}
         </Toolbar>
       </Container>
     </AppBar>

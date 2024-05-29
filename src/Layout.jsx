@@ -9,7 +9,7 @@ export function Layout({ token, setToken, removeToken }) {
   return (
     <>
       {/* <Heading token={token} setToken={setToken} removeToken={removeToken} /> */}
-      <ResponsiveAppBar userRole={role}/>
+      <ResponsiveAppBar token={token} setToken={setToken} removeToken={removeToken} userRole={role}/>
       <Outlet />
       <Footer />
     </>

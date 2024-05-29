@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import parseJwt from "../services/parseJwt";
 
 export function Profile({ token, setToken }) {
-    const id = parseJwt(token).nameid || "";
+    const id = token ? parseJwt(token).nameid : "";
 
     const [userInfo, setUserInfo] = useState({
         id: "",
@@ -95,6 +95,14 @@ export function Profile({ token, setToken }) {
     useEffect(() => {
         fetchUserInfo();
     }, []);
+
+    if(!token){
+        return (
+            <div>
+                <h1>Please login</h1>
+            </div>
+        )
+    }
 
     return (
         <>

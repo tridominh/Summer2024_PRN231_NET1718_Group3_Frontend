@@ -6,6 +6,11 @@ export async function LoginService(credentials) {
     return response.data;
 }
 
+export async function CheckEmailExist(credentials) {
+    const response = await axios.post(`${getEndpoint()}/api/Authentication/CheckEmailExist`, credentials);
+    return response.data;
+}
+
 export async function RequestOtpService(credentials) {
     const response = await axios.post(`${getEndpoint()}/api/Authentication/request-otp`, credentials, {
       withCredentials: true

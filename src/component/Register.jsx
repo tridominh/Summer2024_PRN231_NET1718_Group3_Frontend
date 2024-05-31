@@ -4,15 +4,19 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RegisterStudentService, RegisterTutorService, RequestOtpService, VerifyOtpService } from "../services/ApiServices/AuthorizeServices";
 
-export function Register({ token, setSignIn }) {
+export function Register({ token, setSignIn, setSignUpCompleted }) {
     //const navigate = useNavigate();
     const [signUpType, setSignUpType] = useState(null);
     const [showFirst, setShowFirst] = useState(null);
     const [showSecond, setShowSecond] = useState(null);
     const [showThird, setShowThird] = useState(null);
+    //const [showFourth, setShowFourth] = useState(null);
     
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [gender, setGender] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [address, setAddress] = useState("");
     const [name, setName] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
     const [otp, setOtp] = useState("");
@@ -26,6 +30,8 @@ export function Register({ token, setSignIn }) {
         let data = null;
         try{
             data = await RequestOtpService({email});
+            setShowSecond(true);
+            setShowFirst(null);
             //setCorrectOtp(data.otp);
             setError("");
         }
@@ -53,7 +59,9 @@ export function Register({ token, setSignIn }) {
         let data = null;
         try{
             data = await VerifyOtpService({email, otp});
-            console.log(data);
+            //console.log(data);
+            setShowThird(true);
+            setShowSecond(null);
             setError("");
         }
         catch(err){
@@ -84,12 +92,13 @@ export function Register({ token, setSignIn }) {
         }
         try{
             if(signUpType == "tutor"){
-                data = await RegisterTutorService({name, email, password, otp});
+                data = await RegisterTutorService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
             }
             else if(signUpType == "student"){
-                data = await RegisterStudentService({name, email, password, otp});
+                data = await RegisterStudentService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
             }
             setSignIn(true);
+            setSignUpCompleted(true);
             setError("");
             //console.log(data);
             //setToken(data)
@@ -141,13 +150,79 @@ export function Register({ token, setSignIn }) {
                 }
                 {showFirst!=null && 
                 (<>
+                {/*<div className="form-group">
+                  <input type="text" className="form-control" placeholder="Name" 
+                    value={name} onChange={(e) => setName(e.target.value)}/>
+                </div>*/}
+                <div className="form-group">
+                  <input type="text" className="form-control" placeholder="Email Addresss" 
+                    value={email} onChange={(e) => setEmail(e.target.value)}/>
+                </div>
+                {/*<div className="form-group">
+                  <input type="password" className="form-control" placeholder="Password"
+                    value={password} onChange={(e) => setPassword(e.target.value)}/>
+                </div>
+                <div className="form-group">
+                  <input type="password" className="form-control" placeholder="Repeat Password"
+                    value={repeatPassword} onChange={(e) => { 
+                        setRepeatPassword(e.target.value)
+                        if(e.currentTarget.value != password) 
+                            setError("Password does not match");
+                        else{
+                            setError("");
+                        }
+                    }}/>
+                </div>*/}
+                <div className="form-group">
+                    <p className="text-xl text-danger">{error}</p>
+                </div>
+                <div className="form-group">
+                    <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
+                        onClick={() => { setSignUpType(null); setShowFirst(null)}}>
+                        Back
+                    </Button>
+                    <input type="submit" onClick={(e) => {
+                        handleSendOtp(e)}} 
+                    className="btn btn-primary btn-pill" value="Continue"/>
+                </div></>)}
+
+                {showSecond!=null && (
+                  <>
+                    <div className="form-group">
+                        <p className="text-black">Enter OTP sent to your email</p>
+                        <input type="text" className="form-control" placeholder="Enter OTP"
+                            value={otp} onChange={(e) => setOtp(e.target.value)}/>
+                    </div>
+                    <div className="form-group">
+                        <p className="text-xl text-danger">{error}</p>
+                    </div>
+                    <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
+                        onClick={() => { setOtp(null); setShowSecond(null); setShowFirst(true); }}>
+                        Back
+                    </Button>
+                    <input type="button" onClick={(e) => {
+                        handleVerifyOtp(e)}} 
+                    className="btn btn-primary btn-pill" value="Submit"/>
+                  </>
+                )}
+
+                {showThird !=null && 
+                (<>
                 <div className="form-group">
                   <input type="text" className="form-control" placeholder="Name" 
                     value={name} onChange={(e) => setName(e.target.value)}/>
                 </div>
                 <div className="form-group">
-                  <input type="text" className="form-control" placeholder="Email Addresss" 
-                    value={email} onChange={(e) => setEmail(e.target.value)}/>
+                  <input type="text" className="form-control" placeholder="Address" 
+                    value={address} onChange={(e) => setAddress(e.target.value)}/>
+                </div>
+                <div className="form-group">
+                  <input type="text" className="form-control" placeholder="Gender" 
+                    value={gender} onChange={(e) => setGender(e.target.value)}/>
+                </div>
+                <div className="form-group">
+                  <input type="text" className="form-control" placeholder="Phone Number" 
+                    value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}/>
                 </div>
                 <div className="form-group">
                   <input type="password" className="form-control" placeholder="Password"
@@ -169,31 +244,13 @@ export function Register({ token, setSignIn }) {
                 </div>
                 <div className="form-group">
                     <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
-                        onClick={() => { setSignUpType(null); setShowFirst(null)}}>
+                        onClick={() => { setShowThird(null); setShowSecond(true)}}>
                         Back
                     </Button>
-                    <input type="submit" onClick={(e) => {setShowSecond(true); setShowFirst(null); handleSendOtp(e)}} 
+                    <input type="submit" onClick={(e) => {
+                        handleSignUp(e)}} 
                     className="btn btn-primary btn-pill" value="Sign up"/>
                 </div></>)}
-
-                {showSecond!=null && (
-                  <>
-                    <div className="form-group">
-                        <p className="text-black">Enter OTP sent to your email</p>
-                        <input type="text" className="form-control" placeholder="Enter OTP"
-                            value={otp} onChange={(e) => setOtp(e.target.value)}/>
-                    </div>
-                    <div className="form-group">
-                        <p className="text-xl text-danger">{error}</p>
-                    </div>
-                    <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
-                        onClick={() => { setOtp(null); setShowSecond(null); setShowFirst(true); }}>
-                        Back
-                    </Button>
-                    <input type="button" onClick={(e) => {handleSignUp(e)}} 
-                    className="btn btn-primary btn-pill" value="Submit"/>
-                  </>
-                )}
 
                 <div className="form-group">
                   <p className="text-black">Already have an account? <Link to="#" onClick={(e) =>{e.stopPropagation(); setSignIn(true)}}>Sign In</Link>

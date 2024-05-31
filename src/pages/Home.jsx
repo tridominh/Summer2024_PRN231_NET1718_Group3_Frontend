@@ -2,11 +2,20 @@ import { useEffect, useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
+import { Alert, Snackbar } from "@mui/material";
 
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
 
+  const [signUpCompleted, setSignUpCompleted] = useState(false);
  
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSignUpCompleted(false);
+  };
 
   return (
     <>
@@ -21,7 +30,7 @@ export function Home({ token, setToken }) {
                   setToken={setToken}
                 />
               ) : (
-                <Register token={token} setSignIn={setSignIn} />
+                <Register token={token} setSignIn={setSignIn} setSignUpCompleted={setSignUpCompleted}/>
               )}
             </div>
           </div>
@@ -210,6 +219,17 @@ export function Home({ token, setToken }) {
       <div className="site-section" id="contact-section">
         <ContactUs />
       </div>
+      <Snackbar
+        open={signUpCompleted}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+        <Alert onClose={handleClose} severity="success">
+            {signUpCompleted && "Account created successfully. Please sign in!"}
+        </Alert>
+        </Snackbar>
+
     </>
   );
 }

@@ -10,6 +10,7 @@ import { ProfileTutor } from "./pages/ProfileTutor";
 import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -57,6 +58,7 @@ function App() {
           ></Route>
         </Route>
         <Route path="login" element={<Login />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

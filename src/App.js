@@ -11,6 +11,7 @@ import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Features from "./pages/Features.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -45,9 +46,14 @@ function App() {
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
+          
           <Route path="/student-booking" element={<StudentBookingRequest />} />
 
           {/*Tutor paths*/}
+          <Route
+            path="Features"
+            element={<Features token={token} setToken={setToken} />}
+          />
           <Route
             path="/about"
             element={

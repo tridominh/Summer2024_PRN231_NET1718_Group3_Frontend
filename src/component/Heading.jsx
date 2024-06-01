@@ -33,7 +33,11 @@ function Heading({ token, setToken, removeToken, userRole }) {
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
     if (page) {
-      navigate(`/${page.toLowerCase()}`);
+      if (page === "Request") {
+        navigate("/student-booking");
+      } else {
+        navigate(`/${page.toLowerCase()}`);
+      }
     }
   };
 

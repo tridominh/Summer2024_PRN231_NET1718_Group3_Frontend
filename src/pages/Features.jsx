@@ -24,6 +24,7 @@ import {
     Alert,
     MenuItem,
 } from "@mui/material";
+import { AddSubject, GetAllSubjects, UpdateSubject } from "../services/ApiServices/SubjectService";
 
 export function Features() {
     const [levels, setLevels] = useState([]);
@@ -32,8 +33,18 @@ export function Features() {
         levelName: "",
         status: "Active",
     });
+
+    const [subjects, setSubjects] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState({
+        id: "",
+        subjectName: "",
+        status: "Active",
+    });
+
     const [openLevelDialog, setOpenLevelDialog] = useState(false);
+    const [openSubjectDialog, setOpenSubjectDialog] = useState(false);
     const [levelSnackbarOpen, setLevelSnackbarOpen] = useState(false);
+    const [subjectSnackbarOpen, setSubjectSnackbarOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleSnackbarClose = (event, reason) => {
@@ -41,6 +52,7 @@ export function Features() {
             return;
         }
         setLevelSnackbarOpen(false);
+        setSubjectSnackbarOpen(false);
     };
 
     const handleOpenLevelDialog = (level = null) => {
@@ -53,12 +65,37 @@ export function Features() {
             });
         setOpenLevelDialog(true);
     };
+
+    const handleOpenSubjectDialog = (subject = null) => {
+        if (subject) setSelectedSubject(subject);
+        else
+            setSelectedSubject({
+                id: "",
+                subjectName: "",
+                status: "Active",
+            });
+        setOpenSubjectDialog(true);
+    };
+
     const handleCloseLevelDialog = () => setOpenLevelDialog(false);
+    const handleCloseSubjectDialog = () => setOpenSubjectDialog(false);
 
     const fetchLevels = async () => {
         try {
             const levels = await GetAllLevels();
             setLevels(levels);
+        } catch (error) {
+            setErrorMessage(
+                error.response?.data?.message ||
+                "An error occurred. Please try again later."
+            );
+        }
+    };
+
+    const fetchSubjects = async () => {
+        try {
+            const subjects = await GetAllSubjects();
+            setSubjects(subjects);
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
@@ -84,6 +121,22 @@ export function Features() {
         }
     };
 
+    const handleDeleteSubject = async (name, subjectId) => {
+        try {
+            await UpdateSubject({
+                subjectName: name,
+                id: subjectId,
+                status: "Inactive",
+            });
+            setSubjectSnackbarOpen(true);
+            fetchSubjects();
+        } catch (error) {
+            setErrorMessage(
+                error.response?.data?.message ||
+                "An error occurred. Please try again later."
+            );
+        }
+    };
 
     const handleSaveLevel = async () => {
         try {
@@ -114,8 +167,38 @@ export function Features() {
         }
     };
 
+    const handleSaveSubject = async () => {
+        try {
+            let updatedSubject = {
+                id: selectedSubject.id,
+                subjectName: selectedSubject.subjectName,
+                status: selectedSubject.status,
+            };
+
+            let addSubject = {
+                subjectName: selectedSubject.subjectName,
+                status: "Active",
+            };
+
+            if (selectedSubject.id) {
+                await UpdateSubject(updatedSubject);
+            } else {
+                await AddSubject(addSubject);
+            }
+            setSubjectSnackbarOpen(true);
+            fetchSubjects();
+            handleCloseSubjectDialog();
+        } catch (error) {
+            setErrorMessage(
+                error.response?.data?.message ||
+                "An error occurred. Please try again later."
+            );
+        }
+    };
+
     useEffect(() => {
         fetchLevels();
+        fetchSubjects();
     }, []);
 
     return (
@@ -213,7 +296,6 @@ export function Features() {
                         <MenuItem value="Inactive">Inactive</MenuItem>
                     </TextField>
 
-
                     <Button
                         className="mt-2"
                         variant="contained"
@@ -233,7 +315,6 @@ export function Features() {
                 </DialogContent>
             </Dialog>
 
-
             <Snackbar
                 open={levelSnackbarOpen}
                 autoHideDuration={6000}
@@ -243,8 +324,123 @@ export function Features() {
                     Level saved successfully!
                 </Alert>
             </Snackbar>
+
+<br></br>
+            <Typography variant="h4">Manage Subjects</Typography>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenSubjectDialog(null)}
+            >
+                Add Subject
+            </Button>
+
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Subject Name</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Action</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {subjects.map((subject) => (
+                            <TableRow key={subject.id}>
+                                <TableCell>{subject.name}</TableCell>
+                                <TableCell>{subject.status}</TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() =>
+                                            handleOpenSubjectDialog(subject)
+                                        }
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={() =>
+                                            handleDeleteSubject(subject.subjectName, subject.id)
+                                        }
+                                        style={{ marginLeft: "10px" }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            <Dialog open={openSubjectDialog} onClose={handleCloseSubjectDialog}>
+                <DialogTitle>
+                    {selectedSubject.id ? "Edit Subject" : "Add Subject"}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Subject Name"
+                        type="text"
+                        fullWidth
+                        value={selectedSubject.subjectName}
+                        onChange={(e) =>
+                            setSelectedSubject({
+                                ...selectedSubject,
+                                subjectName: e.target.value,
+                            })
+                        }
+                    />
+                    <TextField
+                        disabled={selectedSubject.status === "Active"}
+                        margin="dense"
+                        label="Status"
+                        type="text"
+                        fullWidth
+                        value={selectedSubject.status}
+                        onChange={(e) =>
+                            setSelectedSubject({
+                                ...selectedSubject,
+                                status: e.target.value,
+                            })
+                        }
+                        select
+                    >
+                        <MenuItem value="Active">Active</MenuItem>
+                        <MenuItem value="Inactive">Inactive</MenuItem>
+                    </TextField>
+
+                    <Button
+                        className="mt-2"
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSaveSubject}
+                    >
+                        Save
+                    </Button>
+                    <Button
+                        className="ml-2 mt-2"
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCloseSubjectDialog}
+                    >
+                        Cancel
+                    </Button>
+                </DialogContent>
+            </Dialog>
+
+            <Snackbar
+                open={subjectSnackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity="success">
+                    Subject saved successfully!
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
-
-export default Features;

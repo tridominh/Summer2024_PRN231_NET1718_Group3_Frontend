@@ -11,6 +11,7 @@ import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import { ModeratorHome } from "./pages/ModeratorHome";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -57,11 +58,11 @@ function App() {
           ></Route>
 
           {/*Admin paths*/}
-          <Route
-            path="/admin"
+          
+        <Route path="/admin/dashboard" 
             element={
               <PrivateRoute role="Admin">
-                <ProfileTutor token={token} setToken={setToken} />
+                <AdminDashboard />
               </PrivateRoute>
             }
           ></Route>
@@ -71,14 +72,13 @@ function App() {
             path="/moderator"
             element={
               <PrivateRoute role="Moderator">
-                <ProfileTutor token={token} setToken={setToken} />
+                <ModeratorHome />
               </PrivateRoute>
             }
           ></Route>
 
         </Route>
         <Route path="login" element={<Login />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

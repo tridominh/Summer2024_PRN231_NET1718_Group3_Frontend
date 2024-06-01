@@ -1,4 +1,3 @@
-import { TextFields } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -10,15 +9,41 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
+import { GetAllLevels } from "../../services/ApiServices/LevelService";
 
 export default function StudentBookingRequest() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    description: "",
     subject: "",
+    level: "",
   });
+  const [subjects, setSubjects] = useState([]);
+  const [levels, setLevels] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const subjectsResponse = await GetAllSubjects();
+        const levelsResponse = await GetAllLevels();
+        const subjectsData = await subjectsResponse;
+        const levelsData = await levelsResponse;
+
+        console.log(subjectsData);
+        console.log(levelsData);
+
+        setSubjects(subjectsData);
+        setLevels(levelsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -26,6 +51,12 @@ export default function StudentBookingRequest() {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    navigate("../request");
   };
 
   return (
@@ -39,33 +70,8 @@ export default function StudentBookingRequest() {
         autoComplete="off"
         className="space-y-6 bg-white p-6 rounded-lg shadow-lg"
       >
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Description"
-          type="description"
-          value={formData.description}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
         <FormControl fullWidth variant="outlined" className="bg-gray-50">
-          <InputLabel id="subject">Role</InputLabel>
+          <InputLabel id="subject">Subject</InputLabel>
           <Select
             labelId="subject"
             label="Subject"
@@ -77,11 +83,34 @@ export default function StudentBookingRequest() {
             <MenuItem value="">
               <em>Choose Subject</em>
             </MenuItem>
-            <MenuItem value="math">Math</MenuItem>
-            <MenuItem value="english">English</MenuItem>
-            <MenuItem value="Literature">Literature</MenuItem>
+            {subjects.map((subject) => (
+              <MenuItem key={subject.id} value={subject.name}>
+                {subject.name}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
+        <FormControl fullWidth variant="outlined" className="bg-gray-50">
+          <InputLabel id="level">Level</InputLabel>
+          <Select
+            labelId="level"
+            label="Level"
+            name="level"
+            value={formData.level}
+            onChange={handleChange}
+            className="bg-gray-50"
+          >
+            <MenuItem value="">
+              <em>Choose Level</em>
+            </MenuItem>
+            {levels.map((level) => (
+              <MenuItem key={level.levelId} value={level.levelName}>
+                {level.levelName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Button
           fullWidth
           variant="contained"

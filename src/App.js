@@ -45,8 +45,8 @@ function App() {
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
-          <Route path="/student-booking" element={<StudentBookingRequest />} />
-
+          <Route path="/student/booking" element={<StudentBookingRequest />} />
+          <Route path="/student/requests" element={<StudentBookingRequest />} />
           {/*Tutor paths*/}
           <Route
             path="/about"

@@ -24,8 +24,7 @@ function App() {
               token={token}
               setToken={setToken}
               removeToken={removeToken}
-            />
-          }
+            />}
         >
           <Route index element={<Home token={token} setToken={setToken} />} />
           <Route
@@ -55,6 +54,27 @@ function App() {
               </PrivateRoute>
             }
           ></Route>
+
+          {/*Admin paths*/}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute role="Admin">
+                <ProfileTutor token={token} setToken={setToken} />
+              </PrivateRoute>
+            }
+          ></Route>
+
+          {/*Moderator paths*/}
+          <Route
+            path="/moderator"
+            element={
+              <PrivateRoute role="Moderator">
+                <ProfileTutor token={token} setToken={setToken} />
+              </PrivateRoute>
+            }
+          ></Route>
+
         </Route>
         <Route path="login" element={<Login />} />
       </Routes>

@@ -11,6 +11,7 @@ import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import { ModeratorHome } from "./pages/ModeratorHome";
 import Features from "./pages/Features.jsx";
 
 function App() {
@@ -26,8 +27,7 @@ function App() {
               token={token}
               setToken={setToken}
               removeToken={removeToken}
-            />
-          }
+            />}
         >
           <Route index element={<Home token={token} setToken={setToken} />} />
           <Route
@@ -62,9 +62,29 @@ function App() {
               </PrivateRoute>
             }
           ></Route>
+
+          {/*Admin paths*/}
+          
+        <Route path="/admin/dashboard" 
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          ></Route>
+
+          {/*Moderator paths*/}
+          <Route
+            path="/moderator"
+            element={
+              <PrivateRoute role="Moderator">
+                <ModeratorHome />
+              </PrivateRoute>
+            }
+          ></Route>
+
         </Route>
         <Route path="login" element={<Login />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

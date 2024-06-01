@@ -25,9 +25,16 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
 
     const [error, setError] = useState("");
 
+    // Email validation regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     const handleSendOtp = async (e) => {
         e.preventDefault();
         let data = null;
+        if(emailRegex.test(email) == false){
+            setError("Invalid email");
+            return;
+        }
         try{
             data = await RequestOtpService({email});
             setShowSecond(true);

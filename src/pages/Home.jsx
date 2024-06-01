@@ -10,7 +10,12 @@ export function Home({ token, setToken }) {
 
   return (
     <>
-      <div className="login-section">
+    <br></br>
+      <div className="login-section" style={{
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        color: "#5c6bc0",
+                    }}>
         <div className="container">
           <div className="row align-items-center">
             <div className="col-12">

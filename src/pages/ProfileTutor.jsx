@@ -191,7 +191,7 @@ export function ProfileTutor({ token, setToken }) {
                 name: selectedCredential.name,
                 type: selectedCredential.type,
                 image: selectedCredential.image,
-                status: selectedCredential.status,
+                status: selectedCredential.status == "True" ? true : false,
             };
 
             let addCredential = {
@@ -208,7 +208,7 @@ export function ProfileTutor({ token, setToken }) {
                 formData.append("credentialId", selectedCredential.id);
                 try {
                     const uploadResponse = await UploadCredentialImage(formData);
-                    updatedCredential.image = uploadResponse?.imageUrl;
+                    updatedCredential.image = uploadResponse?.image;
                 } catch (error) {
                     console.error("Image upload failed:", error);
                 }
@@ -265,7 +265,7 @@ export function ProfileTutor({ token, setToken }) {
                         align={column.numeric || false ? "right" : "left"}
                     >
                         {column.dataKey === "status"
-                            ? row[column.dataKey]
+                            ? row[column.dataKey] == "True"
                                 ? "Active"
                                 : "Inactive"
                             : row[column.dataKey]}
@@ -295,6 +295,7 @@ export function ProfileTutor({ token, setToken }) {
 
     return (
         <>
+            {JSON.stringify(credentials)}
             <Box
                 className="user-info-wrapper"
                 sx={{
@@ -554,7 +555,7 @@ aria-labelledby="credential-details-title"
             </Typography>
             <Typography variant="body1">
                 <strong>Status:</strong>{" "}
-                {selectedCredentialDetails.status ? "Active" : "Inactive"}
+                {selectedCredentialDetails.status == "False" ? "Inactive" : "Active"}
             </Typography>
             {selectedCredentialDetails.image && (
                 <img

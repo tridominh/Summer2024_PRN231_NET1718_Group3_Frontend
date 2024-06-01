@@ -1,3 +1,5 @@
+import { Card, CardActionArea, CardContent, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
+import Button from '@mui/material/Button';
 import { useEffect, useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
@@ -24,6 +26,47 @@ export function StudentHome({ token, setToken }) {
                     <div className="row mb-5 justify-content-center">
                         <div className="col-lg-7 text-center" data-aos="fade-up" data-aos-delay="">
                             <h2 className="section-title">Finding Tutor</h2>
+                            <div className="flex justify-center">
+                            <Card className="w-full">
+                                <CardContent>
+                                   <div className="flex w-full justify-center gap-3 mb-3">
+                                    <div className="w-1/2">
+                                        <FormControl fullWidth>
+                                          <InputLabel id="demo-simple-select-label">Subject</InputLabel>
+                                          <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            label="Subject"
+                                          >
+                                            <MenuItem value={10}>Ten</MenuItem>
+                                            <MenuItem value={20}>Twenty</MenuItem>
+                                            <MenuItem value={30}>Thirty</MenuItem>
+                                          </Select>
+                                        </FormControl>
+                                    </div>
+                                    <div className="w-1/2">
+                                        <FormControl fullWidth>
+                                          <InputLabel id="demo-simple-select-label">Level</InputLabel>
+                                          <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            label="Level"
+                                          >
+                                            <MenuItem value={10}>Ten</MenuItem>
+                                            <MenuItem value={20}>Twenty</MenuItem>
+                                            <MenuItem value={30}>Thirty</MenuItem>
+                                          </Select>
+                                        </FormControl>
+                                    </div>
+                                   </div>
+                                   <Button variant="contained">Find now</Button>
+                                  {/*<Typography variant="body2" color="text.secondary">
+                                    Lizards are a widespread group of squamate reptiles, with over 6,000
+                                    species, ranging across all continents except Antarctica
+                                  </Typography>*/}
+                                </CardContent>
+                            </Card>
+                            </div>
                         </div>
                     </div>
                 </div>

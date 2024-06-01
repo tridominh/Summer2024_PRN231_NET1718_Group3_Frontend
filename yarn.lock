@@ -1868,7 +1868,7 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
-"@mui/x-charts@^7.6.0":
+"@mui/x-charts@^7.6.1":
   version "7.6.1"
   resolved "https://registry.npmjs.org/@mui/x-charts/-/x-charts-7.6.1.tgz"
   integrity sha512-LuAVQX4lzhmsqk2NRdWCP+aQZ8kRwG7KOy8ulf8hR5NI5J1VsiOtH41J+qgV3uAC6hDMWL7fTgffrRDFTMci/g==

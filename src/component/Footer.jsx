@@ -41,7 +41,7 @@ export default function Footer() {
               <p>
                 Copyright &copy;
                 {new Date().getFullYear()} All rights reserved | This web is
-                developed SmartHead
+                developed by SmartHead
               </p>
             </div>
           </div>

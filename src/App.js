@@ -11,80 +11,81 @@ import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import { ModeratorHome } from "./pages/ModeratorHome";
 import Features from "./pages/Features.jsx";
+import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
 
 function App() {
-    const { token, setToken, removeToken } = useToken();
+  const { token, setToken, removeToken } = useToken();
 
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <Layout
-                            token={token}
-                            setToken={setToken}
-                            removeToken={removeToken}
-                        />
-                    }
-                >
-                    <Route
-                        index
-                        element={<Home token={token} setToken={setToken} />}
-                    />
-                    <Route
-                        path="Profile"
-                        element={<Profile token={token} setToken={setToken} />}
-                    />
-                    <Route
-                        path="tutor-home"
-                        element={
-                            <TutorHome token={token} setToken={setToken} />
-                        }
-                    />
-                    <Route
-                        path="ProfileTutor"
-                        element={
-                            <ProfileTutor token={token} setToken={setToken} />
-                        }
-                    />
-                    <Route
-                        path="student-home"
-                        element={
-                            <StudentHome token={token} setToken={setToken} />
-                        }
-                    />
-                    <Route
-                        path="/student/booking"
-                        element={<StudentBookingRequest />}
-                    />
-                    <Route
-                        path="/student/requests"
-                        element={<StudentBookingRequest />}
-                    />
-                    {/*Tutor paths*/}
-                    <Route
-                        path="Features"
-                        element={<Features token={token} setToken={setToken} />}
-                    />
-                    <Route
-                        path="/about"
-                        element={
-                            <PrivateRoute role="Tutor">
-                                <ProfileTutor
-                                    token={token}
-                                    setToken={setToken}
-                                />
-                            </PrivateRoute>
-                        }
-                    ></Route>
-                </Route>
-                <Route path="login" element={<Login />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            </Routes>
-        </BrowserRouter>
-    );
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Layout
+              token={token}
+              setToken={setToken}
+              removeToken={removeToken}
+            />
+          }
+        >
+          <Route index element={<Home token={token} setToken={setToken} />} />
+          <Route
+            path="Profile"
+            element={<Profile token={token} setToken={setToken} />}
+          />
+          <Route
+            path="tutor-home"
+            element={<TutorHome token={token} setToken={setToken} />}
+          />
+          <Route
+            path="ProfileTutor"
+            element={<ProfileTutor token={token} setToken={setToken} />}
+          />
+          <Route
+            path="student-home"
+            element={<StudentHome token={token} setToken={setToken} />}
+          />
+          <Route path="/student/booking" element={<StudentBookingRequest />} />
+          <Route path="/student/requests" element={<StudentRequestsPage />} />
+          {/*Tutor paths*/}
+          <Route
+            path="Features"
+            element={<Features token={token} setToken={setToken} />}
+          />
+          <Route
+            path="/about"
+            element={
+              <PrivateRoute role="Tutor">
+                <ProfileTutor token={token} setToken={setToken} />
+              </PrivateRoute>
+            }
+          ></Route>
+          {/*Admin paths*/}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          {/*Moderator paths*/}
+          <Route
+            path="/moderator"
+            element={
+              <PrivateRoute role="Moderator">
+                <ModeratorHome />
+              </PrivateRoute>
+            }
+          />{" "}
+        </Route>
+        <Route path="login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

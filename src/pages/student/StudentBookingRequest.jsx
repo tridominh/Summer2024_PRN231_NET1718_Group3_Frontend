@@ -6,7 +6,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -56,7 +55,7 @@ export default function StudentBookingRequest() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    navigate("../request");
+    navigate("/student/requests");
   };
 
   return (
@@ -66,6 +65,7 @@ export default function StudentBookingRequest() {
       </Typography>
       <Box
         component="form"
+        onSubmit={handleSubmit}
         noValidate
         autoComplete="off"
         className="space-y-6 bg-white p-6 rounded-lg shadow-lg"
@@ -113,6 +113,7 @@ export default function StudentBookingRequest() {
 
         <Button
           fullWidth
+          type="submit"
           variant="contained"
           color="primary"
           className="bg-blue-500 hover:bg-blue-700"

@@ -202,6 +202,7 @@ export function Features() {
     }, []);
 
     return (
+      <div className="flex gap-3">
         <Box
             display="flex"
             flexDirection="column"
@@ -218,8 +219,8 @@ export function Features() {
                 Add Level
             </Button>
 
-            <TableContainer component={Paper}>
-                <Table>
+            <TableContainer component={Paper} sx={{maxHeight: "270px"}}>
+                <Table stickyHeader>
                     <TableHead>
                         <TableRow>
                             <TableCell>Level Name</TableCell>
@@ -227,7 +228,7 @@ export function Features() {
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody>
+                    <TableBody >
                         {levels.map((level) => (
                             <TableRow key={level.id}>
                                 <TableCell>{level.levelName}</TableCell>
@@ -314,6 +315,7 @@ export function Features() {
                     </Button>
                 </DialogContent>
             </Dialog>
+        </Box>
 
             <Snackbar
                 open={levelSnackbarOpen}
@@ -326,6 +328,14 @@ export function Features() {
             </Snackbar>
 
 <br></br>
+
+        <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            gap={2}
+            sx={{ maxWidth: 500, width: "100%", mt: 4, mx: "auto" }}
+        >
             <Typography variant="h4">Manage Subjects</Typography>
             <Button
                 variant="contained"
@@ -335,8 +345,8 @@ export function Features() {
                 Add Subject
             </Button>
 
-            <TableContainer component={Paper}>
-                <Table>
+            <TableContainer component={Paper} sx={{ maxHeight: "270px" }}>
+                <Table stickyHeader>
                     <TableHead>
                         <TableRow>
                             <TableCell>Subject Name</TableCell>
@@ -344,7 +354,7 @@ export function Features() {
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody>
+                    <TableBody >
                         {subjects.map((subject) => (
                             <TableRow key={subject.id}>
                                 <TableCell>{subject.name}</TableCell>
@@ -442,5 +452,6 @@ export function Features() {
                 </Alert>
             </Snackbar>
         </Box>
+      </div>
     );
 }

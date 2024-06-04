@@ -1,4 +1,3 @@
-import { TextFields } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,18 +6,43 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
+import { GetAllLevels } from "../../services/ApiServices/LevelService";
 
 export default function StudentBookingRequest() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    description: "",
     subject: "",
+    level: "",
   });
+  const [subjects, setSubjects] = useState([]);
+  const [levels, setLevels] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const subjectsResponse = await GetAllSubjects();
+        const levelsResponse = await GetAllLevels();
+        const subjectsData = await subjectsResponse;
+        const levelsData = await levelsResponse;
+
+        console.log(subjectsData);
+        console.log(levelsData);
+
+        setSubjects(subjectsData);
+        setLevels(levelsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -28,6 +52,12 @@ export default function StudentBookingRequest() {
     }));
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    navigate("/student/requests");
+  };
+
   return (
     <Container maxWidth="sm" className="my-3">
       <Typography variant="h4" align="center" className="text-violet-800 my-3">
@@ -35,37 +65,13 @@ export default function StudentBookingRequest() {
       </Typography>
       <Box
         component="form"
+        onSubmit={handleSubmit}
         noValidate
         autoComplete="off"
         className="space-y-6 bg-white p-6 rounded-lg shadow-lg"
       >
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Description"
-          type="description"
-          value={formData.description}
-          onChange={handleChange}
-          className="bg-gray-50"
-        />
         <FormControl fullWidth variant="outlined" className="bg-gray-50">
-          <InputLabel id="subject">Role</InputLabel>
+          <InputLabel id="subject">Subject</InputLabel>
           <Select
             labelId="subject"
             label="Subject"
@@ -77,13 +83,37 @@ export default function StudentBookingRequest() {
             <MenuItem value="">
               <em>Choose Subject</em>
             </MenuItem>
-            <MenuItem value="math">Math</MenuItem>
-            <MenuItem value="english">English</MenuItem>
-            <MenuItem value="Literature">Literature</MenuItem>
+            {subjects.map((subject) => (
+              <MenuItem key={subject.id} value={subject.name}>
+                {subject.name}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
+        <FormControl fullWidth variant="outlined" className="bg-gray-50">
+          <InputLabel id="level">Level</InputLabel>
+          <Select
+            labelId="level"
+            label="Level"
+            name="level"
+            value={formData.level}
+            onChange={handleChange}
+            className="bg-gray-50"
+          >
+            <MenuItem value="">
+              <em>Choose Level</em>
+            </MenuItem>
+            {levels.map((level) => (
+              <MenuItem key={level.levelId} value={level.levelName}>
+                {level.levelName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Button
           fullWidth
+          type="submit"
           variant="contained"
           color="primary"
           className="bg-blue-500 hover:bg-blue-700"

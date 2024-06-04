@@ -12,7 +12,7 @@ import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ModeratorHome } from "./pages/ModeratorHome";
-import Features from "./pages/Features.jsx";
+import Features from "./pages/Features";
 import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
 
 function App() {

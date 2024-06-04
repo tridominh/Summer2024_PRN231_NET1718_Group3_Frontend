@@ -126,11 +126,7 @@ export function ModeratorHome() {
                         key={column.dataKey}
                         align={column.numeric || false ? "right" : "left"}
                     >
-                        {column.dataKey === "status"
-                            ? row[column.dataKey]
-                                ? "Active"
-                                : "Inactive"
-                            : row[column.dataKey]}
+                        {row[column.dataKey]}
                     </TableCell>
                    )) : ( 
                    <TableCell key={column.dataKey} text-align="center">

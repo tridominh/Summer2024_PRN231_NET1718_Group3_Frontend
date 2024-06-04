@@ -33,9 +33,11 @@ import {
     TableRow,
     Snackbar,
     Alert,
+    FormControl,
 } from "@mui/material";
 import parseJwt from "../services/parseJwt";
 import { TableVirtuoso } from "react-virtuoso";
+import { GetAllSubjects } from "../services/ApiServices/SubjectService";
 
 export function ProfileTutor({ token, setToken }) {
     const id = parseJwt(token).nameid || "";
@@ -62,6 +64,8 @@ export function ProfileTutor({ token, setToken }) {
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarFileName, setAvatarFileName] = useState("");
     const [gender, setGender] = useState(userInfo.gender);
+    const [selectedSubject, setSelectedSubject] = useState('');
+    const [subjects, setSubjects] = useState([]);
 
     const [credentials, setCredentials] = useState([]);
     const [selectedCredential, setSelectedCredential] = useState({
@@ -191,7 +195,8 @@ export function ProfileTutor({ token, setToken }) {
                 name: selectedCredential.name,
                 type: selectedCredential.type,
                 image: selectedCredential.image,
-                status: selectedCredential.status == "True" ? true : false,
+                status: selectedCredential.status,
+                subjectId: selectedSubject.id,
             };
 
             let addCredential = {
@@ -199,7 +204,8 @@ export function ProfileTutor({ token, setToken }) {
                 name: selectedCredential.name,
                 type: selectedCredential.type,
                 image: selectedCredential.image,
-                status: false,
+                status: "Pending",
+                subjectId: selectedSubject.id,
             };
 
             if (credentialImageFile) {
@@ -244,13 +250,28 @@ export function ProfileTutor({ token, setToken }) {
         }
     };
 
+    const handleSubjectChange = (event) => {
+        setSelectedSubject(event.target.value);
+        // setSelectedCredential({
+        //     ...selectedCredential,
+        //     subjectName: event.target.value,
+        // });
+    };
+
     useEffect(() => {
         fetchUserInfo();
         fetchCredentials();
+        const fetchSubjects = async () => {
+            const subjectsData = await GetAllSubjects();
+            setSubjects(subjectsData);
+        };
+
+        fetchSubjects();
     }, []);
 
     const columns = [
-        { width: 150, label: "Name", dataKey: "name"},
+        { width: 150, label: "Subject Name", dataKey: "subjectName" },
+        { width: 100, label: "Name", dataKey: "name" },
         { width: 100, label: "Type", dataKey: "type" },
         { width: 100, label: "Status", dataKey: "status" },
         { width: 100, label: "Actions", dataKey: "actions" },
@@ -259,43 +280,49 @@ export function ProfileTutor({ token, setToken }) {
     const rowContent = (_index, row) => (
         <>
             {columns.map((column) =>
-                column.dataKey !== "actions" ? (
+                (
+                    column.dataKey === "subjectName") ? (
                     <TableCell
                         key={column.dataKey}
                         align={column.numeric || false ? "right" : "left"}
                     >
-                        {column.dataKey === "status"
-                            ? row[column.dataKey] == "True"
-                                ? "Active"
-                                : "Inactive"
-                            : row[column.dataKey]}
+                        {row["subject"] && row["subject"]["name"]}
                     </TableCell>
-                ) : (
-                    <TableCell key={column.dataKey} text-align="center">
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleOpenCredential(row)}
+
+                ) :
+
+                    column.dataKey !== "actions" ? (
+                        <TableCell
+                            key={column.dataKey}
+                            align={column.numeric || false ? "right" : "left"}
                         >
-                            Edit
-                        </Button>
-                        <Button
-                            style={{ marginLeft: "7px" }}
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleViewCredentialDetails(row)}
-                        >
-                            View
-                        </Button>
-                    </TableCell>
-                )
+                            {row[column.dataKey]}
+                        </TableCell>
+                    ) : (
+                        <TableCell key={column.dataKey} text-align="center">
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleOpenCredential(row)}
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                style={{ marginLeft: "7px" }}
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleViewCredentialDetails(row)}
+                            >
+                                View
+                            </Button>
+                        </TableCell>
+                    )
             )}
         </>
     );
 
     return (
         <>
-            {JSON.stringify(credentials)}
             <Box
                 className="user-info-wrapper"
                 sx={{
@@ -477,114 +504,132 @@ export function ProfileTutor({ token, setToken }) {
                 </Paper>
             </Box>
             <br></br>
-<Dialog
-open={openCredential}
-onClose={handleCloseCredential}
-aria-labelledby="form-dialog-title"
->
-<DialogTitle id="form-dialog-title">
-    {selectedCredential.id ? "Update Credential" : "Add Credential"}
-</DialogTitle>
-<DialogContent>
-    <TextField
-        autoFocus
-        margin="dense"
-        label="Name"
-        fullWidth
-        value={selectedCredential.name}
-        onChange={(e) =>
-            setSelectedCredential({
-                ...selectedCredential,
-                name: e.target.value,
-            })
-        }
-    />
-    <TextField
-        margin="dense"
-        label="Type"
-        fullWidth
-        value={selectedCredential.type}
-        onChange={(e) =>
-            setSelectedCredential({
-                ...selectedCredential,
-                type: e.target.value,
-            })
-        }
-    />
-    <div style={{ marginTop: 16 }}>
-        <Button variant="contained" component="label">
-            Upload Image
-            <input
-                type="file"
-                hidden
-                onChange={(e) => {
-                    setCredentialImageFile(e.target.files[0]);
-                    setCredentialFileName(e.target.files[0].name);
-                }}
-            />
-        </Button>
-        <span style={{ marginLeft: 8 }}>{credentialFileName}</span>
-    </div>
-</DialogContent>
-<DialogActions>
-    <Button onClick={handleCloseCredential} color="primary">
-        Cancel
-    </Button>
-    <Button onClick={handleSaveCredential} color="primary">
-        Save
-    </Button>
-</DialogActions>
-</Dialog>
+            <Dialog
+                open={openCredential}
+                onClose={handleCloseCredential}
+                aria-labelledby="form-dialog-title"
+            >
+                <DialogTitle id="form-dialog-title">
+                    {selectedCredential.id ? "Update Credential" : "Add Credential"}
+                </DialogTitle>
+                <DialogContent>
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="subject-label">Subject</InputLabel>
+                        <Select
+                            labelId="subject-label"
+                            value={selectedSubject}
+                            onChange={handleSubjectChange}
+                        >
+                            {subjects.map((subject) => (
+                                <MenuItem key={subject.id} value={subject}>
+                                    {subject.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Name"
+                        fullWidth
+                        value={selectedCredential.name}
+                        onChange={(e) =>
+                            setSelectedCredential({
+                                ...selectedCredential,
+                                name: e.target.value,
+                            })
+                        }
+                    />
 
-<Dialog
-open={selectedCredentialDetails !== null}
-onClose={() => setSelectedCredentialDetails(null)}
-aria-labelledby="credential-details-title"
->
-<DialogTitle id="credential-details-title">
-    Credential Details
-</DialogTitle>
-<DialogContent>
-    {selectedCredentialDetails && (
-        <>
-            <Typography variant="body1">
-                <strong>Name:</strong> {selectedCredentialDetails.name}
-            </Typography>
-            <Typography variant="body1">
-                <strong>Type:</strong> {selectedCredentialDetails.type}
-            </Typography>
-            <Typography variant="body1">
-                <strong>Status:</strong>{" "}
-                {selectedCredentialDetails.status == "False" ? "Inactive" : "Active"}
-            </Typography>
-            {selectedCredentialDetails.image && (
-                <img
-                    src={selectedCredentialDetails.image}
-                    alt="Credential"
-                    style={{ width: "100%", marginTop: 16 }}
-                />
-            )}
+                    <TextField
+                        margin="dense"
+                        label="Type"
+                        fullWidth
+                        value={selectedCredential.type}
+                        onChange={(e) =>
+                            setSelectedCredential({
+                                ...selectedCredential,
+                                type: e.target.value,
+                            })
+                        }
+                    />
+                    <div style={{ marginTop: 16 }}>
+                        <Button variant="contained" component="label">
+                            Upload Image
+                            <input
+                                type="file"
+                                hidden
+                                onChange={(e) => {
+                                    setCredentialImageFile(e.target.files[0]);
+                                    setCredentialFileName(e.target.files[0].name);
+                                }}
+                            />
+                        </Button>
+                        <span style={{ marginLeft: 8 }}>{credentialFileName}</span>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseCredential} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSaveCredential} color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={selectedCredentialDetails !== null}
+                onClose={() => setSelectedCredentialDetails(null)}
+                aria-labelledby="credential-details-title"
+            >
+                <DialogTitle id="credential-details-title">
+                    Credential Details
+                </DialogTitle>
+                <DialogContent>
+                    {selectedCredentialDetails && (
+                        <>
+                            <Typography variant="body1">
+                                <strong>Subject Name:</strong> {selectedCredentialDetails.subject && selectedCredentialDetails.subject.name}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Name:</strong> {selectedCredentialDetails.name}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Type:</strong> {selectedCredentialDetails.type}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Status:</strong>{" "}
+                                {selectedCredentialDetails.status}
+                            </Typography>
+                            {selectedCredentialDetails.image && (
+                                <img
+                                    src={selectedCredentialDetails.image}
+                                    alt="Credential"
+                                    style={{ width: "100%", marginTop: 16 }}
+                                />
+                            )}
+                        </>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setSelectedCredentialDetails(null)} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar
+                open={snackbarOpen || userInfoSnackbarOpen || credentialSnackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity="success">
+                    {snackbarOpen && (selectedCredential.id ? "Credential updated successfully" : "Credential added successfully")}
+                    {userInfoSnackbarOpen && "User information updated successfully. Please refresh!"}
+                    {credentialSnackbarOpen && "Credential updated successfully. Please refresh!"}
+                </Alert>
+            </Snackbar>
         </>
-    )}
-</DialogContent>
-<DialogActions>
-    <Button onClick={() => setSelectedCredentialDetails(null)} color="primary">
-        Close
-    </Button>
-</DialogActions>
-</Dialog>
-
-<Snackbar
-open={snackbarOpen || userInfoSnackbarOpen || credentialSnackbarOpen}
-autoHideDuration={6000}
-onClose={handleSnackbarClose}
->
-<Alert onClose={handleSnackbarClose} severity="success">
-    {snackbarOpen && (selectedCredential.id ? "Credential updated successfully" : "Credential added successfully")}
-    {userInfoSnackbarOpen && "User information updated successfully. Please refresh!"}
-    {credentialSnackbarOpen && "Credential updated successfully. Please refresh!"}
-</Alert>
-</Snackbar>
-</>
-);
+    );
 }

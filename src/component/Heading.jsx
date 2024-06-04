@@ -68,7 +68,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
             noWrap
             component="div"
             onClick={() =>
-              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              // navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              navigate("/")
             }
             sx={{
               mr: 2,
@@ -125,13 +126,15 @@ function Heading({ token, setToken, removeToken, userRole }) {
               ))}
             </Menu>
           </Box>
+
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
             component="div"
             onClick={() =>
-              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              // navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              navigate("/")
             }
             sx={{
               mr: 2,

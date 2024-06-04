@@ -1,16 +1,27 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
-import { Alert, Snackbar } from "@mui/material";
+import {
+  Alert,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Snackbar,
+} from "@mui/material";
+import { Button } from "bootstrap";
+import StudentBookingRequest from "./student/StudentBookingRequest";
 
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
 
   const [signUpCompleted, setSignUpCompleted] = useState(false);
- 
+
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -19,12 +30,15 @@ export function Home({ token, setToken }) {
 
   return (
     <>
-    <br></br>
-      <div className="login-section" style={{
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        color: "#5c6bc0",
-                    }}>
+      <br></br>
+      <div
+        className="login-section"
+        style={{
+          textAlign: "center",
+          fontWeight: "bold",
+          color: "#5c6bc0",
+        }}
+      >
         <div className="container">
           <div className="row align-items-center">
             <div className="col-12">
@@ -35,8 +49,26 @@ export function Home({ token, setToken }) {
                   setToken={setToken}
                 />
               ) : (
-                <Register token={token} setSignIn={setSignIn} setSignUpCompleted={setSignUpCompleted}/>
+                <Register
+                  token={token}
+                  setSignIn={setSignIn}
+                  setSignUpCompleted={setSignUpCompleted}
+                />
               )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="site-section" id="finding-tutor-section">
+        <div className="container">
+          <div className="row mb-5 justify-content-center">
+            <div
+              className="col-lg-7 text-center"
+              data-aos="fade-up"
+              data-aos-delay=""
+            >
+              <StudentBookingRequest />
             </div>
           </div>
         </div>
@@ -198,12 +230,11 @@ export function Home({ token, setToken }) {
               data-aos-delay="200"
             >
               <h2 className="text-black mb-4 font-weight-bold">
-                Chuyển khoản trực tuyến dễ dàng
+                Easy Online Transaction
               </h2>
               <p className="mb-4">
-                Chuyển khoản nhanh chóng và thuận tiện, hệ thống sẽ tự động ghi
-                nhận và thông báo ngay đến bạn khi gia sư đã nhận được tiền học
-                phí.
+                Fast and easy transaction, system will automatically record and
+                notify as soon as tutor has recieved the learning fee.
               </p>
             </div>
           </div>
@@ -229,12 +260,11 @@ export function Home({ token, setToken }) {
         autoHideDuration={6000}
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
+      >
         <Alert onClose={handleClose} severity="success">
-            {signUpCompleted && "Account created successfully. Please sign in!"}
+          {signUpCompleted && "Account created successfully. Please sign in!"}
         </Alert>
-        </Snackbar>
-
+      </Snackbar>
     </>
   );
 }

@@ -12,7 +12,10 @@ import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ModeratorHome } from "./pages/ModeratorHome";
-import {Features} from "./pages/Features.jsx";
+import Features from "./pages/Features";
+import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
+import { BrowseBooking } from "./pages/tutor/BrowseBooking";
+import { SchedulePage } from "./pages/student/SchedulePage";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -27,7 +30,8 @@ function App() {
               token={token}
               setToken={setToken}
               removeToken={removeToken}
-            />}
+            />
+          }
         >
           <Route index element={<Home token={token} setToken={setToken} />} />
           <Route
@@ -46,14 +50,30 @@ function App() {
             path="student-home"
             element={<StudentHome token={token} setToken={setToken} />}
           />
-          
-          <Route path="/student-booking" element={<StudentBookingRequest />} />
-
+          <Route path="/student/booking" element={<StudentBookingRequest />} />
+          <Route path="/student/requests" element={<StudentRequestsPage />} />
+          <Route
+            path="/schedule"
+            element={
+              <PrivateRoute roles={["Student","Tutor"]}>
+                <SchedulePage/>
+              </PrivateRoute>
+            }
+          ></Route>
           {/*Tutor paths*/}
           <Route
             path="Features"
             element={<Features token={token} setToken={setToken} />}
           />
+          <Route
+            path="/tutor/request"
+            element={
+              <PrivateRoute role="Tutor">
+                <BrowseBooking/>
+              </PrivateRoute>
+            }
+          ></Route>
+
           <Route
             path="/about"
             element={
@@ -62,27 +82,24 @@ function App() {
               </PrivateRoute>
             }
           ></Route>
-
           {/*Admin paths*/}
-          
-        <Route path="/admin/dashboard" 
+          <Route
+            path="/admin/dashboard"
             element={
               <PrivateRoute role="Admin">
                 <AdminDashboard />
               </PrivateRoute>
             }
-          ></Route>
-
+          />
           {/*Moderator paths*/}
           <Route
-            path="/moderator"
+            path="/manage-credential"
             element={
               <PrivateRoute role="Moderator">
                 <ModeratorHome />
               </PrivateRoute>
             }
-          ></Route>
-
+          />{" "}
         </Route>
         <Route path="login" element={<Login />} />
       </Routes>

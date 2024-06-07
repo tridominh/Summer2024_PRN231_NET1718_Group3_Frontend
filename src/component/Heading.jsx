@@ -13,8 +13,12 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
+import parseJwt from "../services/parseJwt";
 
-const pages = ["Request", "Features", "Cost"];
+const adminPages = ["Request", "Features", "Cost"];
+const moderatorPages = ["Manage Credential"];
+const studentPages = ["Request","Schedule"];
+const tutorPages = ["Student Request","Schedule"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
@@ -35,7 +39,14 @@ function Heading({ token, setToken, removeToken, userRole }) {
     if (page) {
       if (page === "Request") {
         navigate("/student-booking");
-      } else {
+      }
+      else if(page === "Manage Credential"){
+        navigate("/manage-credential");
+      }
+      else if(page === "Student Request"){
+        navigate("/tutor/request");
+      }
+      else {
         navigate(`/${page.toLowerCase()}`);
       }
     }
@@ -72,7 +83,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
             noWrap
             component="div"
             onClick={() =>
-              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              // navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              navigate("/")
             }
             sx={{
               mr: 2,
@@ -122,20 +134,37 @@ function Heading({ token, setToken, removeToken, userRole }) {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
+              {userRole=="Admin" && adminPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Moderator" && moderatorPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Tutor" && tutorPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Student" && studentPages.map((page) => (
                 <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
             component="div"
             onClick={() =>
-              navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              // navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
+              navigate("/")
             }
             sx={{
               mr: 2,
@@ -157,15 +186,26 @@ function Heading({ token, setToken, removeToken, userRole }) {
               display: { xs: "none", md: "flex" },
             }}
           >
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={() => handleCloseNavMenu(page)}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
+            {userRole=="Admin" && adminPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Moderator" && moderatorPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Tutor" && tutorPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+              {userRole=="Student" && studentPages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
           </Box>
 
           {token && (

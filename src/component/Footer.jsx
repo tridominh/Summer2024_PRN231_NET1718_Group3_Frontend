@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="footer-section bg-white border-t-3 mt-3">
       <div className="container">
-        <div className="row">
+        <div className="row border-top my-5 py-5">
           <div className="col-md-6">
             <h3>About SmartHead</h3>
             <p>

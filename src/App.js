@@ -14,6 +14,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ModeratorHome } from "./pages/ModeratorHome";
 import Features from "./pages/Features";
 import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
+import { BrowseBooking } from "./pages/tutor/BrowseBooking";
+import { SchedulePage } from "./pages/student/SchedulePage";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -50,11 +52,28 @@ function App() {
           />
           <Route path="/student/booking" element={<StudentBookingRequest />} />
           <Route path="/student/requests" element={<StudentRequestsPage />} />
+          <Route
+            path="/schedule"
+            element={
+              <PrivateRoute roles={["Student","Tutor"]}>
+                <SchedulePage/>
+              </PrivateRoute>
+            }
+          ></Route>
           {/*Tutor paths*/}
           <Route
             path="Features"
             element={<Features token={token} setToken={setToken} />}
           />
+          <Route
+            path="/tutor/request"
+            element={
+              <PrivateRoute role="Tutor">
+                <BrowseBooking/>
+              </PrivateRoute>
+            }
+          ></Route>
+
           <Route
             path="/about"
             element={
@@ -74,7 +93,7 @@ function App() {
           />
           {/*Moderator paths*/}
           <Route
-            path="/moderator"
+            path="/manage-credential"
             element={
               <PrivateRoute role="Moderator">
                 <ModeratorHome />

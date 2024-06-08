@@ -1,15 +1,17 @@
-import { Button } from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RegisterStudentService, RegisterTutorService, RequestOtpService, VerifyOtpService } from "../services/ApiServices/AuthorizeServices";
+import { GetAllSubjects } from "../services/ApiServices/SubjectService";
 
-export function Register({ token, setSignIn, setSignUpCompleted }) {
+export function Register({ token, setSignIn, setSignUpCompletedMessage, setSignUpCompleted }) {
     //const navigate = useNavigate();
     const [signUpType, setSignUpType] = useState(null);
     const [showFirst, setShowFirst] = useState(null);
     const [showSecond, setShowSecond] = useState(null);
     const [showThird, setShowThird] = useState(null);
+    const [showFourth, setShowFourth] = useState(null);
     //const [showFourth, setShowFourth] = useState(null);
     
     const [email, setEmail] = useState("");
@@ -23,10 +25,33 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
 
     const [correctOtp, setCorrectOtp] = useState("");
 
+
+    const [subjects, setSubjects] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState('');
+
+    const [credentialImage, setCredentialImage] = useState(null);
+    const [credentialFileName, setCredentialFileName] = useState("");
+
+    const [credentialName, setCredentialName] = useState("");
+    const [credentialType, setCredentialType] = useState("");
+
     const [error, setError] = useState("");
 
     // Email validation regex pattern
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const fetchSubjects = async () => {
+        const subjectsData = await GetAllSubjects();
+        setSubjects(subjectsData);
+    };
+
+    const handleSubjectChange = (event) => {
+        setSelectedSubject(event.target.value);
+        // setSelectedCredential({
+        //     ...selectedCredential,
+        //     subjectName: event.target.value,
+        // });
+    };
 
     const handleSendOtp = async (e) => {
         e.preventDefault();
@@ -99,13 +124,16 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
         }
         try{
             if(signUpType == "tutor"){
-                data = await RegisterTutorService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
+                //data = await RegisterTutorService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
+                setShowFourth(true);
+                setShowThird(null);
             }
             else if(signUpType == "student"){
                 data = await RegisterStudentService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
+                setSignIn(true);
+                setSignUpCompleted(true);
+                setSignUpCompletedMessage("Account created successfully. Please sign in!");
             }
-            setSignIn(true);
-            setSignUpCompleted(true);
             setError("");
             //console.log(data);
             //setToken(data)
@@ -131,6 +159,44 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
         }
     }
 
+    const handleAddCredential = async (e) => {
+        e.preventDefault();
+        let data = null;
+        try{
+            data = await RegisterTutorService({
+                name, email, gender, address, phoneNumber, phoneNumber, address, password, otp,
+                credentialName, credentialType, credentialImage,
+                subjectId: selectedSubject
+            });
+            //console.log(data);
+            setSignIn(true);
+            setSignUpCompleted(true);
+            setSignUpCompletedMessage(data);
+            setError("");
+        }
+        catch(err){
+            if (err.response.data.message) {
+                // If the error response contains a message, set it as the error message
+                setError(err.response.data.message);
+            }
+            else if(err.response.data[0].description){
+                setError(err.response.data[0].description);
+            }
+            else if(err.response.data){
+                setError(err.response.data);
+            }
+            else {
+                // If the error is something else, set a generic error message
+                setError('An error occurred. Please try again later.');
+            }
+            return;
+        }
+    }
+
+    useEffect(() => {
+        fetchSubjects();
+    }, [])
+
     return (
         <div className="row align-items-center">
             {/* <div className="col-lg-6 mb-4">
@@ -143,7 +209,7 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
             {!token  && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
               <form action="" method="post" className="form-box">
                 <h3 className="h4 text-black mb-4">Sign Up</h3>
-                {showFirst==null && showSecond==null && showThird==null &&
+                {showFirst==null && showSecond==null && showThird==null && showFourth==null &&
                     <div className="form-group">
                         <Button className="py-4 w-full block mb-3" variant="outlined" endIcon={<ArrowForward />}
                             onClick={() => { setSignUpType("tutor"); setShowFirst(true)}}>
@@ -258,6 +324,73 @@ export function Register({ token, setSignIn, setSignUpCompleted }) {
                         handleSignUp(e)}} 
                     className="btn btn-primary btn-pill" value="Sign up"/>
                 </div></>)}
+
+                {showFourth && (<>
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="subject-label">Subject</InputLabel>
+                        <Select
+                            labelId="subject-label"
+                            value={selectedSubject}
+                            onChange={handleSubjectChange}
+                        >
+                            {subjects.map((subject) => (
+                                <MenuItem key={subject.id} value={subject.id}>
+                                    {subject.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Name"
+                        fullWidth
+                        value={credentialName}
+                        onChange={(e) =>
+                            setCredentialName(
+                                e.target.value
+                            )
+                        }
+                    />
+
+                    <TextField
+                        margin="dense"
+                        label="Type"
+                        fullWidth
+                        value={credentialType}
+                        onChange={(e) =>
+                            setCredentialType(
+                                e.target.value
+                            )
+                        }
+                    />
+                    <div style={{ marginTop: 16 }}>
+                        <Button variant="contained" component="label">
+                            Upload Image
+                            <input
+                                type="file"
+                                hidden
+                                onChange={(e) => {
+                                    setCredentialImage(e.target.files[0]);
+                                    setCredentialFileName(e.target.files[0].name);
+                                }}
+                            />
+                        </Button>
+                        <span style={{ marginLeft: 8 }}>{credentialFileName}</span>
+                    </div>
+                    <div className="form-group">
+                        <p className="text-xl text-danger">{error}</p>
+                    </div>
+                    <div className="form-group">
+                        <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
+                            onClick={() => { setShowFourth(null); setShowThird(true)}}>
+                            Back
+                        </Button>
+                        <input type="submit" onClick={(e) => {
+                            handleAddCredential(e)}} 
+                        className="btn btn-primary btn-pill" value="Sign up"/>
+                    </div>
+                </>)}
 
                 <div className="form-group">
                   <p className="text-black">Already have an account? <Link to="#" onClick={(e) =>{e.stopPropagation(); setSignIn(true)}}>Sign In</Link>

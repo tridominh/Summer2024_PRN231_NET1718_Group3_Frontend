@@ -18,6 +18,7 @@ import StudentBookingRequest from "./student/StudentBookingRequest";
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
 
+  const [signUpCompletedMessage, setSignUpCompletedMessage] = useState("");
   const [signUpCompleted, setSignUpCompleted] = useState(false);
 
   const handleClose = (event, reason) => {
@@ -53,6 +54,7 @@ export function Home({ token, setToken }) {
                   token={token}
                   setSignIn={setSignIn}
                   setSignUpCompleted={setSignUpCompleted}
+                  setSignUpCompletedMessage={setSignUpCompletedMessage}
                 />
               )}
             </div>
@@ -262,7 +264,7 @@ export function Home({ token, setToken }) {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert onClose={handleClose} severity="success">
-          {signUpCompleted && "Account created successfully. Please sign in!"}
+          {signUpCompleted && signUpCompletedMessage}
         </Alert>
       </Snackbar>
     </>

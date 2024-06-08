@@ -38,7 +38,7 @@ function Heading({ token, setToken, removeToken, userRole }) {
     setAnchorElNav(null);
     if (page) {
       if (page === "Request") {
-        navigate("/student-booking");
+        navigate("/student/requests");
       }
       else if(page === "Manage Credential"){
         navigate("/manage-credential");
@@ -49,6 +49,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
         navigate("/tutor/request");
       }else if(page === "Dashboard"){
         navigate("/admin/dashboard");
+      }else if(page === "Schedule"){
+        navigate("/schedule");
       }
       else {
         navigate(`/${page.toLowerCase()}`);

@@ -13,6 +13,7 @@ export function Profile({ token, setToken }) {
         userName: "",
         email: "",
         phone: "",
+        status: "",
         address: "",
         avatar: "",
         gender: "",
@@ -22,6 +23,7 @@ export function Profile({ token, setToken }) {
     const [open, setOpen] = useState(false);
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState(userInfo.email);
+    const [status, setStatus] = useState(userInfo.phoneNumber);
     const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
     const [address, setAddress] = useState(userInfo.address);
     const [avatar, setAvatar] = useState(userInfo.avatar);
@@ -41,6 +43,7 @@ export function Profile({ token, setToken }) {
             setEmail(userInfo.email);
             setAddress(userInfo.address);
             setPhoneNumber(userInfo.phoneNumber);
+            setStatus(userInfo.status);
             setAvatar(userInfo.avatar);
             setGender(userInfo.gender);
         } catch (error) {
@@ -58,6 +61,7 @@ export function Profile({ token, setToken }) {
                 address: address,
                 avatar: userInfo.avatar,
                 gender: gender,
+                status: userInfo.status,
                 hashPassword: userInfo.hashPassword
             };
 
@@ -164,6 +168,14 @@ export function Profile({ token, setToken }) {
                                 label="Address"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                            />
+                            <TextField
+                                disabled
+                                label="Status"
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
                                 fullWidth
                                 margin="normal"
                             />

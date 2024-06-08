@@ -4,15 +4,8 @@ import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
 import {
   Alert,
-  Card,
-  CardContent,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Snackbar,
 } from "@mui/material";
-import { Button } from "bootstrap";
 import StudentBookingRequest from "./student/StudentBookingRequest";
 
 export function Home({ token, setToken }) {
@@ -20,19 +13,48 @@ export function Home({ token, setToken }) {
 
   const [signUpCompletedMessage, setSignUpCompletedMessage] = useState("");
   const [OTPSend, setOTPSend] = useState(false);
+  const [notLogin, setNotLogin] = useState(false);
   const [signUpCompleted, setSignUpCompleted] = useState(false);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
+    setNotLogin(false);
     setOTPSend(false);
     setSignUpCompleted(false);
   };
 
   return (
     <>
-      <br></br>
+      <div className="intro-section" style={{
+        height: "92vh",
+        minHeight: "400px"
+      }} id="home-section">
+        <div id="login-signup" className="slide-1" style={{height: "100%" ,backgroundImage: "url('images/hero_1.jpg')" }} data-stellar-background-ratio="0.5">
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-12" style={{height: "60%"}}>
+                {signIn ? (
+                  <Login
+                    token={token}
+                    setSignIn={setSignIn}
+                    setToken={setToken}
+                  />
+                ) : (
+                  <Register
+                    token={token}
+                    setSignIn={setSignIn}
+                    setSignUpCompleted={setSignUpCompleted}
+                    setSignUpCompletedMessage={setSignUpCompletedMessage}
+                    setOTPSend={setOTPSend}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
         className="login-section"
         style={{
@@ -43,23 +65,6 @@ export function Home({ token, setToken }) {
       >
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-12">
-              {signIn ? (
-                <Login
-                  token={token}
-                  setSignIn={setSignIn}
-                  setToken={setToken}
-                />
-              ) : (
-                <Register
-                  token={token}
-                  setSignIn={setSignIn}
-                  setSignUpCompleted={setSignUpCompleted}
-                  setSignUpCompletedMessage={setSignUpCompletedMessage}
-                  setOTPSend={setOTPSend}
-                />
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -72,7 +77,7 @@ export function Home({ token, setToken }) {
               data-aos="fade-up"
               data-aos-delay=""
             >
-              <StudentBookingRequest />
+              <StudentBookingRequest token={token} setNotLogin={setNotLogin} />
             </div>
           </div>
         </div>
@@ -277,6 +282,16 @@ export function Home({ token, setToken }) {
       >
         <Alert onClose={handleClose} severity="success">
           {OTPSend && "OTP send. Please check your mail!"}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={notLogin}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert onClose={handleClose} severity="error">
+          {notLogin && "Please login before making request!"}
         </Alert>
       </Snackbar>
     </>

@@ -17,10 +17,11 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems, secondaryListItems } from "../../component/listItems";
 import Chart from "../../component/Chart";
 import Deposits from "../../component/Deposits";
 import Orders from "../../component/Orders";
+import { useNavigate } from "react-router-dom";
+import { MainListItems, SecondaryListItems } from "../../component/listItems";
 
 function Copyright(props) {
   return (
@@ -89,12 +90,18 @@ const Drawer = styled(MuiDrawer, {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ Element, removeToken }) {
+  const navigate = useNavigate();
   const [open, setOpen] = React.useState(true);
   const [notificationCount, setNotificationCount] = React.useState(0);
 
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const logout = () => {
+    removeToken();
+    navigate("/");
   };
 
   // Hàm để xử lý sự kiện khi một tài khoản "Student" đăng kí thành công
@@ -156,9 +163,9 @@ export default function AdminDashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            {MainListItems()}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {SecondaryListItems({logout})}
           </List>
         </Drawer>
         <Box
@@ -174,43 +181,7 @@ export default function AdminDashboard() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-                </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <Orders />
-                </Paper>
-              </Grid>
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
+          {Element}
         </Box>
       </Box>
     </ThemeProvider>

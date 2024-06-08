@@ -29,6 +29,15 @@ export async function UpdateUserInfo(id) {
   return response.data;
 }
 
+export async function SendStatusMail(id) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Authentication/SendStatusMail`,
+    id,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}
+
 export async function GetUserInfoById(id) {
   const response = await axios.get(
     `${getEndpoint()}/api/UserInfo/GetAllWithUserId?userId=${id}`,

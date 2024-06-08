@@ -20,6 +20,7 @@ import AdminStudentManagement from "./pages/admin/AdminStudentManagement.jsx";
 import parseJwt from "./services/parseJwt.js";
 import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
+import { ChartPage } from "./component/ChartPage.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -91,18 +92,18 @@ function App() {
             path="/admin/dashboard"
             element={
               <PrivateRoute role="Admin">
-                <AdminDashboard />
+                <AdminDashboard Element={(<ChartPage/>)} removeToken={removeToken}/>
               </PrivateRoute>
             }
           />
           <Route path="/admin/students-management" element={
                         <PrivateRoute role="Admin">
-                            <AdminStudentManagement id={id} />
+                             <AdminDashboard Element={<AdminStudentManagement id={id} />} removeToken={removeToken}/>
                         </PrivateRoute>
                     }></Route>
           <Route path="/admin/tutors-management" element={
                         <PrivateRoute role="Admin">
-                            <AdminTutorsManagement id={id} />
+                            <AdminDashboard Element={<AdminTutorsManagement id={id} />} removeToken={removeToken}/>
                         </PrivateRoute>
                     }></Route>
           {/*Moderator paths*/}
@@ -115,7 +116,7 @@ function App() {
             }
           />{" "}
           <Route
-            path="/tutor-application-requests"
+            path="/tutor application request"
             element={
               <PrivateRoute role="Moderator">
                 <ModeratorTutorApplicationRequests />

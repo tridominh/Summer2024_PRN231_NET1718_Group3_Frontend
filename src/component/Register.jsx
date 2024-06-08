@@ -340,51 +340,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                         </p>
                     </div> */}
 
-                {showThird !=null && 
-                (<>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="Name" 
-                    value={name} onChange={(e) => setName(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="Address" 
-                    value={address} onChange={(e) => setAddress(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="Gender" 
-                    value={gender} onChange={(e) => setGender(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="text" className="form-control" placeholder="Phone Number" 
-                    value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="password" className="form-control" placeholder="Password"
-                    value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="password" className="form-control" placeholder="Repeat Password"
-                    value={repeatPassword} onChange={(e) => { 
-                        setRepeatPassword(e.target.value)
-                        if(e.currentTarget.value != password) 
-                            setError("Password does not match");
-                        else{
-                            setError("");
-                        }
-                    }}/>
-                </div>
-                <div className="form-group">
-                    <p className="text-xl text-danger">{error}</p>
-                </div>
-                <div className="form-group">
-                    <Button className="btn btn-pill mr-3" variant="outlined" startIcon={<ArrowBack />}
-                        onClick={() => { setShowThird(null); setShowSecond(true)}}>
-                        Back
-                    </Button>
-                    <input type="submit" onClick={(e) => {
-                        handleSignUp(e)}} 
-                    className="btn btn-primary btn-pill" value="Sign up"/>
-                </div></>)}
 
                 {showFourth && (<>
                     <FormControl fullWidth margin="dense">

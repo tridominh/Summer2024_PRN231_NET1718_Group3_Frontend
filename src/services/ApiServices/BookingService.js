@@ -12,6 +12,15 @@ export async function GetAllBookings() {
   return response.data.data;
 }
 
+export async function GetAllBookingsByStatus(status) {
+  const response = await axios.get(
+    `${getEndpoint()}/api/Booking/GetAllByStatus?status=${status}`,
+    ngrokSkipWarning,
+  );
+
+  return response.data;
+}
+
 export async function CreateBooking(createBookingDto) {
   const response = await axios.post(
     `${getEndpoint()}/api/Booking/Create`,

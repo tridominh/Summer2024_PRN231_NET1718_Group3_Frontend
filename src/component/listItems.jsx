@@ -9,6 +9,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import { Link as RouterLink } from "react-router-dom";
 
 export const mainListItems = (
   <React.Fragment>
@@ -18,29 +19,23 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
     </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <ShoppingCartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Orders" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
+    <ListItemButton component={RouterLink} to="/admin/students-management"> 
+      <ListItemIcon >
         <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Students" />
+    </ListItemButton>
+    <ListItemButton component={RouterLink} to="/admin/tutors-management"> 
+      <ListItemIcon >
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary="Tutors" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
       <ListItemText primary="Reports" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Integrations" />
     </ListItemButton>
   </React.Fragment>
 );

@@ -3,7 +3,7 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableB
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { TableVirtuoso } from "react-virtuoso";
-import { GetAllCredentials, UpdateCredential } from "../services/ApiServices/CredentialService";
+import { GetAllCredentials, UpdateCredential } from "../../services/ApiServices/CredentialService";
 
 export function ModeratorHome() {
     const [credentials, setCredentials] = useState([]);

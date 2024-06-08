@@ -1,58 +1,29 @@
-import {
-  Card,
-  CardContent,
-  Container,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
+import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
+import { GetAllLevels } from "../../services/ApiServices/LevelService";
 
 export default function StudentRequestsPage() {
   const [requests, setRequests] = useState([]);
-  const sampleRequests = [
-    {
-      username: "john_doe",
-      subject: "Access Request",
-      level: "High",
-      status: "Pending",
-    },
-    {
-      username: "jane_smith",
-      subject: "Bug Report",
-      level: "Medium",
-      status: "Resolved",
-    },
-    {
-      username: "alice_jones",
-      subject: "Feature Request",
-      level: "Low",
-      status: "In Progress",
-    },
-    {
-      username: "bob_brown",
-      subject: "Support Ticket",
-      level: "High",
-      status: "Closed",
-    },
-  ];
+  const [subjects, setSubjects] = useState([]);
+  const [levels, setLevels] = useState([]);
 
   useEffect(() => {
-    // Fetch user requests from API
     async function fetchRequests() {
       try {
-        const response = await fetch("/api/requests");
-        const data = await response.json();
-        setRequests(data);
+        const bookingResponse = await GetAllBookingsByStatus("PENDING");
+        const bookingData = bookingResponse.data;
+
+        const subjectResponse = await GetAllSubjects();
+        const subjectData = subjectResponse;
+
+        const levelResponse = await GetAllLevels();
+        const levelData = levelResponse;
+
+        setRequests(bookingData);
+        setSubjects(subjectData);
+        setLevels(levelData);
       } catch (error) {
         console.error("Error fetching requests:", error);
       }
@@ -65,19 +36,25 @@ export default function StudentRequestsPage() {
       <Typography variant="h4" align="center" className="text-violet-800 my-3">
         Your Requests
       </Typography>
-      <Grid container spacing={2}>
-        {sampleRequests.map((request, index) => (
+      <Grid container spacing={3}>
+        {requests.map((request, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card className="min-h-72 w-full p-6">
+            <Card>
               <CardContent>
-                <Typography variant="h6" component="div" className="font-bold">
-                  Username: {request.username}
+                <Typography color="text.secondary">
+                  Subject:{" "}
+                  {
+                    subjects.find(
+                      (s) => s.id === request.subjectLevel.subjectId,
+                    ).name
+                  }
                 </Typography>
                 <Typography color="text.secondary">
-                  Subject: {request.subject}
-                </Typography>
-                <Typography color="text.secondary">
-                  Level: {request.level}
+                  Level:{" "}
+                  {
+                    levels.find((l) => l.id === request.subjectLevel.levelId)
+                      .levelName
+                  }
                 </Typography>
                 <Typography color="text.secondary">
                   Status: {request.status}

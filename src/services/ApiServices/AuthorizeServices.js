@@ -34,7 +34,10 @@ export async function RegisterStudentService(credentials) {
 
 export async function RegisterTutorService(credentials) {
     const response = await axios.post(`${getEndpoint()}/api/Authentication/RegisterTutor`, credentials ,{
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
     });
     return response.data;
 }

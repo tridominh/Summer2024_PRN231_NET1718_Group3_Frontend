@@ -3,6 +3,15 @@ import getEndpoint from "../getEndpoint";
 
 const ngrokSkipWarning = { headers: { "bypass-tunnel-reminder": "true" } };
 
+
+export async function GetAllUsers() {
+  const response = await axios.get(
+    `${getEndpoint()}/api/User/GetAll`,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}
+
 export async function GetUserInfo(id) {
   const response = await axios.get(
     `${getEndpoint()}/api/User/Get?id=${id}`,
@@ -40,4 +49,14 @@ export async function UploadAvatar(formData) {
     },
   );
   return response.data;
+}
+
+export async function DeleteUser(id) {
+  try {
+    const response = await axios.delete(`${getEndpoint()}/api/User/Delete?id=${id}`, ngrokSkipWarning);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
 }

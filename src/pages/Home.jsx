@@ -19,13 +19,14 @@ export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
 
   const [signUpCompletedMessage, setSignUpCompletedMessage] = useState("");
+  const [OTPSend, setOTPSend] = useState(false);
   const [signUpCompleted, setSignUpCompleted] = useState(false);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-
+    setOTPSend(false);
     setSignUpCompleted(false);
   };
 
@@ -55,6 +56,7 @@ export function Home({ token, setToken }) {
                   setSignIn={setSignIn}
                   setSignUpCompleted={setSignUpCompleted}
                   setSignUpCompletedMessage={setSignUpCompletedMessage}
+                  setOTPSend={setOTPSend}
                 />
               )}
             </div>
@@ -265,6 +267,16 @@ export function Home({ token, setToken }) {
       >
         <Alert onClose={handleClose} severity="success">
           {signUpCompleted && signUpCompletedMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={OTPSend}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert onClose={handleClose} severity="success">
+          {OTPSend && "OTP send. Please check your mail!"}
         </Alert>
       </Snackbar>
     </>

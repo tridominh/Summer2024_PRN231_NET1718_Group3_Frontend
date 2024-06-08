@@ -11,15 +11,19 @@ import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import { ModeratorHome } from "./pages/ModeratorHome";
+import { ModeratorHome } from "./pages/moderator/ModeratorHome.jsx";
 import Features from "./pages/Features";
 import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
 import { BrowseBooking } from "./pages/tutor/BrowseBooking";
 import { SchedulePage } from "./pages/student/SchedulePage";
+import AdminStudentManagement from "./pages/admin/AdminStudentManagement.jsx";
+import parseJwt from "./services/parseJwt.js";
+import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
+import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
-
+  const id = token ? parseJwt(token).id : null;
   return (
     <BrowserRouter>
       <Routes>
@@ -91,6 +95,16 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/admin/students-management" element={
+                        <PrivateRoute role="Admin">
+                            <AdminStudentManagement id={id} />
+                        </PrivateRoute>
+                    }></Route>
+          <Route path="/admin/tutors-management" element={
+                        <PrivateRoute role="Admin">
+                            <AdminTutorsManagement id={id} />
+                        </PrivateRoute>
+                    }></Route>
           {/*Moderator paths*/}
           <Route
             path="/manage-credential"
@@ -100,6 +114,14 @@ function App() {
               </PrivateRoute>
             }
           />{" "}
+          <Route
+            path="/tutor-application-requests"
+            element={
+              <PrivateRoute role="Moderator">
+                <ModeratorTutorApplicationRequests />
+              </PrivateRoute>
+            }
+          />
         </Route>
         <Route path="login" element={<Login />} />
       </Routes>

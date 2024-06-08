@@ -32,7 +32,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+        SmartHead
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -91,8 +91,15 @@ const defaultTheme = createTheme();
 
 export default function AdminDashboard() {
   const [open, setOpen] = React.useState(true);
+  const [notificationCount, setNotificationCount] = React.useState(0);
+
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  // Hàm để xử lý sự kiện khi một tài khoản "Student" đăng kí thành công
+  const handleStudentRegistration = () => {
+    setNotificationCount(notificationCount + 1); // Tăng số lượng thông báo
   };
 
   return (
@@ -126,8 +133,9 @@ export default function AdminDashboard() {
             >
               Dashboard
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
+            {/* Hiển thị badge với số lượng thông báo */}
+            <IconButton color="inherit" onClick={handleStudentRegistration}>
+              <Badge badgeContent={notificationCount} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -180,7 +188,7 @@ export default function AdminDashboard() {
                 >
                   <Chart />
                 </Paper>
-              </Grid>
+                </Grid>
               {/* Recent Deposits */}
               <Grid item xs={12} md={4} lg={3}>
                 <Paper

@@ -72,6 +72,7 @@ function AdminTutorsManagement({ id }) {
 
   return (
     <Card sx={{ minHeight: "100%", width: "100%" }}>
+    
       <CardHeader title="Tutors List" subheader="See information about all tutors" />
       <CardContent>
         <table style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}>

@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -8,12 +10,10 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
 import { GetAllLevels } from "../../services/ApiServices/LevelService";
 
-export default function StudentBookingRequest() {
+export default function StudentBookingRequest({ token, setNotLogin }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -54,6 +54,12 @@ export default function StudentBookingRequest() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!token) {
+        console.log("User is not logged in, navigating to #login-signup");
+        setNotLogin(true);
+        window.location.hash = "#login-signup";
+        return;
+    }
 
     navigate("/student/requests");
   };

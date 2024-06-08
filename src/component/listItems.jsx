@@ -4,29 +4,33 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-export const mainListItems = (
+export const MainListItems = () => (
   <React.Fragment>
-    <ListItemButton>
+    <ListItemButton component={RouterLink} to="/profile">
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary="Profile" />
+    </ListItemButton>
+    <ListItemButton component={RouterLink} to="/admin/dashboard">
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
     </ListItemButton>
     <ListItemButton component={RouterLink} to="/admin/students-management"> 
-      <ListItemIcon >
+      <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary="Students" />
     </ListItemButton>
     <ListItemButton component={RouterLink} to="/admin/tutors-management"> 
-      <ListItemIcon >
+      <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary="Tutors" />
@@ -40,7 +44,7 @@ export const mainListItems = (
   </React.Fragment>
 );
 
-export const secondaryListItems = (
+export const SecondaryListItems = ({ logout }) => (
   <React.Fragment>
     <ListSubheader component="div" inset>
       Saved reports
@@ -63,5 +67,12 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary="Year-end sale" />
     </ListItemButton>
+    <ListItemButton onClick={logout}>
+      <ListItemIcon>
+      </ListItemIcon>
+      <ListItemText primary="Logout" />
+    </ListItemButton>
   </React.Fragment>
 );
+
+

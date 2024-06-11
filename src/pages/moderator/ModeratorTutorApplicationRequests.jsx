@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { TableVirtuoso } from "react-virtuoso";
-import { GetAllUsers, SendStatusMail, UpdateUserInfo } from "../../services/ApiServices/UserService";
+import { GetAllUsers, SendStatusMail, UpdateUserInfo, DeleteUser } from "../../services/ApiServices/UserService";
 
 export function ModeratorTutorApplicationRequests() {
     const [users, setUsers] = useState([]);
@@ -52,20 +52,10 @@ export function ModeratorTutorApplicationRequests() {
 
     const rejectUser = async (user) => {
         try {
-            const userr = {
-                id: user.id,
-                receiverName: user.name,
-                email: user.email,
-                phoneNumber: user.phone,
-                address: user.address,
-                gender: user.gender,
-                avatar: user.avatar,
-                status: "Inactive"
-            }
-            const users = await UpdateUserInfo(userr);
+            await DeleteUser(user.id);
             await SendStatusMail({
                 email: user.email,
-                status: "Inactive"
+                status: "Rejected"
             });
             await fetchUsers();
         } catch (error) {
@@ -216,13 +206,14 @@ export function ModeratorTutorApplicationRequests() {
                             <Typography variant="body1">
                                 <strong>Status:</strong> {selectedUserDetails.status}
                             </Typography>
-                            {selectedUserDetails.credentials[0].image && (
+                            {selectedUserDetails.credentials[0] && selectedUserDetails.credentials[0].image && (
                                 <img
                                     src={selectedUserDetails.credentials[0].image}
                                     alt="Credential"
                                     style={{ width: "100%", marginTop: 16 }}
                                 />
                             )}
+
                         </>
                     )}
                 </DialogContent>

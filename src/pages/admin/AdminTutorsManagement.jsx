@@ -12,10 +12,13 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
-import { DeleteUser, GetAllUsers } from "../../services/ApiServices/UserService";
+import { GetAllUsers, UpdateUserInfo } from "../../services/ApiServices/UserService";
+import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserServie";
 
 function AdminTutorsManagement({ id }) {
   const [tutors, setTutors] = useState([]);
@@ -23,30 +26,70 @@ function AdminTutorsManagement({ id }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [tutorToDelete, setTutorToDelete] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const TABLE_HEAD = ["ID", "Name", "Email", "Phone", "Address", "Status", "Actions"];
+  const TABLE_HEAD = ["ID", "Name", "Email", "Phone","Gender","Address", "Status", "Booking Status", "Actions"];
 
   useEffect(() => {
     fetchTutors();
   }, []);
 
+  const fetchBookingStatus = async (id) => {
+    try {
+      const bookingUsers = await GetBookingUsersByUserId(id);
+      if (bookingUsers.length > 0) {
+        return "In booking";
+      } else {
+        return "Not in booking";
+      }
+    } catch (error) {
+      console.error("Error fetching booking status:", error);
+      return "Unknown";
+    }
+  };
+
   const fetchTutors = async () => {
     try {
       const data = await GetAllUsers();
       const tutors = data.filter((user) => user.role === "Tutor");
-      setTutors(tutors);
+
+      // Fetch and add booking status to each tutor
+      const tutorsWithBookingStatus = await Promise.all(
+        tutors.map(async (tutor) => {
+          const bookingStatus = await fetchBookingStatus(tutor.id);
+          return { ...tutor, bookingStatus };
+        })
+      );
+
+      setTutors(tutorsWithBookingStatus);
     } catch (error) {
       console.error("Error fetching tutors:", error);
     }
   };
 
   const handleDeleteTutor = async (tutorId) => {
-    try {
-      await DeleteUser(tutorId);
-      fetchTutors();
+    const tutor = tutors.find(t => t.id === tutorId);
+    if (tutor.bookingStatus === "Not in booking") {
+      try {
+        await UpdateUserInfo({
+           id: tutorId, 
+           receiverName: tutor.name,
+           email: tutor.email,
+           address: tutor.address,
+           phoneNumber: tutor.phone,
+           gender: tutor.gender,
+           status: "Inactive",
+           avatar: tutor.avatar});
+        fetchTutors();
+        setIsDeleteDialogOpen(false);
+      } catch (error) {
+        console.error("Error updating tutor:", error);
+      }
+    } else {
+      setSnackbarMessage("This user is in booking, you cannot delete!");
+      setSnackbarOpen(true);
       setIsDeleteDialogOpen(false);
-    } catch (error) {
-      console.error("Error deleting tutor:", error);
     }
   };
 
@@ -70,9 +113,13 @@ function AdminTutorsManagement({ id }) {
     setIsDeleteDialogOpen(false);
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setSnackbarMessage("");
+  };
+
   return (
     <Card sx={{ minHeight: "100%", width: "100%" }}>
-    
       <CardHeader title="Tutors List" subheader="See information about all tutors" />
       <CardContent>
         <table style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}>
@@ -95,22 +142,28 @@ function AdminTutorsManagement({ id }) {
                     </Link>
                   </Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{tutor.name}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{tutor.email}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{tutor.phone}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                  <Typography variant="body2">{tutor.gender}</Typography>
+                </td>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{tutor.address}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{tutor.status}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                  <Typography variant="body2">{tutor.bookingStatus}</Typography>
+                </td>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Tooltip title="View Tutor">
                     <IconButton onClick={() => handleViewTutor(tutor)}>
                       <VisibilityIcon color="primary" />
@@ -152,6 +205,9 @@ function AdminTutorsManagement({ id }) {
                   <strong>Status:</strong> {selectedTutor.status}
                 </Typography>
                 <Typography variant="body1">
+                  <strong>Booking Status:</strong> {selectedTutor.bookingStatus}
+                </Typography>
+                <Typography variant="body1">
                   <strong>Avatar:</strong> <img
                     src={selectedTutor.avatar}
                     alt={`${selectedTutor.name}'s avatar`}
@@ -163,18 +219,16 @@ function AdminTutorsManagement({ id }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} className="lime-button">
+          <Button onClick={handleCloseDialog} className="lime-dialog-button">
             Close
           </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={isDeleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>Delete Tutor</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the tutor {tutorToDelete?.name}?
-            <br></br> 
-            This action cannot be undone.
+            Are you sure you want to delete tutor {tutorToDelete?.name}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -182,14 +236,19 @@ function AdminTutorsManagement({ id }) {
             Cancel
           </Button>
           <Button
-            onClick={() => handleDeleteTutor(tutorToDelete?.id)}
-            color="error"
+            onClick={() => handleDeleteTutor(tutorToDelete.id)}
+            color="secondary"
             variant="contained"
           >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

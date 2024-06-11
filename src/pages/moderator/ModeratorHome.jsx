@@ -1,24 +1,20 @@
-import { Button } from "@mui/material";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
-import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
+import { Button, Typography } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
+import { Box } from "@mui/system";
 import { TableVirtuoso } from "react-virtuoso";
-import { GetAllCredentials, UpdateCredential } from "../../services/ApiServices/CredentialService";
+import { DeleteCredential, GetAllCredentials, UpdateCredential } from "../../services/ApiServices/CredentialService";
+import { SendStatusMailCredentials, GetUserInfo } from "../../services/ApiServices/UserService";
 
 export function ModeratorHome() {
     const [credentials, setCredentials] = useState([]);
-
     const [selectedCredentialDetails, setSelectedCredentialDetails] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
     const fetchCredentials = async () => {
         try {
-
             let credentials = await GetAllCredentials();
-            //filters credentials where status is not "Accepted" or "Rejected"
-            credentials = credentials
-            .filter(credential => credential.status !== "Accepted" &&
-            credential.status !== "Rejected");
+            credentials = credentials.filter(credential => credential.status !== "Accepted" && credential.status !== "Rejected");
             setCredentials(credentials);
         } catch (error) {
             setErrorMessage(
@@ -31,17 +27,25 @@ export function ModeratorHome() {
     const acceptCredentials = async (credential) => {
         try {
             const cred = {
-              id: credential.id,
-              tutorId: credential.tutorId,
-              subjectId: credential.subjectId,
-              name: credential.name,
-              type: credential.type,
-              image: credential.image,
-              status: "Accepted"
-            }
-            const credentials = await UpdateCredential(cred);
+                id: credential.id,
+                tutorId: credential.tutorId,
+                subjectId: credential.subjectId,
+                name: credential.name,
+                type: credential.type,
+                image: credential.image,
+                status: "Accepted"
+            };
+            await UpdateCredential(cred);
+
+            const tutorInfo = await GetUserInfo(credential.tutorId); 
+            const tutorEmail = tutorInfo.email; 
+            console.log(tutorEmail);
+
+            await SendStatusMailCredentials({
+                email: tutorEmail,
+                status: "Accepted"
+            });
             await fetchCredentials();
-            //setCredentials(credentials);
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
@@ -52,18 +56,16 @@ export function ModeratorHome() {
 
     const rejectCredentials = async (credential) => {
         try {
-            const cred = {
-              id: credential.id,
-              tutorId: credential.tutorId,
-              subjectId: credential.subjectId,
-              name: credential.name,
-              type: credential.type,
-              image: credential.image,
-              status: "Rejected"
-            }
-            const credentials = await UpdateCredential(cred);
+            await DeleteCredential(credential.id);
+
+            const tutorInfo = await GetUserInfo(credential.tutorId); 
+            const tutorEmail = tutorInfo.email; 
+
+            await SendStatusMailCredentials({
+                email: tutorEmail,
+                status: "Rejected"
+            });
             await fetchCredentials();
-            //setCredentials(credentials);
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
@@ -81,8 +83,8 @@ export function ModeratorHome() {
     }, []);
 
     const columns = [
-        { width: 100, label: "Subject Name", dataKey: "subject.name"},
-        { width: 100, label: "Name", dataKey: "name"},
+        { width: 100, label: "Subject Name", dataKey: "subject.name" },
+        { width: 100, label: "Name", dataKey: "name" },
         { width: 100, label: "Type", dataKey: "type" },
         { width: 100, label: "Status", dataKey: "status" },
         { width: 100, label: "Details", dataKey: "details" },
@@ -94,26 +96,26 @@ export function ModeratorHome() {
             {columns.map((column) =>
                 column.dataKey !== "details" ? (
                     column.dataKey === "actions" ? (
-                      <TableCell key={column.dataKey} text-align="center">
-                        <Button
-                            style={{ marginLeft: "7px" }}
-                            variant="contained"
-                            color="success"
-                            onClick={() => acceptCredentials(row)}
-                        >
-                            Accept
-                        </Button>
-                        <Button
-                            style={{ marginLeft: "7px" }}
-                            variant="contained"
-                            color="error"
-                            onClick={() => rejectCredentials(row)}
-                        >
-                            Reject
-                        </Button>
-                    </TableCell>
+                        <TableCell key={column.dataKey} text-align="center">
+                            <Button
+                                style={{ marginLeft: "7px" }}
+                                variant="contained"
+                                color="success"
+                                onClick={() => acceptCredentials(row)}
+                            >
+                                Accept
+                            </Button>
+                            <Button
+                                style={{ marginLeft: "7px" }}
+                                variant="contained"
+                                color="error"
+                                onClick={() => rejectCredentials(row)}
+                            >
+                                Reject
+                            </Button>
+                        </TableCell>
                     ) : (
-                    column.dataKey === "subject.name") ? (
+                        column.dataKey === "subject.name") ? (
                         <TableCell
                             key={column.dataKey}
                             align={column.numeric || false ? "right" : "left"}
@@ -122,14 +124,14 @@ export function ModeratorHome() {
                         </TableCell>
 
                     ) : (
-                    <TableCell
-                        key={column.dataKey}
-                        align={column.numeric || false ? "right" : "left"}
-                    >
-                        {row[column.dataKey]}
-                    </TableCell>
-                   )) : ( 
-                   <TableCell key={column.dataKey} text-align="center">
+                        <TableCell
+                            key={column.dataKey}
+                            align={column.numeric || false ? "right" : "left"}
+                        >
+                            {row[column.dataKey]}
+                        </TableCell>
+                    )) : (
+                    <TableCell key={column.dataKey} text-align="center">
                         <Button
                             style={{ marginLeft: "7px" }}
                             variant="contained"
@@ -141,13 +143,11 @@ export function ModeratorHome() {
                     </TableCell>
                 )
             )}
-            
+
         </>
     );
-
     return (
         <>
-            {/*credentials.length > 0 && JSON.stringify(credentials)*/}
             <Box
                 sx={{
                     p: 4,
@@ -179,7 +179,7 @@ export function ModeratorHome() {
                             Table: (props) => (
                                 <Table {...props} sx={{ borderCollapse: "separate" }} />
                             ),
-                            
+
                             TableRow: ({ item: _item, ...props }) => (
                                 <TableRow {...props} />
                             ),
@@ -193,7 +193,8 @@ export function ModeratorHome() {
                                     <TableCell
                                         key={column.dataKey}
                                         align={column.numeric || false ? "right" : "left"}
-                                        style={{ width: column.width }}
+                                        style
+                                        ={{ width: column.width }}
                                     >
                                         {column.label}
                                     </TableCell>
@@ -204,13 +205,13 @@ export function ModeratorHome() {
                     />
                 </Paper>
             </Box>
-            <br></br>
+            <br />
 
             <Dialog
                 open={selectedCredentialDetails !== null}
                 onClose={() => setSelectedCredentialDetails(null)}
                 aria-labelledby="credential-details-title"
-                >
+            >
                 <DialogTitle id="credential-details-title">
                     Credential Details
                 </DialogTitle>
@@ -245,10 +246,7 @@ export function ModeratorHome() {
                         Close
                     </Button>
                 </DialogActions>
-                </Dialog>
-
-
+            </Dialog>
         </>
     )
 }
-

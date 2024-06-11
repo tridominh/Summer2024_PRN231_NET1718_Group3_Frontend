@@ -19,6 +19,14 @@ export async function GetCredentialById(id) {
     return response.data;
 }
 
+export async function GetCredentialsByUserId(id) {
+    const response = await axios.get(
+        `${getEndpoint()}/api/Credential/GetByUserId?id=${id}`,
+        ngrokSkipWarning
+    );
+    return response.data;
+}
+
 export async function AddCredential(credentialDTO) {
     const response = await axios.post(
         `${getEndpoint()}/api/Credential/Add`,
@@ -39,8 +47,7 @@ export async function UpdateCredential(credentialDTO) {
 
 export async function DeleteCredential(id) {
     const response = await axios.delete(
-        `${getEndpoint()}/api/Credential/Delete`,
-        { data: id, ...ngrokSkipWarning }
+        `${getEndpoint()}/api/Credential/Delete?id=${id}`, ngrokSkipWarning
     );
     return response.data;
 }

@@ -57,6 +57,9 @@ export default function StudentRequestsPage() {
                   }
                 </Typography>
                 <Typography color="text.secondary">
+                  Description: {request.description}
+                </Typography>
+                <Typography color="text.secondary">
                   Status: {request.status}
                 </Typography>
               </CardContent>

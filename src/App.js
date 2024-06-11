@@ -4,10 +4,8 @@ import { Home } from "./pages/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import useToken from "./services/useToken";
 import { Login } from "./component/Login";
-import { StudentHome } from "./pages/StudentHome";
 import { Profile } from "./pages/Profile";
 import { ProfileTutor } from "./pages/ProfileTutor";
-import { TutorHome } from "./pages/TutorHome";
 import StudentBookingRequest from "./pages/student/StudentBookingRequest";
 import PrivateRoute from "./services/PrivateRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -44,24 +42,16 @@ function App() {
             element={<Profile token={token} setToken={setToken} />}
           />
           <Route
-            path="tutor-home"
-            element={<TutorHome token={token} setToken={setToken} />}
-          />
-          <Route
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
-          />
-          <Route
-            path="student-home"
-            element={<StudentHome token={token} setToken={setToken} />}
           />
           <Route path="/student/booking" element={<StudentBookingRequest />} />
           <Route path="/student/requests" element={<StudentRequestsPage />} />
           <Route
             path="/schedule"
             element={
-              <PrivateRoute roles={["Student","Tutor"]}>
-                <SchedulePage/>
+              <PrivateRoute roles={["Student", "Tutor"]}>
+                <SchedulePage />
               </PrivateRoute>
             }
           ></Route>
@@ -74,11 +64,10 @@ function App() {
             path="/tutor/request"
             element={
               <PrivateRoute role="Tutor">
-                <BrowseBooking/>
+                <BrowseBooking />
               </PrivateRoute>
             }
           ></Route>
-
           <Route
             path="/about"
             element={
@@ -92,20 +81,35 @@ function App() {
             path="/admin/dashboard"
             element={
               <PrivateRoute role="Admin">
-                <AdminDashboard Element={(<ChartPage/>)} removeToken={removeToken}/>
+                <AdminDashboard
+                  Element={<ChartPage />}
+                  removeToken={removeToken}
+                />
               </PrivateRoute>
             }
           />
-          <Route path="/admin/students-management" element={
-                        <PrivateRoute role="Admin">
-                             <AdminDashboard Element={<AdminStudentManagement id={id} />} removeToken={removeToken}/>
-                        </PrivateRoute>
-                    }></Route>
-          <Route path="/admin/tutors-management" element={
-                        <PrivateRoute role="Admin">
-                            <AdminDashboard Element={<AdminTutorsManagement id={id} />} removeToken={removeToken}/>
-                        </PrivateRoute>
-                    }></Route>
+          <Route
+            path="/admin/students-management"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard
+                  Element={<AdminStudentManagement id={id} />}
+                  removeToken={removeToken}
+                />
+              </PrivateRoute>
+            }
+          ></Route>
+          <Route
+            path="/admin/tutors-management"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard
+                  Element={<AdminTutorsManagement id={id} />}
+                  removeToken={removeToken}
+                />
+              </PrivateRoute>
+            }
+          ></Route>
           {/*Moderator paths*/}
           <Route
             path="/manage-credential"

@@ -61,7 +61,7 @@ function App() {
             path="/schedule"
             element={
               <PrivateRoute roles={["Student","Tutor"]}>
-                <SchedulePage/>
+                <SchedulePage token={token}/>
               </PrivateRoute>
             }
           ></Route>

@@ -41,7 +41,7 @@ export default function Features() {
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState({
     id: "",
-    subjectName: "",
+    name: "",
     status: "Active",
   });
 
@@ -50,6 +50,7 @@ export default function Features() {
   const [levelSnackbarOpen, setLevelSnackbarOpen] = useState(false);
   const [subjectSnackbarOpen, setSubjectSnackbarOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [nameExistsError, setNameExistsError] = useState(false);
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -75,7 +76,7 @@ export default function Features() {
     else
       setSelectedSubject({
         id: "",
-        subjectName: "",
+        name: "",
         status: "Active",
       });
     setOpenSubjectDialog(true);
@@ -91,7 +92,7 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
   };
@@ -103,9 +104,47 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
+  };
+
+  const validateNameSubject = (name) => {
+    const isNameExists = subjects.some((subject) => subject.name === name);
+    if (isNameExists) {
+      setNameExistsError(true);
+      return false;
+    }
+
+    const nameRegex = /^[a-zA-Z\sÀ-ỹ]{1,50}$/;
+    if (!nameRegex.test(name)) {
+      setNameExistsError(false);
+      setErrorMessage("Name must be alphabetic characters and have maximum length of 50.");
+      return false;
+    }
+
+    setNameExistsError(false);
+    setErrorMessage("");
+    return true;
+  };
+
+  const validateNameLevel = (name) => {
+    const isNameExists = levels.some((level) => level.levelName === name);
+    if (isNameExists) {
+      setNameExistsError(true);
+      return false;
+    }
+
+    const nameRegex = /^[a-zA-Z\sÀ-ỹ0-9]{1,50}$/;
+    if (!nameRegex.test(name)) {
+      setNameExistsError(false);
+      setErrorMessage("Name must be alphabetic characters, number and have maximum length of 50.");
+      return false;
+    }
+
+    setNameExistsError(false);
+    setErrorMessage("");
+    return true;
   };
 
   const handleDeleteLevel = async (name, levelId) => {
@@ -120,7 +159,7 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
   };
@@ -128,7 +167,7 @@ export default function Features() {
   const handleDeleteSubject = async (name, subjectId) => {
     try {
       await UpdateSubject({
-        subjectName: name,
+        name: name,
         id: subjectId,
         status: "Inactive",
       });
@@ -137,12 +176,17 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
   };
 
   const handleSaveLevel = async () => {
+    const { levelName } = selectedLevel;
+    if (!validateNameLevel(levelName)) {
+      return;
+    }
+
     try {
       let updatedLevel = {
         id: selectedLevel.id,
@@ -166,21 +210,26 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
   };
 
   const handleSaveSubject = async () => {
+    const { name } = selectedSubject;
+    if (!validateNameSubject(name)) {
+      return;
+    }
+
     try {
       let updatedSubject = {
         id: selectedSubject.id,
-        subjectName: selectedSubject.subjectName,
+        name: selectedSubject.name,
         status: selectedSubject.status,
       };
 
       let addSubject = {
-        subjectName: selectedSubject.subjectName,
+        name: selectedSubject.name,
         status: "Active",
       };
 
@@ -195,7 +244,7 @@ export default function Features() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later."
       );
     }
   };
@@ -279,6 +328,8 @@ export default function Features() {
                   levelName: e.target.value,
                 })
               }
+              error={nameExistsError}
+              helperText={nameExistsError ? "This name is existed" : ""}
             />
             <TextField
               disabled={selectedLevel.status === "Active"}
@@ -298,6 +349,7 @@ export default function Features() {
               <MenuItem value="Active">Active</MenuItem>
               <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
+            <div className="text-red-500">{errorMessage}</div>
 
             <Button
               className="mt-2"
@@ -373,7 +425,7 @@ export default function Features() {
                       variant="contained"
                       color="secondary"
                       onClick={() =>
-                        handleDeleteSubject(subject.subjectName, subject.id)
+                        handleDeleteSubject(subject.name, subject.id)
                       }
                       style={{ marginLeft: "10px" }}
                     >
@@ -396,13 +448,15 @@ export default function Features() {
               label="Subject Name"
               type="text"
               fullWidth
-              value={selectedSubject.subjectName}
+              value={selectedSubject.name}
               onChange={(e) =>
                 setSelectedSubject({
                   ...selectedSubject,
-                  subjectName: e.target.value,
+                  name: e.target.value,
                 })
               }
+              error={nameExistsError}
+              helperText={nameExistsError ? "This name is existed" : ""}
             />
             <TextField
               disabled={selectedSubject.status === "Active"}
@@ -422,7 +476,7 @@ export default function Features() {
               <MenuItem value="Active">Active</MenuItem>
               <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
-
+            <div className="text-red-500">{errorMessage}</div>
             <Button
               className="mt-2"
               variant="contained"
@@ -441,7 +495,7 @@ export default function Features() {
             </Button>
           </DialogContent>
         </Dialog>
-
+        
         <Snackbar
           open={subjectSnackbarOpen}
           autoHideDuration={6000}

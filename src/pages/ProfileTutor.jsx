@@ -9,7 +9,7 @@ import {
     AddCredential,
     UpdateCredential,
     UploadCredentialImage,
-    DeleteCredential, // Thêm hàm xóa credential vào
+    DeleteCredential,
 } from "../services/ApiServices/CredentialService";
 
 import {
@@ -160,8 +160,44 @@ export function ProfileTutor({ token, setToken }) {
         }
     };
 
+    const validateUserInfo = () => {
+        const nameRegex = /^[^\d\W_]+$/;
+        const emailRegex = /\S+@\S+\.\S+/;
+        const phoneRegex = /^\d+$/;
+    
+        if (!userName || !email || !address || !phoneNumber || !gender || !status) {
+            setErrorMessage("Please fill in all required fields.");
+            return false;
+        }
+    
+        if (!nameRegex.test(userName)) {
+            setErrorMessage("Receiver Name must contain only letters and cannot contain special characters or numbers.");
+            return false;
+        }
+    
+        if (!emailRegex.test(email)) {
+            setErrorMessage("Invalid Email Address.");
+            return false;
+        }
+    
+        if (address.length > 100) {
+            setErrorMessage("Address cannot exceed 100 characters.");
+            return false;
+        }
+    
+        if (!phoneRegex.test(phoneNumber)) {
+            setErrorMessage("Invalid Phone Number.");
+            return false;
+        }
+    
+        return true;
+    };
+    
     const updateUserInfo = async () => {
         try {
+            if (!validateUserInfo()) {
+                return;
+            }
             let updatedUser = {
                 id: userInfo.id,
                 receiverName: userName,
@@ -204,6 +240,28 @@ export function ProfileTutor({ token, setToken }) {
         }
     };
 
+    const validateCredential = (credential) => {
+        const nameRegex = /^[A-Z\s]+$/;
+        const typeRegex = /^[A-Z\s]+$/;
+
+        if (!credential.name || !credential.type || !selectedSubject || !credential.image) {
+            setErrorMessage("Name, Type, Image and Subject are required.");
+            return false;
+        }
+
+        if (credential.name.length > 100 || !nameRegex.test(credential.name)) {
+            setErrorMessage("Name must be uppercase, without numbers and special characters, and less than 100 characters.");
+            return false;
+        }
+
+        if (credential.type.length > 100 || !typeRegex.test(credential.type)) {
+            setErrorMessage("Type must be uppercase, without numbers and special characters, and less than 100 characters.");
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSaveCredential = async () => {
         try {
             let updatedCredential = {
@@ -225,6 +283,9 @@ export function ProfileTutor({ token, setToken }) {
                 subjectId: selectedSubject,
             };
 
+            if (!validateCredential(selectedCredential)) {
+                return;
+            }
             if (credentialImageFile) {
                 const formData = new FormData();
                 formData.append("file", credentialImageFile);
@@ -255,18 +316,18 @@ export function ProfileTutor({ token, setToken }) {
                     }
                     setSnackbarOpen(true);
                 }
-    
+                setErrorMessage("");
                 fetchCredentials();
                 handleCloseCredential();
             } catch (error) {
                 setErrorMessage(
-                    error.response?.data?.message ||
+                    error.response?.data ||
                     "An error occurred. Please try again later."
                 );
                 console.error(error);
             }
         };
-    
+
         const handleDeleteCredential = async (credentialId) => {
             try {
                 await DeleteCredential(credentialId);
@@ -449,6 +510,7 @@ export function ProfileTutor({ token, setToken }) {
                             setAvatarFile(e.target.files[0]);
                             setAvatarFileName(e.target.files[0].name);
                         }} />
+                            <div className="text-red-500">{errorMessage}</div>
                             </Box>
                         </DialogContent>
                         <DialogActions>
@@ -489,6 +551,7 @@ export function ProfileTutor({ token, setToken }) {
                                     setCredentialImageFile(e.target.files[0]);
                                     setCredentialFileName(e.target.files[0].name);
                                 }} />
+                                <div className="text-red-500">{errorMessage}</div>
                             </Box>
                         </DialogContent>
                         <DialogActions>

@@ -7,11 +7,6 @@ export default function ContactUs() {
         <div className="row justify-content-center">
           <div className="col-md-7">
             <h2 className="section-title mb-3">Message Us</h2>
-            <p className="mb-5">
-              Natus totam voluptatibus animi aspernatur ducimus quas obcaecati
-              mollitia quibusdam temporibus culpa dolore molestias blanditiis
-              consequuntur sunt nisi.
-            </p>
 
             <form method="post" data-aos="fade">
               <div className="form-group row">

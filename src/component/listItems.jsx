@@ -35,11 +35,11 @@ export const MainListItems = () => (
       </ListItemIcon>
       <ListItemText primary="Tutors" />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton component={RouterLink} to="/admin/subject-level">
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Subjects &amp; Levels" />
     </ListItemButton>
   </React.Fragment>
 );

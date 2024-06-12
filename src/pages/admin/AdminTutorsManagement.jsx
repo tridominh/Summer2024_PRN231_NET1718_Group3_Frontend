@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
-import { GetAllUsers, UpdateUserInfo } from "../../services/ApiServices/UserService";
+import { GetAllUsers, SendStatusMail, UpdateUserInfo } from "../../services/ApiServices/UserService";
 import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserServie";
 
 function AdminTutorsManagement({ id }) {
@@ -81,6 +81,10 @@ function AdminTutorsManagement({ id }) {
            gender: tutor.gender,
            status: "Inactive",
            avatar: tutor.avatar});
+        await SendStatusMail({
+            email: tutor.email,
+            status: "Inactive"
+        });
         fetchTutors();
         setIsDeleteDialogOpen(false);
       } catch (error) {

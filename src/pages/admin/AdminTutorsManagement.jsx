@@ -18,7 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
 import { GetAllUsers, SendStatusMail, UpdateUserInfo } from "../../services/ApiServices/UserService";
-import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserServie";
+import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserService";
 
 function AdminTutorsManagement({ id }) {
   const [tutors, setTutors] = useState([]);

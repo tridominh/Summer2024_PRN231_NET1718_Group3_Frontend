@@ -41,7 +41,7 @@ export default function Features() {
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState({
     id: "",
-    subjectName: "",
+    name: "",
     status: "Active",
   });
 
@@ -75,7 +75,7 @@ export default function Features() {
     else
       setSelectedSubject({
         id: "",
-        subjectName: "",
+        name: "",
         status: "Active",
       });
     setOpenSubjectDialog(true);
@@ -128,7 +128,7 @@ export default function Features() {
   const handleDeleteSubject = async (name, subjectId) => {
     try {
       await UpdateSubject({
-        subjectName: name,
+        name: name,
         id: subjectId,
         status: "Inactive",
       });
@@ -175,12 +175,12 @@ export default function Features() {
     try {
       let updatedSubject = {
         id: selectedSubject.id,
-        subjectName: selectedSubject.subjectName,
+        name: selectedSubject.name,
         status: selectedSubject.status,
       };
 
       let addSubject = {
-        subjectName: selectedSubject.subjectName,
+        name: selectedSubject.name,
         status: "Active",
       };
 
@@ -373,7 +373,7 @@ export default function Features() {
                       variant="contained"
                       color="secondary"
                       onClick={() =>
-                        handleDeleteSubject(subject.subjectName, subject.id)
+                        handleDeleteSubject(subject.name, subject.id)
                       }
                       style={{ marginLeft: "10px" }}
                     >
@@ -396,11 +396,11 @@ export default function Features() {
               label="Subject Name"
               type="text"
               fullWidth
-              value={selectedSubject.subjectName}
+              value={selectedSubject.name}
               onChange={(e) =>
                 setSelectedSubject({
                   ...selectedSubject,
-                  subjectName: e.target.value,
+                  name: e.target.value,
                 })
               }
             />

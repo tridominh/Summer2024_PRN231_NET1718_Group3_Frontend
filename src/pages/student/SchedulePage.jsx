@@ -20,14 +20,19 @@ export function SchedulePage({ token }) {
       data = await GetAllSchedulesOfUser(id);
       setSchedules(data);
       let eventList = [];
+      let existingDates = [];
       for(let d of data){
           //if(!d) continue;
           //console.log(d);
+          const tutor = d.booking.bookingUsers?.filter(x => x.role == "Tutor")[0];
+
           const e = generateEvents(
               formatDate(d.startTime),
               formatDate(d.endTime),
-              d.booking.subjectLevel.description,
-              splitDaysOfWeek(d.dayOfWeek)
+              d.booking.subjectLevel.description+
+              (tutor!=null ? " with "+tutor?.user.userName : ""),
+              splitDaysOfWeek(d.dayOfWeek),
+              existingDates
           );
           eventList.push(...e);
           //console.log(formatDate(d.startTime), formatDate(d.endTime));
@@ -38,6 +43,7 @@ export function SchedulePage({ token }) {
       setEvents(eventList);
     }
     catch (err) {
+        //console.log(err);
       if (err.response.data.message) {
         // If the error response contains a message, set it as the error message
         setError(err.response.data.message);
@@ -56,11 +62,11 @@ export function SchedulePage({ token }) {
     }
   };
 
-    const generateEvents = (startDate, endDate, subjectName, daysOfWeek) => {
+    const generateEvents = (startDate, endDate, subjectName, daysOfWeek, existingDates) => {
         const start = moment(startDate);
         const end = moment(endDate);
         const events = [];
-        console.log(startDate);
+        //console.log(startDate);
 
         for (let m = start; m.isSameOrBefore(end); m.add(1, 'days')) {
             if (daysOfWeek.includes(m.day())) {
@@ -69,13 +75,18 @@ export function SchedulePage({ token }) {
                     start: m.format('YYYY-MM-DD'),
                     allDay: false
                 });
-                events.push({
-                    title: subjectName,
-                    start: m.format('YYYY-MM-DD'),
-                    allDay: true
-                });
+                if(!existingDates.includes(m.format('YYYY-MM-DD'))){
+                    events.push({
+                        title: subjectName,
+                        start: m.format('YYYY-MM-DD'),
+                        allDay: true
+                    });
+                    existingDates.push(m.format('YYYY-MM-DD'));
+                }
             }
         }
+
+        //console.log(existingDates);
 
         return events;
     };
@@ -99,7 +110,7 @@ export function SchedulePage({ token }) {
     <div className='w-full'>
         {/*JSON.stringify(schedules)*/}
         <FullCalendar
-          plugins={[ dayGridPlugin, timeGridPlugin ]}
+          plugins={[ dayGridPlugin, timeGridPlugin, listPlugin ]}
           initialView="dayGridMonth"
       headerToolbar={{
         left: 'prev,next today',
@@ -109,9 +120,11 @@ export function SchedulePage({ token }) {
           views={{ 
               dayGridMonth: { buttonText: 'month' },
               timeGridWeek: { buttonText: 'week' }, 
-              timeGridDay: { buttonText: 'day' }
+              timeGridDay: { buttonText: 'day' },
+              listWeek: { buttonText: 'list' }
           }}
           events={events}
+          dayMaxEvents={4}
         />
     </div>
   )

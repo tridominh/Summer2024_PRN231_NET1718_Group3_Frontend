@@ -57,8 +57,14 @@ function App() {
           ></Route>
           {/*Tutor paths*/}
           <Route
-            path="Features"
-            element={<Features token={token} setToken={setToken} />}
+            path="/admin/subject-level"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard Element={
+                    <Features token={token} setToken={setToken} />
+                } removeToken={removeToken}/>
+              </PrivateRoute>
+            }
           />
           <Route
             path="/tutor/request"

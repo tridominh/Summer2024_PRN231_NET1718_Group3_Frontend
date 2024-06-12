@@ -49,15 +49,21 @@ function App() {
           <Route
             path="/schedule"
             element={
-              <PrivateRoute roles={["Student", "Tutor"]}>
-                <SchedulePage />
+              <PrivateRoute roles={["Student","Tutor"]}>
+                <SchedulePage token={token}/>
               </PrivateRoute>
             }
           ></Route>
           {/*Tutor paths*/}
           <Route
-            path="Features"
-            element={<Features token={token} setToken={setToken} />}
+            path="/admin/subject-level"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard Element={
+                    <Features token={token} setToken={setToken} />
+                } removeToken={removeToken}/>
+              </PrivateRoute>
+            }
           />
           <Route
             path="/tutor/request"

@@ -12,10 +12,13 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
-import { DeleteUser, GetAllUsers } from "../../services/ApiServices/UserService";
+import { GetAllUsers, UpdateUserInfo } from "../../services/ApiServices/UserService";
+import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserServie";
 
 function AdminStudentsManagement({ id }) {
   const [students, setStudents] = useState([]);
@@ -23,30 +26,71 @@ function AdminStudentsManagement({ id }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const TABLE_HEAD = ["ID", "Name", "Email", "Phone", "Address", "Status", "Actions"];
+  const TABLE_HEAD = ["ID", "Name", "Email", "Phone", "Gender", "Address", "Status", "Booking Status", "Actions"];
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
+  const fetchBookingStatus = async (id) => {
+    try {
+      const bookingUsers = await GetBookingUsersByUserId(id);
+      if (bookingUsers.length > 0) {
+        return "In booking";
+      } else {
+        return "Not in booking";
+      }
+    } catch (error) {
+      console.error("Error fetching booking status:", error);
+      return "Unknown";
+    }
+  };
+
   const fetchStudents = async () => {
     try {
       const data = await GetAllUsers();
       const students = data.filter((user) => user.role === "Student");
-      setStudents(students);
+
+      // Fetch and add booking status to each student
+      const studentsWithBookingStatus = await Promise.all(
+        students.map(async (student) => {
+          const bookingStatus = await fetchBookingStatus(student.id);
+          return { ...student, bookingStatus };
+        })
+      );
+
+      setStudents(studentsWithBookingStatus);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
   };
 
   const handleDeleteStudent = async (studentId) => {
-    try {
-      await DeleteUser(studentId);
-      fetchStudents();
+    const student = students.find(s => s.id === studentId);
+    if (student.bookingStatus === "Not in booking") {
+      try {
+        await UpdateUserInfo({
+          id: studentId,
+          receiverName: student.name,
+          email: student.email,
+          address: student.address,
+          phoneNumber: student.phone,
+          gender: student.gender,
+          status: "Inactive",
+          avatar: student.avatar
+        });
+        fetchStudents();
+        setIsDeleteDialogOpen(false);
+      } catch (error) {
+        console.error("Error updating student:", error);
+      }
+    } else {
+      setSnackbarMessage("This user is in booking, you cannot delete!");
+      setSnackbarOpen(true);
       setIsDeleteDialogOpen(false);
-    } catch (error) {
-      console.error("Error deleting student:", error);
     }
   };
 
@@ -68,6 +112,11 @@ function AdminStudentsManagement({ id }) {
   const handleCloseDeleteDialog = () => {
     setStudentToDelete(null);
     setIsDeleteDialogOpen(false);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setSnackbarMessage("");
   };
 
   return (
@@ -94,22 +143,28 @@ function AdminStudentsManagement({ id }) {
                     </Link>
                   </Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{student.name}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{student.email}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{student.phone}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                  <Typography variant="body2">{student.gender}</Typography>
+                </td>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{student.address}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">{student.status}</Typography>
                 </td>
-                <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                  <Typography variant="body2">{student.bookingStatus}</Typography>
+                </td>
+                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Tooltip title="View Student">
                     <IconButton onClick={() => handleViewStudent(student)}>
                       <VisibilityIcon color="primary" />
@@ -126,8 +181,8 @@ function AdminStudentsManagement({ id }) {
           </tbody>
         </table>
       </CardContent>
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Student Details</DialogTitle>
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} className="lime-dialog">
+        <DialogTitle className="lime-dialog-title">Student Details</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {selectedStudent && (
@@ -151,6 +206,9 @@ function AdminStudentsManagement({ id }) {
                   <strong>Status:</strong> {selectedStudent.status}
                 </Typography>
                 <Typography variant="body1">
+                  <strong>Booking Status:</strong> {selectedStudent.bookingStatus}
+                </Typography>
+                <Typography variant="body1">
                   <strong>Avatar:</strong> <img
                     src={selectedStudent.avatar}
                     alt={`${selectedStudent.name}'s avatar`}
@@ -162,18 +220,16 @@ function AdminStudentsManagement({ id }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleCloseDialog} className="lime-dialog-button">
             Close
           </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={isDeleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>Delete Student</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the student {studentToDelete?.name}?
-            <br></br>
-            This action cannot be undone.
+            Are you sure you want to delete student {studentToDelete?.name}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -181,14 +237,19 @@ function AdminStudentsManagement({ id }) {
             Cancel
           </Button>
           <Button
-            onClick={() => handleDeleteStudent(studentToDelete?.id)}
-            color="error"
+            onClick={() => handleDeleteStudent(studentToDelete.id)}
+            color="secondary"
             variant="contained"
           >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

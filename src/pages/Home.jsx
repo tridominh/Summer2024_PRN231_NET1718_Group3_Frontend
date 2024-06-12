@@ -2,11 +2,8 @@ import { useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
-import {
-  Alert,
-  Snackbar,
-} from "@mui/material";
-import StudentBookingRequest from "./student/StudentBookingRequest";
+import { Alert, Snackbar } from "@mui/material";
+import BookingRequestForm from "../component/BookingRequestForm";
 
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
@@ -27,14 +24,26 @@ export function Home({ token, setToken }) {
 
   return (
     <>
-      <div className="intro-section" style={{
-        height: "92vh",
-        minHeight: "400px"
-      }} id="home-section">
-        <div id="login-signup" className="slide-1" style={{height: "100%" ,backgroundImage: "url('images/hero_1.jpg')" }} data-stellar-background-ratio="0.5">
+      <div
+        className="intro-section"
+        style={{
+          height: "92vh",
+          minHeight: "400px",
+        }}
+        id="home-section"
+      >
+        <div
+          id="login-signup"
+          className="slide-1"
+          style={{
+            height: "100%",
+            backgroundImage: "url('images/hero_1.jpg')",
+          }}
+          data-stellar-background-ratio="0.5"
+        >
           <div className="container">
             <div className="row align-items-center">
-              <div className="col-12" style={{height: "60%"}}>
+              <div className="col-12" style={{ height: "60%" }}>
                 {signIn ? (
                   <Login
                     token={token}
@@ -64,8 +73,7 @@ export function Home({ token, setToken }) {
         }}
       >
         <div className="container">
-          <div className="row align-items-center">
-          </div>
+          <div className="row align-items-center"></div>
         </div>
       </div>
 
@@ -77,7 +85,7 @@ export function Home({ token, setToken }) {
               data-aos="fade-up"
               data-aos-delay=""
             >
-              <StudentBookingRequest token={token} setNotLogin={setNotLogin} />
+              <BookingRequestForm token={token} setNotLogin={setNotLogin} />
             </div>
           </div>
         </div>

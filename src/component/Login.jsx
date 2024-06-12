@@ -19,72 +19,35 @@ export function Login({ token, setSignIn, setToken }) {
       setToken(data);
 
       if (parseJwt(data).role === "Student") {
-        // Redirect to StudentHome
-        navigate("/student-home");
+        navigate("/");
       }
       if (parseJwt(data).role === "Tutor") {
-        // Redirect to StudentHome
-        navigate("/tutor-home");
-      }if (parseJwt(data).role === "Admin") {
-        // Redirect to StudentHome
+        navigate("/");
+      }
+      if (parseJwt(data).role === "Admin") {
         navigate("/admin/dashboard");
       }
-    }
-    catch (err) {
+    } catch (err) {
       if (err.response.data.message) {
         // If the error response contains a message, set it as the error message
         setError(err.response.data.message);
-      }
-      else if (err.response.data[0].description) {
+      } else if (err.response.data[0].description) {
         setError(err.response.data[0].description);
-      }
-      else if (err.response.data) {
+      } else if (err.response.data) {
         setError(err.response.data);
-      }
-      else {
+      } else {
         // If the error is something else, set a generic error message
-        setError('An error occurred. Please try again later.');
+        setError("An error occurred. Please try again later.");
       }
       return;
-
-      // Check if the user role is a student
-      if (parseJwt(data).role === "Student") {
-        // Redirect to StudentHome
-        navigate("/student-home");
-      }
     }
   };
   return (
     <div className="row align-items-center">
       {!token && (
         <div className="col-lg-5 ml-auto">
-          <form className="form-box" >
+          <form className="form-box">
             <h3 className="h4 text-black mb-4">Sign In</h3>
-            {/*tutorSignIn==null &&
-    return (
-        <div className="row align-items-center">
-            <div className="col-lg-6 mb-4">
-              <h1  data-aos="fade-up" data-aos-delay="100">SmartHead - Ứng dụng kết nối gia sư</h1>
-              <p className="mb-4"  data-aos="fade-up" data-aos-delay="200">Không những giúp con chủ động tìm kiếm gia sư phù hợp với bản thân mà còn được cá nhân hóa lộ trình học tập dựa trên từng điểm mạnh của con.</p>
-              <p data-aos="fade-up" data-aos-delay="300"><a href="#" className="btn btn-primary py-3 px-5 btn-pill">Admission Now</a></p>
-            </div>
-
-            {!token && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
-              <form className="form-box">
-                <h3 className="h4 text-black mb-4">Sign In</h3>
-                {/*tutorSignIn==null &&
-                    <div className="form-group">
-                        <Button className="py-4 w-full block mb-3" variant="outlined" endIcon={<ArrowForward />}
-                            onClick={() => setTutorSignIn("tutor")}>
-                          Tutor
-                        </Button>
-                        <Button className="py-4 w-full block" variant="outlined" endIcon={<ArrowForward />}
-                            onClick={() => setTutorSignIn("student")}>
-                          Student
-                        </Button>
-                    </div>
-                */}
-            {/*tutorSignIn &&*/}{" "}
             {
               <>
                 <div className="form-group">
@@ -121,7 +84,13 @@ export function Login({ token, setSignIn, setToken }) {
             <div className="form-group">
               <p className="text-black">
                 Don't have an account?{" "}
-                <Link to="#" onClick={(e) => { e.stopPropagation(); setSignIn(false); }}>
+                <Link
+                  to="#"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSignIn(false);
+                  }}
+                >
                   Sign Up
                 </Link>
               </p>

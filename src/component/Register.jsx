@@ -22,7 +22,7 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
     const [name, setName] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
     const [otp, setOtp] = useState("");
-
+    const [errorMessage, setErrorMessage] = useState("");
     const [correctOtp, setCorrectOtp] = useState("");
 
 
@@ -47,10 +47,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
 
     const handleSubjectChange = (event) => {
         setSelectedSubject(event.target.value);
-        // setSelectedCredential({
-        //     ...selectedCredential,
-        //     subjectName: event.target.value,
-        // });
     };
 
     const handleSendOtp = async (e) => {
@@ -64,11 +60,10 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
             data = await RequestOtpService({ email });
             setShowSecond(true);
             setShowFirst(null);
-            setOTPSend(true); // Đánh dấu rằng OTP đã được gửi thành công
+            setOTPSend(true); 
             setError("");
         } catch (err) {
             if (err.response.data.message) {
-                // If the error response contains a message, set it as the error message
                 setError(err.response.data.message);
             }
             else if (err.response.data[0].description) {
@@ -78,7 +73,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 setError(err.response.data);
             }
             else {
-                // If the error is something else, set a generic error message
                 setError('An error occurred. Please try again later.');
             }
             return;
@@ -90,14 +84,12 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
         let data = null;
         try {
             data = await VerifyOtpService({ email, otp });
-            //console.log(data);
             setShowThird(true);
             setShowSecond(null);
             setError("");
         }
         catch (err) {
             if (err.response.data.message) {
-                // If the error response contains a message, set it as the error message
                 setError(err.response.data.message);
             }
             else if (err.response.data[0].description) {
@@ -107,23 +99,74 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 setError(err.response.data);
             }
             else {
-                // If the error is something else, set a generic error message
                 setError('An error occurred. Please try again later.');
             }
             return;
         }
     }
 
+    const validateUserInfo = () => {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        const emailRegex = /\S+@\S+\.\S+/;
+        const phoneRegex = /^\d{10}$/;
+    
+        if (!name || !email || !address || !phoneNumber || !gender) {
+            setErrorMessage("Please fill in all required fields.");
+            return false;
+        }
+    
+        if (!nameRegex.test(name)) {
+            setErrorMessage("Receiver Name must contain only letters and cannot contain special characters or numbers.");
+            return false;
+        }
+    
+        if (address.length > 100) {
+            setErrorMessage("Address cannot exceed 100 characters.");
+            return false;
+        }
+    
+        if (!phoneRegex.test(phoneNumber)) {
+            setErrorMessage("Invalid Phone Number.");
+            return false;
+        }
+    
+        return true;
+    };
+    
+    const validateCredential = (credential) => {
+        const nameRegex = /^[A-Z\s]+$/;
+        const typeRegex = /^[A-Z\s]+$/;
+
+        if (!credential.name || !credential.type || !selectedSubject || !credential.image) {
+            setErrorMessage("Name, Type, Image and Subject are required.");
+            return false;
+        }
+
+        if (credential.name.length > 100 || !nameRegex.test(credential.name)) {
+            setErrorMessage("Name must be uppercase, without numbers and special characters, and less than 100 characters.");
+            return false;
+        }
+
+        if (credential.type.length > 100 || !typeRegex.test(credential.type)) {
+            setErrorMessage("Type must be uppercase, without numbers and special characters, and less than 100 characters.");
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSignUp = async (e) => {
         e.preventDefault();
         let data = null;
+        if (!validateUserInfo()) {
+            return;
+        }
         if (password != repeatPassword) {
             setError("Password does not match");
             return;
         }
         try{
             if(signUpType == "tutor"){
-                //data = await RegisterTutorService({name, email, gender, address, phoneNumber, phoneNumber, address, password, otp});
                 setShowFourth(true);
                 setShowThird(null);
             }
@@ -134,14 +177,11 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 setSignUpCompletedMessage("Account created successfully. Please sign in!");
             }
             setError("");
-            //console.log(data);
-            //setToken(data)
+            setErrorMessage("");
         }
         catch (err) {
-            //console.log(err)
-            //console.log(err.response.data)
+
             if (err.response.data.message) {
-                // If the error response contains a message, set it as the error message
                 setError(err.response.data.message);
             }
             else if (err.response.data[0].description) {
@@ -151,7 +191,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 setError(err.response.data);
             }
             else {
-                // If the error is something else, set a generic error message
                 setError('An error occurred. Please try again later.');
             }
             return;
@@ -161,13 +200,15 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
     const handleAddCredential = async (e) => {
         e.preventDefault();
         let data = null;
+        if (!validateCredential({name: credentialName, type: credentialType,image: credentialImage})) {
+            return;
+        }
         try{
             data = await RegisterTutorService({
                 name, email, gender, address, phoneNumber, phoneNumber, address, password, otp,
                 credentialName, credentialType, credentialImage,
                 subjectId: selectedSubject
             });
-            //console.log(data);
             setSignIn(true);
             setSignUpCompleted(true);
             setSignUpCompletedMessage(data);
@@ -175,7 +216,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
         }
         catch(err){
             if (err.response.data.message) {
-                // If the error response contains a message, set it as the error message
                 setError(err.response.data.message);
             }
             else if(err.response.data[0].description){
@@ -185,7 +225,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 setError(err.response.data);
             }
             else {
-                // If the error is something else, set a generic error message
                 setError('An error occurred. Please try again later.');
             }
             return;
@@ -198,12 +237,6 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
 
     return (
         <div className="row align-items-center">
-            {/* <div className="col-lg-6 mb-4">
-              <h1  data-aos="fade-up" data-aos-delay="100">SmartHead - Ứng dụng kết nối gia sư</h1>
-              <p className="mb-4"  data-aos="fade-up" data-aos-delay="200">Không những giúp con chủ động tìm kiếm gia sư phù hợp với bản thân mà còn được cá nhân hóa lộ trình học tập dựa trên từng điểm mạnh của con.</p>
-              <p data-aos="fade-up" data-aos-delay="300"><a href="#" className="btn btn-primary py-3 px-5 btn-pill">Admission Now</a></p>
-
-            </div> */}
 
             {!token  && <div className="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="500">
               <form action="" method="post" className="form-box">
@@ -222,29 +255,11 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                 }
                 {showFirst!=null && 
                 (<>
-                {/*<div className="form-group">
-                  <input type="text" className="form-control" placeholder="Name" 
-                    value={name} onChange={(e) => setName(e.target.value)}/>
-                </div>*/}
                             <div className="form-group">
                                 <input type="text" className="form-control" placeholder="Email Addresss"
                                     value={email} onChange={(e) => setEmail(e.target.value)} />
                             </div>
-                            {/*<div className="form-group">
-                  <input type="password" className="form-control" placeholder="Password"
-                    value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </div>
-                <div className="form-group">
-                  <input type="password" className="form-control" placeholder="Repeat Password"
-                    value={repeatPassword} onChange={(e) => { 
-                        setRepeatPassword(e.target.value)
-                        if(e.currentTarget.value != password) 
-                            setError("Password does not match");
-                        else{
-                            setError("");
-                        }
-                    }}/>
-                </div>*/}
+                        
                             <div className="form-group">
                                 <p className="text-xl text-danger">{error}</p>
                             </div>
@@ -334,12 +349,7 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
                                 }}
                                     className="btn btn-primary btn-pill" value="Sign up" />
                             </div></>)}
-
-                    {/* <div className="form-group">
-                        <p className="text-black">Already have an account? <Link to="#" onClick={(e) => { e.stopPropagation(); setSignIn(true) }}>Sign In</Link>
-                        </p>
-                    </div> */}
-
+                            <div className="text-red-500">{errorMessage}</div>
 
                 {showFourth && (<>
                     <FormControl fullWidth margin="dense">

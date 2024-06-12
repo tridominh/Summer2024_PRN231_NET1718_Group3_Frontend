@@ -27,7 +27,7 @@ export function Home({ token, setToken }) {
       <div
         className="intro-section"
         style={{
-          height: "92vh",
+          height: "120vh",
           minHeight: "400px",
         }}
         id="home-section"
@@ -43,7 +43,7 @@ export function Home({ token, setToken }) {
         >
           <div className="container">
             <div className="row align-items-center">
-              <div className="col-12" style={{ height: "60%" }}>
+              <div className="col-12" style={{ height: "70%" }}>
                 {signIn ? (
                   <Login
                     token={token}

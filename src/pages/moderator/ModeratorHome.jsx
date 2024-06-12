@@ -39,7 +39,6 @@ export function ModeratorHome() {
 
             const tutorInfo = await GetUserInfo(credential.tutorId); 
             const tutorEmail = tutorInfo.email; 
-            console.log(tutorEmail);
 
             await SendStatusMailCredentials({
                 email: tutorEmail,

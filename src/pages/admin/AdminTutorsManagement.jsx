@@ -29,7 +29,17 @@ function AdminTutorsManagement({ id }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const TABLE_HEAD = ["ID", "Name", "Email", "Phone","Gender","Address", "Status", "Booking Status", "Actions"];
+  const TABLE_HEAD = [
+    "ID",
+    "Name",
+    "Email",
+    "Phone",
+    "Gender",
+    "Address",
+    "Status",
+    "Booking Status",
+    "Actions",
+  ];
 
   useEffect(() => {
     fetchTutors();
@@ -59,7 +69,7 @@ function AdminTutorsManagement({ id }) {
         tutors.map(async (tutor) => {
           const bookingStatus = await fetchBookingStatus(tutor.id);
           return { ...tutor, bookingStatus };
-        })
+        }),
       );
 
       setTutors(tutorsWithBookingStatus);
@@ -69,7 +79,7 @@ function AdminTutorsManagement({ id }) {
   };
 
   const handleDeleteTutor = async (tutorId) => {
-    const tutor = tutors.find(t => t.id === tutorId);
+    const tutor = tutors.find((t) => t.id === tutorId);
     if (tutor.bookingStatus === "Not in booking") {
       try {
         await UpdateUserInfo({
@@ -124,13 +134,25 @@ function AdminTutorsManagement({ id }) {
 
   return (
     <Card sx={{ minHeight: "100%", width: "100%" }}>
-      <CardHeader title="Tutors List" subheader="See information about all tutors" />
+      <CardHeader
+        title="Tutors List"
+        subheader="See information about all tutors"
+      />
       <CardContent>
-        <table style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}>
+        <table
+          style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}
+        >
           <thead>
             <tr>
               {TABLE_HEAD.map((head, index) => (
-                <th key={index} style={{ border: "1px solid #E0E0E0", padding: "12px", backgroundColor: "#F5F5F5" }}>
+                <th
+                  key={index}
+                  style={{
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                    backgroundColor: "#F5F5F5",
+                  }}
+                >
                   <Typography variant="subtitle2">{head}</Typography>
                 </th>
               ))}
@@ -141,33 +163,84 @@ function AdminTutorsManagement({ id }) {
               <tr key={tutor.id}>
                 <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">
-                    <Link to={`/AdminUserDetail/${tutor.id}`} style={{ textDecoration: "none", color: "#1976D2" }}>
+                    <Link
+                      to={`/AdminUserDetail/${tutor.id}`}
+                      style={{ textDecoration: "none", color: "#1976D2" }}
+                    >
                       {tutor.id}
                     </Link>
                   </Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.name}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.email}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.phone}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.gender}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.address}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.status}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{tutor.bookingStatus}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Tooltip title="View Tutor">
                     <IconButton onClick={() => handleViewTutor(tutor)}>
                       <VisibilityIcon color="primary" />
@@ -184,7 +257,11 @@ function AdminTutorsManagement({ id }) {
           </tbody>
         </table>
       </CardContent>
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} className="lime-dialog">
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleCloseDialog}
+        className="lime-dialog"
+      >
         <DialogTitle className="lime-dialog-title">Tutor Details</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -212,10 +289,15 @@ function AdminTutorsManagement({ id }) {
                   <strong>Booking Status:</strong> {selectedTutor.bookingStatus}
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Avatar:</strong> <img
+                  <strong>Avatar:</strong>{" "}
+                  <img
                     src={selectedTutor.avatar}
                     alt={`${selectedTutor.name}'s avatar`}
-                    style={{ width: '200px', height: '200px', borderRadius: '50%' }}
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      borderRadius: "50%",
+                    }}
                   />
                 </Typography>
               </>
@@ -248,8 +330,16 @@ function AdminTutorsManagement({ id }) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

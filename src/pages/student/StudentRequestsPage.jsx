@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
 import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
 import { GetAllLevels } from "../../services/ApiServices/LevelService";
+import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
+import parseJwt from "../../services/parseJwt";
 
 export default function StudentRequestsPage() {
   const [requests, setRequests] = useState([]);
@@ -12,8 +14,24 @@ export default function StudentRequestsPage() {
   useEffect(() => {
     async function fetchRequests() {
       try {
+        const token = localStorage.getItem("token");
+        const userId = Number(parseJwt(token).nameid);
+
         const bookingResponse = await GetAllBookingsByStatus("PENDING");
-        const bookingData = bookingResponse.data;
+        const allBookings = bookingResponse.data;
+        const bookingUsers = await GetAllBookingUsers();
+        const studentBookingIds = bookingUsers
+          .filter((bookingUser) => {
+            return (
+              bookingUser.userId === userId && bookingUser.role === "STUDENT"
+            );
+          })
+          .map((bookingUser) => {
+            return bookingUser.bookingId;
+          });
+        const studentBookings = allBookings.filter((booking) => {
+          return studentBookingIds.includes(booking.id);
+        });
 
         const subjectResponse = await GetAllSubjects();
         const subjectData = subjectResponse;
@@ -21,7 +39,7 @@ export default function StudentRequestsPage() {
         const levelResponse = await GetAllLevels();
         const levelData = levelResponse;
 
-        setRequests(bookingData);
+        setRequests(studentBookings);
         setSubjects(subjectData);
         setLevels(levelData);
       } catch (error) {
@@ -32,35 +50,45 @@ export default function StudentRequestsPage() {
   }, []);
 
   return (
-    <Container maxWidth="sm" className="my-3">
+    <Container maxWidth="max-w-7xl mx-auto p-4" className="my-3">
       <Typography variant="h4" align="center" className="text-violet-800 my-3">
         Your Requests
       </Typography>
       <Grid container spacing={3}>
         {requests.map((request, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card>
+            <Card className="p-4 rounded-md shadow-md">
               <CardContent>
-                <Typography color="text.secondary">
+                <Typography
+                  sx={{ fontWeight: "bold" }}
+                  className="text-center"
+                  color="text.secondary"
+                >
                   Subject:{" "}
-                  {
-                    subjects.find(
-                      (s) => s.id === request.subjectLevel.subjectId,
-                    ).name
-                  }
+                  <strong>
+                    {" "}
+                    {
+                      subjects.find(
+                        (s) => s.id === request.subjectLevel.subjectId,
+                      ).name
+                    }
+                  </strong>
                 </Typography>
                 <Typography color="text.secondary">
                   Level:{" "}
-                  {
-                    levels.find((l) => l.id === request.subjectLevel.levelId)
-                      .levelName
-                  }
+                  <strong>
+                    {" "}
+                    {
+                      levels.find((l) => l.id === request.subjectLevel.levelId)
+                        .levelName
+                    }
+                  </strong>
                 </Typography>
                 <Typography color="text.secondary">
-                  Description: {request.description}
+                  Description: <strong>{request.description}</strong>
                 </Typography>
                 <Typography color="text.secondary">
-                  Status: {request.status}
+                  Status: <strong>{request.status}</strong>
                 </Typography>
               </CardContent>
             </Card>

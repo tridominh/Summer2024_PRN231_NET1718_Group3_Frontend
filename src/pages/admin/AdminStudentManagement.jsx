@@ -16,9 +16,15 @@ import {
   Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
-import { GetAllUsers, UpdateUserInfo } from "../../services/ApiServices/UserService";
-import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserServie";
+import {
+  Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
+import {
+  GetAllUsers,
+  UpdateUserInfo,
+} from "../../services/ApiServices/UserService";
+import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserService";
 
 function AdminStudentsManagement({ id }) {
   const [students, setStudents] = useState([]);
@@ -29,7 +35,17 @@ function AdminStudentsManagement({ id }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const TABLE_HEAD = ["ID", "Name", "Email", "Phone", "Gender", "Address", "Status", "Booking Status", "Actions"];
+  const TABLE_HEAD = [
+    "ID",
+    "Name",
+    "Email",
+    "Phone",
+    "Gender",
+    "Address",
+    "Status",
+    "Booking Status",
+    "Actions",
+  ];
 
   useEffect(() => {
     fetchStudents();
@@ -59,7 +75,7 @@ function AdminStudentsManagement({ id }) {
         students.map(async (student) => {
           const bookingStatus = await fetchBookingStatus(student.id);
           return { ...student, bookingStatus };
-        })
+        }),
       );
 
       setStudents(studentsWithBookingStatus);
@@ -69,7 +85,7 @@ function AdminStudentsManagement({ id }) {
   };
 
   const handleDeleteStudent = async (studentId) => {
-    const student = students.find(s => s.id === studentId);
+    const student = students.find((s) => s.id === studentId);
     if (student.bookingStatus === "Not in booking") {
       try {
         await UpdateUserInfo({
@@ -80,7 +96,7 @@ function AdminStudentsManagement({ id }) {
           phoneNumber: student.phone,
           gender: student.gender,
           status: "Inactive",
-          avatar: student.avatar
+          avatar: student.avatar,
         });
         fetchStudents();
         setIsDeleteDialogOpen(false);
@@ -121,13 +137,25 @@ function AdminStudentsManagement({ id }) {
 
   return (
     <Card sx={{ minHeight: "100%", width: "100%" }}>
-      <CardHeader title="Students List" subheader="See information about all students" />
+      <CardHeader
+        title="Students List"
+        subheader="See information about all students"
+      />
       <CardContent>
-        <table style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}>
+        <table
+          style={{ width: "100%", minWidth: "600px", tableLayout: "auto" }}
+        >
           <thead>
             <tr>
               {TABLE_HEAD.map((head, index) => (
-                <th key={index} style={{ border: "1px solid #E0E0E0", padding: "12px", backgroundColor: "#F5F5F5" }}>
+                <th
+                  key={index}
+                  style={{
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                    backgroundColor: "#F5F5F5",
+                  }}
+                >
                   <Typography variant="subtitle2">{head}</Typography>
                 </th>
               ))}
@@ -138,33 +166,86 @@ function AdminStudentsManagement({ id }) {
               <tr key={student.id}>
                 <td style={{ border: "1px solid #E0E0E0", padding: "12px" }}>
                   <Typography variant="body2">
-                    <Link to={`/AdminUserDetail/${student.id}`} style={{ textDecoration: "none", color: "#1976D2" }}>
+                    <Link
+                      to={`/AdminUserDetail/${student.id}`}
+                      style={{ textDecoration: "none", color: "#1976D2" }}
+                    >
                       {student.id}
                     </Link>
                   </Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.name}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.email}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.phone}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.gender}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.address}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Typography variant="body2">{student.status}</Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
-                  <Typography variant="body2">{student.bookingStatus}</Typography>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {student.bookingStatus}
+                  </Typography>
                 </td>
-                <td style={{ textAlign: "center", border: "1px solid #E0E0E0", padding: "12px" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    border: "1px solid #E0E0E0",
+                    padding: "12px",
+                  }}
+                >
                   <Tooltip title="View Student">
                     <IconButton onClick={() => handleViewStudent(student)}>
                       <VisibilityIcon color="primary" />
@@ -181,7 +262,11 @@ function AdminStudentsManagement({ id }) {
           </tbody>
         </table>
       </CardContent>
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} className="lime-dialog">
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleCloseDialog}
+        className="lime-dialog"
+      >
         <DialogTitle className="lime-dialog-title">Student Details</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -206,13 +291,19 @@ function AdminStudentsManagement({ id }) {
                   <strong>Status:</strong> {selectedStudent.status}
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Booking Status:</strong> {selectedStudent.bookingStatus}
+                  <strong>Booking Status:</strong>{" "}
+                  {selectedStudent.bookingStatus}
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Avatar:</strong> <img
+                  <strong>Avatar:</strong>{" "}
+                  <img
                     src={selectedStudent.avatar}
                     alt={`${selectedStudent.name}'s avatar`}
-                    style={{ width: '200px', height: '200px', borderRadius: '50%' }}
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      borderRadius: "50%",
+                    }}
                   />
                 </Typography>
               </>
@@ -245,8 +336,16 @@ function AdminStudentsManagement({ id }) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

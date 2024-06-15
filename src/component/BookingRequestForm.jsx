@@ -16,15 +16,25 @@ import { GetAllLevels } from "../services/ApiServices/LevelService";
 import parseJwt from "../services/parseJwt";
 import { CreateBooking } from "../services/ApiServices/BookingService";
 
-export default function BookingRequestForm({ token, setNotLogin }) {
+const options = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" },
+];
+
+export default function BookingRequestForm({ token }) {
   const navigate = useNavigate();
-  const accessToken = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
     subject: "",
     level: "",
     description: "",
   });
+  const [checkedOptions, setCheckedOptions] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
 
@@ -33,11 +43,9 @@ export default function BookingRequestForm({ token, setNotLogin }) {
       try {
         const subjectsResponse = await GetAllSubjects();
         const levelsResponse = await GetAllLevels();
-        const subjectsData = await subjectsResponse;
-        const levelsData = await levelsResponse;
 
-        setSubjects(subjectsData);
-        setLevels(levelsData);
+        setSubjects(subjectsResponse);
+        setLevels(levelsResponse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -54,17 +62,20 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     }));
   };
 
+  const handleOptionsChange = (event) => {
+    setCheckedOptions(event.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!token) {
       console.log("User is not logged in, navigating to #login-signup");
-      setNotLogin(true);
       window.location.hash = "#login-signup";
       return;
     }
 
     const bookingDto = {
-      userId: Number(parseJwt(accessToken).nameid),
+      userId: Number(parseJwt(token).nameid),
       subjectId: formData.subject,
       levelId: formData.level,
       description: formData.description,
@@ -72,11 +83,8 @@ export default function BookingRequestForm({ token, setNotLogin }) {
 
     const response = await CreateBooking(bookingDto);
 
-    if (response.ok) {
-      const addedBooking = response.data;
+    console.log(response.data);
 
-      console.log(addedBooking);
-    }
     navigate("/student/requests");
   };
 
@@ -131,6 +139,25 @@ export default function BookingRequestForm({ token, setNotLogin }) {
               </MenuItem>
             ))}
           </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel>Day of Week</InputLabel>
+          <Select
+            multiple
+            value={checkedOptions}
+            onChange={handleOptionsChange}
+            label="Select Options"
+            renderValue={(selected) => selected.join(", ")}
+          >
+            {options.map((option) => (
+              <MenuItem key={option.value} value={option.label}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+          <Typography variant="body2" color="textSecondary">
+            Select days of week to learn
+          </Typography>
         </FormControl>
         <TextField
           name="description"

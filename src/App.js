@@ -44,13 +44,28 @@ function App() {
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
           />
-          <Route path="/student/booking" element={<StudentBookingRequest />} />
-          <Route path="/student/requests" element={<StudentRequestsPage />} />
+          {/* Student paths */}
+          <Route
+            path="/student/booking"
+            element={
+              <PrivateRoute role={"Student"}>
+                <StudentBookingRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/student/requests"
+            element={
+              <PrivateRoute role={"Student"}>
+                <StudentRequestsPage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/schedule"
             element={
-              <PrivateRoute roles={["Student","Tutor"]}>
-                <SchedulePage token={token}/>
+              <PrivateRoute roles={["Student", "Tutor"]}>
+                <SchedulePage token={token} />
               </PrivateRoute>
             }
           ></Route>
@@ -59,9 +74,10 @@ function App() {
             path="/admin/subject-level"
             element={
               <PrivateRoute role="Admin">
-                <AdminDashboard Element={
-                    <Features token={token} setToken={setToken} />
-                } removeToken={removeToken}/>
+                <AdminDashboard
+                  Element={<Features token={token} setToken={setToken} />}
+                  removeToken={removeToken}
+                />
               </PrivateRoute>
             }
           />

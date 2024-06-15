@@ -1,4 +1,4 @@
-import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
+import { Card, CardContent, Container, Grid, Link, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
 import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
@@ -90,6 +90,11 @@ export default function StudentRequestsPage() {
                 <Typography color="text.secondary">
                   Status: <strong>{request.status}</strong>
                 </Typography>
+                <Typography color="text.secondary" textAlign={"right"} className="mt-2">
+                <Link  href="#" underline="hover">
+                  View more
+                </Link>
+              </Typography>
               </CardContent>
             </Card>
           </Grid>

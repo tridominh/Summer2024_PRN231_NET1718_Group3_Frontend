@@ -102,11 +102,14 @@ export function SchedulePage({ token }) {
         return daysOfWeek.split(', ').map(Number);
     };
 
+    
+
   useEffect(() => {
     fetchSchedules();
   }, []);
 
   return (
+    
     <div className='w-full'>
         {/*JSON.stringify(schedules)*/}
         <FullCalendar

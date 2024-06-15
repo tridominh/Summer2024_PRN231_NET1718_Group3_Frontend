@@ -31,6 +31,15 @@ export async function CreateBooking(createBookingDto) {
   return response.data.data;
 }
 
+export async function AddSchedule(scheduleDto) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Schedule/Add`,
+    scheduleDto,
+    ngrokSkipWarning,
+  );
+  return response.data.data;
+}
+
 export async function UpdateBooking(updateBookingDto) {
   const response = await axios.post(
     `${getEndpoint()}/api/Booking/Update`,

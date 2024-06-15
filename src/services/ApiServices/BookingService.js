@@ -40,3 +40,33 @@ export async function UpdateBooking(updateBookingDto) {
 
   return response.data.data;
 }
+
+export async function ApplyToBooking(applyBookingDto) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Booking/Apply`,
+    applyBookingDto,
+    ngrokSkipWarning,
+  );
+
+  return response.data;
+}
+
+export async function GetAllTutorsByBooking(bookingId) {
+  const response = await axios.get(
+    `${getEndpoint()}/api/Booking/GetTutorsByBooking/${bookingId}`,
+    ngrokSkipWarning,
+  );
+
+  return response.data;
+}
+
+export async function AcceptTutor(acceptTutorDto) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Booking/AcceptTutor`,
+    acceptTutorDto,
+    ngrokSkipWarning,
+  );
+
+  return response.data;
+}
+

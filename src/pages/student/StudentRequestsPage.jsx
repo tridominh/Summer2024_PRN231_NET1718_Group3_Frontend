@@ -1,19 +1,32 @@
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
   CardContent,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
-import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
-import parseJwt from "../../services/parseJwt";
 import { Link } from "react-router-dom";
+
+import parseJwt from "../../services/parseJwt";
+import { GetAllBookingsByStatus, GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
+import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
 
 export default function StudentRequestsPage() {
   const [requests, setRequests] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [appliedTutors, setAppliedTutors] = useState([]);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const handleAccept = (tutorId) => {
+    // Handle accept logic here
+    console.log("Accepted tutor with ID:", tutorId);
+  };
 
   useEffect(() => {
     async function fetchRequests() {
@@ -25,17 +38,9 @@ export default function StudentRequestsPage() {
         const allBookings = bookingResponse.data;
         const bookingUsers = await GetAllBookingUsers();
         const studentBookingIds = bookingUsers
-          .filter((bookingUser) => {
-            return (
-              bookingUser.userId === userId && bookingUser.role === "STUDENT"
-            );
-          })
-          .map((bookingUser) => {
-            return bookingUser.bookingId;
-          });
-        const studentBookings = allBookings.filter((booking) => {
-          return studentBookingIds.includes(booking.id);
-        });
+          .filter((bookingUser) => bookingUser.userId === userId && bookingUser.role === "STUDENT")
+          .map((bookingUser) => bookingUser.bookingId);
+        const studentBookings = allBookings.filter((booking) => studentBookingIds.includes(booking.id));
 
         setRequests(studentBookings);
       } catch (error) {
@@ -44,6 +49,26 @@ export default function StudentRequestsPage() {
     }
     fetchRequests();
   }, []);
+
+  const handleOpenDialog = async (bookingId) => {
+    try {
+      const tutorsResponse = await GetAllTutorsByBooking(bookingId);
+      console.log(tutorsResponse.data);
+      if (Array.isArray(tutorsResponse.data)) {
+        setAppliedTutors(tutorsResponse.data);
+        setSelectedBookingId(bookingId);
+        setDialogOpen(true);
+      } else {
+        console.error("Invalid response from GetAllTutorsByBooking:", tutorsResponse);
+      }
+    } catch (error) {
+      console.error("Error fetching applied tutors:", error);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
 
   return (
     <Container maxWidth="max-w-7xl mx-auto p-4" className="my-3">
@@ -81,15 +106,50 @@ export default function StudentRequestsPage() {
                   Status: <strong>{request.status}</strong>
                 </Typography>
                 <Typography color="text.secondary" textAlign={"right"} className="mt-2">
-                <Link  href="#" underline="hover">
-                  View more
-                </Link>
-              </Typography>
+                  <Link onClick={() => handleOpenDialog(request.id)} underline="hover">
+                    Tutors Requests
+                  </Link>
+                </Typography>
+                <Typography color="text.secondary" textAlign={"right"} className="mt-2">
+                  <Link to="#" underline="hover">
+                    View more
+                  </Link>
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
-      </Grid>{" "}
+      </Grid>
+
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        aria-labelledby="dialog-title"
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle id="dialog-title">Tutors Applied to Request</DialogTitle>
+        <DialogContent>
+          {appliedTutors.map((tutor, index) => (
+            <DialogContentText key={index} id={`tutor-${index}`} className="flex justify-between">
+              {`${index + 1}. ${tutor.user.userName}`}
+              <div className="mb-3">
+              <Button
+                onClick={() => handleAccept(tutor.id)}
+                variant="contained"
+                color="primary"
+                sx={{ ml: 1 }}
+              >
+                Accept
+              </Button>
+              </div>
+            </DialogContentText>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

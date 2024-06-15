@@ -18,6 +18,7 @@ import parseJwt from "./services/parseJwt.js";
 import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 import { ChartPage } from "./component/ChartPage.jsx";
+import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -85,7 +86,7 @@ function App() {
             path="/tutor/request"
             element={
               <PrivateRoute role="Tutor">
-                <BrowseBooking />
+                <TutorRequestsPage />
               </PrivateRoute>
             }
           ></Route>

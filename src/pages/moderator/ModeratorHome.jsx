@@ -25,6 +25,7 @@ export function ModeratorHome() {
     };
 
     const acceptCredentials = async (credential) => {
+        let tutorEmail = "";
         try {
             const cred = {
                 id: credential.id,
@@ -38,12 +39,9 @@ export function ModeratorHome() {
             await UpdateCredential(cred);
 
             const tutorInfo = await GetUserInfo(credential.tutorId); 
-            const tutorEmail = tutorInfo.email; 
+            tutorEmail = tutorInfo.email; 
 
-            await SendStatusMailCredentials({
-                email: tutorEmail,
-                status: "Accepted"
-            });
+            
             await fetchCredentials();
         } catch (error) {
             setErrorMessage(
@@ -51,19 +49,21 @@ export function ModeratorHome() {
                 "An error occurred. Please try again later."
             );
         }
+        await SendStatusMailCredentials({
+            email: tutorEmail,
+            status: "Accepted"
+        });
     };
 
     const rejectCredentials = async (credential) => {
+        let tutorEmail = "";
         try {
             await DeleteCredential(credential.id);
 
             const tutorInfo = await GetUserInfo(credential.tutorId); 
-            const tutorEmail = tutorInfo.email; 
+            tutorEmail = tutorInfo.email; 
 
-            await SendStatusMailCredentials({
-                email: tutorEmail,
-                status: "Rejected"
-            });
+            
             await fetchCredentials();
         } catch (error) {
             setErrorMessage(
@@ -71,6 +71,10 @@ export function ModeratorHome() {
                 "An error occurred. Please try again later."
             );
         }
+        await SendStatusMailCredentials({
+            email: tutorEmail,
+            status: "Rejected"
+        });
     };
 
     const handleViewCredentialDetails = (credential) => {

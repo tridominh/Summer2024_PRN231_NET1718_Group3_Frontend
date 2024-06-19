@@ -39,6 +39,8 @@ import {
 import parseJwt from "../services/parseJwt";
 import { GetAllSubjects } from "../services/ApiServices/SubjectService";
 import { GetBookingUsersByUserId } from "../services/ApiServices/BookingUserService";
+import { formatPrice } from "../services/formatPrice";
+import { AddCreditDialog } from "../component/AddCreditDialog";
 
 export function ProfileTutor({ token, setToken }) {
   const id = parseJwt(token).nameid || "";
@@ -59,6 +61,12 @@ export function ProfileTutor({ token, setToken }) {
   const [openView, setOpenView] = useState(false);
   const [selectedCredentialDetails, setSelectedCredentialDetails] =
     useState(null);
+  //credit dialog state
+  const [openCredit, setOpenCredit] = useState(false);
+
+  const handleOpenCredit = () => {
+    setOpenCredit((openCredit) => !openCredit);
+  };
 
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState(userInfo.email);
@@ -464,6 +472,20 @@ export function ProfileTutor({ token, setToken }) {
       </Paper>
       <Paper sx={{ padding: 3, marginBottom: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
+          Credit
+        </Typography>
+        <Box>
+          <Typography variant="h6">Your credit balance</Typography>
+          <Typography>{formatPrice(userInfo.credit)}</Typography>
+        </Box>
+        <Box display="flex" justifyContent="flex-start" mb={2}>
+          <Button variant="contained" color="primary" onClick={handleOpenCredit}>
+            Add Credit
+          </Button>
+        </Box>
+      </Paper>
+      <Paper sx={{ padding: 3, marginBottom: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
           Credentials
         </Typography>
         <Box display="flex" justifyContent="flex-start" mb={2}>
@@ -666,6 +688,7 @@ export function ProfileTutor({ token, setToken }) {
           <Button onClick={handleCloseView}>Close</Button>
         </DialogActions>
       </Dialog>
+      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id}/>
 
       <Snackbar
         open={snackbarOpen}

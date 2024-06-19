@@ -19,6 +19,7 @@ import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 import { ChartPage } from "./component/ChartPage.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
+import { PostPage } from "./pages/tutor/PostPage";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -40,6 +41,10 @@ function App() {
           <Route
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
+          />
+          <Route
+            path="Post"
+            element={<PostPage />}
           />
           <Route
             path="ProfileTutor"

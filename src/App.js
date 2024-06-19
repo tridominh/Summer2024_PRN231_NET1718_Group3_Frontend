@@ -11,13 +11,13 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ModeratorHome } from "./pages/moderator/ModeratorHome.jsx";
 import Features from "./pages/Features";
 import StudentRequestsPage from "./pages/student/StudentRequestsPage.jsx";
-import { BrowseBooking } from "./pages/tutor/BrowseBooking";
 import { SchedulePage } from "./pages/student/SchedulePage";
 import AdminStudentManagement from "./pages/admin/AdminStudentManagement.jsx";
 import parseJwt from "./services/parseJwt.js";
 import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 import { ChartPage } from "./component/ChartPage.jsx";
+import Test from "./Test.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 import { PostPage } from "./pages/tutor/PostPage";
 
@@ -42,10 +42,7 @@ function App() {
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
-          <Route
-            path="Post"
-            element={<PostPage />}
-          />
+          <Route path="Post" element={<PostPage />} />
           <Route
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
@@ -156,6 +153,7 @@ function App() {
           />
         </Route>
         <Route path="login" element={<Login />} />
+        <Route path="test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );

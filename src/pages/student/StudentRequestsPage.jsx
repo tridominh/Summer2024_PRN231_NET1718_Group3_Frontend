@@ -14,11 +14,11 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
+import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
+import parseJwt from "../../services/parseJwt";
 import { Link } from "react-router-dom";
 
-import parseJwt from "../../services/parseJwt";
-import { GetAllBookingsByStatus, GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
-import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
+import { GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
 
 export default function StudentRequestsPage() {
@@ -37,11 +37,12 @@ export default function StudentRequestsPage() {
 
         const bookingResponse = await GetAllBookingsByStatus("PENDING");
         const allBookings = bookingResponse.data;
-        const bookingUsers = await GetAllBookingUsers();
-        const studentBookingIds = bookingUsers
-          .filter((bookingUser) => bookingUser.userId === userId && bookingUser.role === "STUDENT")
-          .map((bookingUser) => bookingUser.bookingId);
-        const studentBookings = allBookings.filter((booking) => studentBookingIds.includes(booking.id));
+        const studentBookings = allBookings.filter((booking) => {
+          return (
+            booking.bookingUsers[0].userId === userId &&
+            booking.bookingUsers[0].role === "STUDENT"
+          );
+        });
 
         setRequests(studentBookings);
       } catch (error) {
@@ -60,7 +61,10 @@ export default function StudentRequestsPage() {
         setSelectedBookingId(bookingId);
         setDialogOpen(true);
       } else {
-        console.error("Invalid response from GetAllTutorsByBooking:", tutorsResponse);
+        console.error(
+          "Invalid response from GetAllTutorsByBooking:",
+          tutorsResponse,
+        );
       }
     } catch (error) {
       console.error("Error fetching applied tutors:", error);
@@ -75,7 +79,7 @@ export default function StudentRequestsPage() {
     // Handle accept logic here
     console.log("Accepted tutor with ID:", tutorId);
   };
-  
+
   const handleOpenProfileDialog = async (userId) => {
     try {
       const profileResponse = await GetUserInfo(userId);
@@ -91,7 +95,7 @@ export default function StudentRequestsPage() {
   };
 
   const filterAcceptedCredentials = (credentials) => {
-    return credentials.filter(credential => credential.status === "Accepted");
+    return credentials.filter((credential) => credential.status === "Accepted");
   };
 
   return (
@@ -118,26 +122,33 @@ export default function StudentRequestsPage() {
                   className="text-center"
                   color="text.secondary"
                 >
-                  Subject: <strong> {request.subject.name}</strong>
+                  Subject: <strong> {request.subjectName}</strong>
                 </Typography>
                 <Typography color="text.secondary">
-                  Level: <strong> {request.level.levelName}</strong>
+                  Level: <strong> {request.levelName}</strong>
+                </Typography>
+                <Typography color="text.secondary">
+                  Number Of Slots: <strong>{request.numOfSlots}</strong>
+                </Typography>
+                <Typography color="text.secondary">
+                  Price Per Slot: <strong>{request.pricePerSlot}</strong>
                 </Typography>
                 <Typography color="text.secondary">
                   Description: <strong>{request.description}</strong>
                 </Typography>
+
                 <Typography color="text.secondary">
                   Status: <strong>{request.status}</strong>
                 </Typography>
-                <Typography color="text.secondary" textAlign={"right"} className="mt-2">
-                  <div onClick={() => handleOpenDialog(request.id)} style={{ cursor: "pointer" }}>
-                    Tutors Requests
-                  </div>
-                </Typography>
-                <Typography color="text.secondary" textAlign={"right"} className="mt-2">
-                  <Link to="#" underline="hover">
-                    View more
-                  </Link>
+                <Typography color="text.secondary">
+                  Number of Tutors applying:{" "}
+                  <strong>
+                    {
+                      request.bookingUsers.filter((item) => {
+                        return item.role === "Tutor";
+                      }).length
+                    }
+                  </strong>
                 </Typography>
               </CardContent>
             </Card>
@@ -160,8 +171,15 @@ export default function StudentRequestsPage() {
             </Typography>
           ) : (
             appliedTutors.map((tutor, index) => (
-              <DialogContentText key={index} id={`tutor-${index}`} className="flex justify-between">
-                <span onClick={() => handleOpenProfileDialog(tutor.user.id)} className="cursor-pointer text-blue-500">
+              <DialogContentText
+                key={index}
+                id={`tutor-${index}`}
+                className="flex justify-between"
+              >
+                <span
+                  onClick={() => handleOpenProfileDialog(tutor.user.id)}
+                  className="cursor-pointer text-blue-500"
+                >
                   {`${index + 1}. ${tutor.user.userName}`}
                 </span>
                 <div className="mb-3">
@@ -190,32 +208,60 @@ export default function StudentRequestsPage() {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle variant="h4" id="profile-dialog-title">Tutor Profile</DialogTitle>
+        <DialogTitle variant="h4" id="profile-dialog-title">
+          Tutor Profile
+        </DialogTitle>
         <DialogContent>
           {tutorProfile && (
             <>
               <Box display="flex" alignItems="center" mb={2}>
                 <Avatar
                   src={tutorProfile.avatar}
-                  sx={{ width: 120, height: 120, marginRight: 2 }}
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    marginRight: 2,
+                  }}
                 />
               </Box>
               <div>
-              <Typography><strong>Name: </strong>{tutorProfile.userName}</Typography>
-              <Typography><strong>Email: </strong>{tutorProfile.email}</Typography>
-              <Typography><strong>Phone Number: </strong>{tutorProfile.phoneNumber}</Typography>
-              <Typography><strong>Address: </strong>{tutorProfile.address}</Typography>
-              <Typography><strong>Gender: </strong>{tutorProfile.gender}</Typography>
-              <Typography><strong>Credentials:</strong></Typography>
-              {filterAcceptedCredentials(tutorProfile.credentials).map((credential, index) => (
-                <div className="flex justify-center mb-3" key={index}>
-                  <img 
-                    src={credential.image} 
-                    alt={`Credential ${index + 1}`}  
-                    style={{ maxWidth: "60%", margin: "10px 0" }} 
-                  />
-                </div>
-              ))}
+                <Typography>
+                  <strong>Name: </strong>
+                  {tutorProfile.userName}
+                </Typography>
+                <Typography>
+                  <strong>Email: </strong>
+                  {tutorProfile.email}
+                </Typography>
+                <Typography>
+                  <strong>Phone Number: </strong>
+                  {tutorProfile.phoneNumber}
+                </Typography>
+                <Typography>
+                  <strong>Address: </strong>
+                  {tutorProfile.address}
+                </Typography>
+                <Typography>
+                  <strong>Gender: </strong>
+                  {tutorProfile.gender}
+                </Typography>
+                <Typography>
+                  <strong>Credentials:</strong>
+                </Typography>
+                {filterAcceptedCredentials(tutorProfile.credentials).map(
+                  (credential, index) => (
+                    <div className="flex justify-center mb-3" key={index}>
+                      <img
+                        src={credential.image}
+                        alt={`Credential ${index + 1}`}
+                        style={{
+                          maxWidth: "60%",
+                          margin: "10px 0",
+                        }}
+                      />
+                    </div>
+                  ),
+                )}
               </div>
             </>
           )}

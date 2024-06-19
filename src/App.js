@@ -18,6 +18,7 @@ import parseJwt from "./services/parseJwt.js";
 import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 import { ChartPage } from "./component/ChartPage.jsx";
+import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -44,13 +45,28 @@ function App() {
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
           />
-          <Route path="/student/booking" element={<StudentBookingRequest />} />
-          <Route path="/student/requests" element={<StudentRequestsPage />} />
+          {/* Student paths */}
+          <Route
+            path="/student/booking"
+            element={
+              <PrivateRoute role={"Student"}>
+                <StudentBookingRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/student/requests"
+            element={
+              <PrivateRoute role={"Student"}>
+                <StudentRequestsPage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/schedule"
             element={
-              <PrivateRoute roles={["Student","Tutor"]}>
-                <SchedulePage token={token}/>
+              <PrivateRoute roles={["Student", "Tutor"]}>
+                <SchedulePage token={token} />
               </PrivateRoute>
             }
           ></Route>
@@ -59,9 +75,10 @@ function App() {
             path="/admin/subject-level"
             element={
               <PrivateRoute role="Admin">
-                <AdminDashboard Element={
-                    <Features token={token} setToken={setToken} />
-                } removeToken={removeToken}/>
+                <AdminDashboard
+                  Element={<Features token={token} setToken={setToken} />}
+                  removeToken={removeToken}
+                />
               </PrivateRoute>
             }
           />
@@ -69,7 +86,7 @@ function App() {
             path="/tutor/request"
             element={
               <PrivateRoute role="Tutor">
-                <BrowseBooking />
+                <TutorRequestsPage />
               </PrivateRoute>
             }
           ></Route>

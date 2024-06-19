@@ -16,14 +16,8 @@ import {
   Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import {
-  Delete as DeleteIcon,
-  Visibility as VisibilityIcon,
-} from "@mui/icons-material";
-import {
-  GetAllUsers,
-  UpdateUserInfo,
-} from "../../services/ApiServices/UserService";
+import { Delete as DeleteIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
+import { GetAllUsers, SendStatusMail, UpdateUserInfo } from "../../services/ApiServices/UserService";
 import { GetBookingUsersByUserId } from "../../services/ApiServices/BookingUserService";
 
 function AdminTutorsManagement({ id }) {
@@ -89,14 +83,17 @@ function AdminTutorsManagement({ id }) {
     if (tutor.bookingStatus === "Not in booking") {
       try {
         await UpdateUserInfo({
-          id: tutorId,
-          receiverName: tutor.name,
-          email: tutor.email,
-          address: tutor.address,
-          phoneNumber: tutor.phone,
-          gender: tutor.gender,
-          status: "Inactive",
-          avatar: tutor.avatar,
+           id: tutorId, 
+           receiverName: tutor.name,
+           email: tutor.email,
+           address: tutor.address,
+           phoneNumber: tutor.phone,
+           gender: tutor.gender,
+           status: "Inactive",
+           avatar: tutor.avatar});
+        await SendStatusMail({
+            email: tutor.email,
+            status: "Inactive"
         });
         fetchTutors();
         setIsDeleteDialogOpen(false);

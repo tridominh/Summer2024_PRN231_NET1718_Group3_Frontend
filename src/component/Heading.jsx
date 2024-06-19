@@ -8,17 +8,15 @@ import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
-import parseJwt from "../services/parseJwt";
 
 const adminPages = [];
 const moderatorPages = ["Manage Credential", "Tutor Application Request"];
-const studentPages = ["Request","Schedule"];
-const tutorPages = ["Student Request","Schedule"];
+const studentPages = ["Request", "Schedule"];
+const tutorPages = ["Student Request", "Schedule"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
@@ -39,20 +37,17 @@ function Heading({ token, setToken, removeToken, userRole }) {
     if (page) {
       if (page === "Request") {
         navigate("/student/requests");
-      }
-      else if(page === "Manage Credential"){
+      } else if (page === "Manage Credential") {
         navigate("/manage-credential");
-      }else if(page === "Tutor Application Requests"){
+      } else if (page === "Tutor Application Requests") {
         navigate("/tutor-application-requests");
-      }
-      else if(page === "Student Request"){
+      } else if (page === "Student Request") {
         navigate("/tutor/request");
-      }else if(page === "Dashboard"){
+      } else if (page === "Dashboard") {
         navigate("/admin/dashboard");
-      }else if(page === "Schedule"){
+      } else if (page === "Schedule") {
         navigate("/schedule");
-      }
-      else {
+      } else {
         navigate(`/${page.toLowerCase()}`);
       }
     }
@@ -140,26 +135,30 @@ function Heading({ token, setToken, removeToken, userRole }) {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {userRole=="Admin" && adminPages.map((page) => (
-                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-              {userRole=="Moderator" && moderatorPages.map((page) => (
-                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-              {userRole=="Tutor" && tutorPages.map((page) => (
-                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-              {userRole=="Student" && studentPages.map((page) => (
-                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
+              {userRole == "Admin" &&
+                adminPages.map((page) => (
+                  <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                    <Typography textAlign="center">{page}</Typography>
+                  </MenuItem>
+                ))}
+              {userRole == "Moderator" &&
+                moderatorPages.map((page) => (
+                  <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                    <Typography textAlign="center">{page}</Typography>
+                  </MenuItem>
+                ))}
+              {userRole == "Tutor" &&
+                tutorPages.map((page) => (
+                  <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                    <Typography textAlign="center">{page}</Typography>
+                  </MenuItem>
+                ))}
+              {userRole == "Student" &&
+                studentPages.map((page) => (
+                  <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                    <Typography textAlign="center">{page}</Typography>
+                  </MenuItem>
+                ))}
             </Menu>
           </Box>
 
@@ -192,22 +191,26 @@ function Heading({ token, setToken, removeToken, userRole }) {
               display: { xs: "none", md: "flex" },
             }}
           >
-            {userRole=="Admin" && adminPages.map((page) => (
+            {userRole == "Admin" &&
+              adminPages.map((page) => (
                 <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
-              {userRole=="Moderator" && moderatorPages.map((page) => (
+            {userRole == "Moderator" &&
+              moderatorPages.map((page) => (
                 <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
-              {userRole=="Tutor" && tutorPages.map((page) => (
+            {userRole == "Tutor" &&
+              tutorPages.map((page) => (
                 <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
-              {userRole=="Student" && studentPages.map((page) => (
+            {userRole == "Student" &&
+              studentPages.map((page) => (
                 <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
@@ -246,7 +249,7 @@ function Heading({ token, setToken, removeToken, userRole }) {
                         logout();
                       } else if (setting === "Profile") {
                         navigate(getProfileLink());
-                      }else if (setting === "Dashboard") {
+                      } else if (setting === "Dashboard") {
                         navigate("/admin/dashboard");
                       }
                     }}

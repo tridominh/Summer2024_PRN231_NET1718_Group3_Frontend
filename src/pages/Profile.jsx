@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { GetUserInfo, UpdateUserInfo, UploadAvatar } from "../services/ApiServices/UserService";
-import { Dialog, DialogContent, DialogTitle, Select, MenuItem, InputLabel, TextField, Typography, Box, Avatar } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, Select, MenuItem, InputLabel, TextField, Typography, Box, Avatar, Paper } from "@mui/material";
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import parseJwt from "../services/parseJwt";
+import { formatPrice } from "../services/formatPrice";
+import { AddCreditDialog } from "../component/AddCreditDialog";
 
 export function Profile({ token, setToken }) {
     const id = token ? parseJwt(token).nameid : "";
@@ -29,6 +31,13 @@ export function Profile({ token, setToken }) {
     const [avatar, setAvatar] = useState(userInfo.avatar);
     const [avatarFile, setAvatarFile] = useState(null);
     const [gender, setGender] = useState(userInfo.gender);
+
+    //credit dialog state
+  const [openCredit, setOpenCredit] = useState(false);
+
+  const handleOpenCredit = () => {
+    setOpenCredit((openCredit) => !openCredit);
+  };
 
     const handleOpen = () => setOpen(true);
 
@@ -134,7 +143,7 @@ export function Profile({ token, setToken }) {
                         <Typography variant="body1"><strong>Avatar</strong></Typography>
                     </Box>
                 </Box>
-                <Dialog open={open} onClose={handleClose}>
+                        <Dialog open={open} onClose={handleClose}>
                     <DialogTitle>Edit User Information</DialogTitle>
                     <DialogContent>
                         <form onSubmit={async (event) => {
@@ -210,6 +219,24 @@ export function Profile({ token, setToken }) {
                     </DialogContent>
                 </Dialog>
             </div>
+        <Paper sx={{ padding: 3, marginBottom: 3, maxWidth: 800, mx: "auto" }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
+          Credit
+        </Typography>
+        <Box>
+          <Typography variant="h6">Your credit balance</Typography>
+          <Typography>{formatPrice(userInfo.credit)}</Typography>
+        </Box>
+        <Box display="flex" justifyContent="flex-start" mb={2}>
+          <Button variant="contained" color="primary" onClick={handleOpenCredit}>
+            Add Credit
+          </Button>
+        </Box>
+      </Paper>
+
+
+      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id}/>
+
         </>
     );
 }

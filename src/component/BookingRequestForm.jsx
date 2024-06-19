@@ -5,6 +5,8 @@ import {
   Button,
   Container,
   FormControl,
+  Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -15,15 +17,16 @@ import { GetAllSubjects } from "../services/ApiServices/SubjectService";
 import { GetAllLevels } from "../services/ApiServices/LevelService";
 import parseJwt from "../services/parseJwt";
 import { CreateBooking } from "../services/ApiServices/BookingService";
+import { Delete } from "@mui/icons-material";
 
-const options = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
+const daysOfWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
 ];
 
 export default function BookingRequestForm({ token }) {
@@ -33,10 +36,15 @@ export default function BookingRequestForm({ token }) {
     subject: "",
     level: "",
     description: "",
+    numOfWeeks: 0,
+    duration: "00:00",
+    pricePerSlot: 0,
   });
-  const [checkedOptions, setCheckedOptions] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
+  const [schedules, setSchedules] = useState([
+    { day: "", startTime: "00:00:00", endTime: "00:00:00" },
+  ]);
 
   useEffect(() => {
     async function fetchData() {
@@ -60,10 +68,8 @@ export default function BookingRequestForm({ token }) {
       ...prevData,
       [name]: value,
     }));
-  };
 
-  const handleOptionsChange = (event) => {
-    setCheckedOptions(event.target.value);
+    console.log(formData);
   };
 
   const handleSubmit = async (event) => {
@@ -78,14 +84,70 @@ export default function BookingRequestForm({ token }) {
       userId: Number(parseJwt(token).nameid),
       subjectId: formData.subject,
       levelId: formData.level,
+      numOfSlots: formData.numOfWeeks * schedules.length,
+      pricePerSlot: formData.pricePerSlot,
       description: formData.description,
     };
 
-    const response = await CreateBooking(bookingDto);
-
-    console.log(response.data);
+    const bookingCreateResponse = await CreateBooking(bookingDto);
+    console.log(bookingCreateResponse);
 
     navigate("/student/requests");
+  };
+
+  const handleAddSchedule = () => {
+    setSchedules([...schedules, { day: "", startTime: "", endTime: "" }]);
+  };
+
+  const handleRemoveSchedule = (index) => {
+    if (schedules.length > 1) {
+      setSchedules(schedules.filter((_, i) => i !== index));
+    }
+  };
+
+  const calculateEndTime = (start, interval) => {
+    if (!start || !interval) return "";
+
+    const [startHours, startMinutes] = start.split(":").map(Number);
+    const [intervalHours, intervalMinutes] = interval.split(":").map(Number);
+
+    if (
+      isNaN(startHours) ||
+      isNaN(startMinutes) ||
+      isNaN(intervalHours) ||
+      isNaN(intervalMinutes)
+    ) {
+      return "";
+    }
+
+    const startDate = new Date();
+    startDate.setHours(startHours);
+    startDate.setMinutes(startMinutes);
+    startDate.setSeconds(0);
+    startDate.setMilliseconds(0);
+
+    const endDate = new Date(
+      startDate.getTime() + intervalHours * 3600000 + intervalMinutes * 60000,
+    );
+
+    const endHours = String(endDate.getHours()).padStart(2, "0");
+    const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
+
+    return `${endHours}:${endMinutes}`;
+  };
+
+  const handleScheduleChange = (index, field, value) => {
+    const newSchedules = [...schedules];
+    newSchedules[index][field] = value;
+
+    if (field === "startTime") {
+      newSchedules[index]["endTime"] = calculateEndTime(
+        value,
+        formData.duration,
+      );
+    }
+
+    setSchedules(newSchedules);
   };
 
   return (
@@ -100,6 +162,9 @@ export default function BookingRequestForm({ token }) {
         autoComplete="off"
         className="space-y-6 bg-white p-6 rounded-lg shadow-lg"
       >
+        <Typography sx={{ fontWeight: "bold" }} align="left" variant="body1">
+          Subject Info
+        </Typography>
         <FormControl fullWidth variant="outlined" className="bg-gray-50">
           <InputLabel id="subject">Subject</InputLabel>
           <Select
@@ -140,25 +205,125 @@ export default function BookingRequestForm({ token }) {
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Day of Week</InputLabel>
-          <Select
-            multiple
-            value={checkedOptions}
-            onChange={handleOptionsChange}
-            label="Select Options"
-            renderValue={(selected) => selected.join(", ")}
+        <Typography sx={{ fontWeight: "bold" }} align="left" variant="body1">
+          Schedule
+        </Typography>
+        <TextField
+          name="numOfWeeks"
+          fullWidth
+          variant="outlined"
+          className="bg-gray-50"
+          id="outlined-controlled"
+          label="Number of Weeks"
+          onChange={handleChange}
+        />
+        <TextField
+          label="Slot Duration"
+          name="duration"
+          fullWidth
+          type="text"
+          value={formData.duration}
+          onChange={handleChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          inputProps={{
+            pattern: "[0-9]{2}:[0-9]{2}",
+            placeholder: "HH:MM",
+          }}
+        />
+        {schedules.map((schedule, index) => (
+          <Grid
+            container
+            spacing={2}
+            key={index}
+            sx={{ width: "100%" }}
+            className="mb-4"
           >
-            {options.map((option) => (
-              <MenuItem key={option.value} value={option.label}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-          <Typography variant="body2" color="textSecondary">
-            Select days of week to learn
-          </Typography>
-        </FormControl>
+            <Grid item xs={12} sm={3}>
+              <TextField
+                select
+                label="Day"
+                value={schedule.day}
+                onChange={(e) =>
+                  handleScheduleChange(index, "day", e.target.value)
+                }
+                fullWidth
+                variant="outlined"
+              >
+                {daysOfWeek.map((day) => (
+                  <MenuItem key={day} value={day}>
+                    {day}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Start Time"
+                type="time"
+                name="startTime"
+                value={schedule.startTime}
+                onChange={(e) =>
+                  handleScheduleChange(index, "startTime", e.target.value)
+                }
+                fullWidth
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  step: 300, // 5 minutes
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                disabled
+                label="End Time"
+                type="time"
+                value={schedule.endTime}
+                fullWidth
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  step: 300, // 5 minutes
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={1}>
+              {index > 0 && (
+                <IconButton
+                  onClick={() => handleRemoveSchedule(index)}
+                  color="secondary"
+                >
+                  <Delete />
+                </IconButton>
+              )}
+            </Grid>
+          </Grid>
+        ))}
+        <Button variant="contained" color="primary" onClick={handleAddSchedule}>
+          Add Schedule
+        </Button>
+        <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">
+          Price
+        </Typography>
+        <TextField
+          type="number"
+          name="pricePerSlot"
+          fullWidth
+          variant="outlined"
+          className="bg-gray-50"
+          id="outlined-controlled"
+          label="Budget Per Slot"
+          onChange={handleChange}
+        />
+        <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">
+          Other
+        </Typography>
         <TextField
           name="description"
           fullWidth

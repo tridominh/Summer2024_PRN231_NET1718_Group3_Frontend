@@ -10,3 +10,12 @@ export async function GetAllSchedulesOfUser(id) {
   );
   return response.data;
 }
+
+export async function CreateSchedule(createScheduleDto) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Schedule/Add`,
+    createScheduleDto,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}

@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
-import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
 import parseJwt from "../../services/parseJwt";
 import { Link } from "react-router-dom";
 
@@ -23,18 +22,11 @@ export default function StudentRequestsPage() {
 
         const bookingResponse = await GetAllBookingsByStatus("PENDING");
         const allBookings = bookingResponse.data;
-        const bookingUsers = await GetAllBookingUsers();
-        const studentBookingIds = bookingUsers
-          .filter((bookingUser) => {
-            return (
-              bookingUser.userId === userId && bookingUser.role === "STUDENT"
-            );
-          })
-          .map((bookingUser) => {
-            return bookingUser.bookingId;
-          });
         const studentBookings = allBookings.filter((booking) => {
-          return studentBookingIds.includes(booking.id);
+          return (
+            booking.bookingUsers[0].userId === userId &&
+            booking.bookingUsers[0].role === "STUDENT"
+          );
         });
 
         setRequests(studentBookings);
@@ -69,16 +61,33 @@ export default function StudentRequestsPage() {
                   className="text-center"
                   color="text.secondary"
                 >
-                  Subject: <strong> {request.subject.name}</strong>
+                  Subject: <strong> {request.subjectName}</strong>
                 </Typography>
                 <Typography color="text.secondary">
-                  Level: <strong> {request.level.levelName}</strong>
+                  Level: <strong> {request.levelName}</strong>
+                </Typography>
+                <Typography color="text.secondary">
+                  Number Of Slots: <strong>{request.numOfSlots}</strong>
+                </Typography>
+                <Typography color="text.secondary">
+                  Price Per Slot: <strong>{request.pricePerSlot}</strong>
                 </Typography>
                 <Typography color="text.secondary">
                   Description: <strong>{request.description}</strong>
                 </Typography>
+
                 <Typography color="text.secondary">
                   Status: <strong>{request.status}</strong>
+                </Typography>
+                <Typography color="text.secondary">
+                  Number of Tutors applying:{" "}
+                  <strong>
+                    {
+                      request.bookingUsers.filter((item) => {
+                        return item.role === "Tutor";
+                      }).length
+                    }
+                  </strong>
                 </Typography>
               </CardContent>
             </Card>

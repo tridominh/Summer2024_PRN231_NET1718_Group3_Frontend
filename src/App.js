@@ -18,6 +18,7 @@ import parseJwt from "./services/parseJwt.js";
 import AdminTutorsManagement from "./pages/admin/AdminTutorsManagement.jsx";
 import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTutorApplicationRequests.jsx";
 import { ChartPage } from "./component/ChartPage.jsx";
+import Test from "./Test.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -150,6 +151,7 @@ function App() {
           />
         </Route>
         <Route path="login" element={<Login />} />
+        <Route path="test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );

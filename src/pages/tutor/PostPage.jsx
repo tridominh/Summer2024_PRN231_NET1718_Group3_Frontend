@@ -69,9 +69,9 @@ export function PostPage() {
         Posts
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid className="justify-center flex-wrap" container spacing={3}>
         {posts.map((post) => (
-          <Grid item key={post.id} xs={12} sm={6} md={4}>
+          <Grid sx={{minWidth: "51%"}} item key={post.id} xs={12} sm={6} md={4}>
             <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <CardActionArea onClick={() => navigate(`/posts/${post.id}`)} sx={{ flexGrow: 1 }}>
                 {post.imageUrl && (

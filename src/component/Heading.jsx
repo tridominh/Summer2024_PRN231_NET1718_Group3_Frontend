@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 const adminPages = [];
 const moderatorPages = ["Manage Credentials", "Tutor Application Request", "Manage Posts"];
 const studentPages = ["Request", "Schedule"];
-const tutorPages = ["Student Request", "Schedule"];
+const tutorPages = ["Student Request", "Schedule", "Newfeed"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
@@ -39,6 +39,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
         navigate("/student/requests");
       } else if (page === "Manage Credentials") {
         navigate("/manage-credentials");
+      }else if (page === "Newfeed") {
+        navigate("/newfeed");
       }else if (page === "Manage Posts") {
         navigate("/manage-posts");
       } else if (page === "Tutor Application Requests") {

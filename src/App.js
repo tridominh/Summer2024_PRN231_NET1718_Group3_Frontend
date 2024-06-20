@@ -46,7 +46,7 @@ function App() {
             element={<Profile token={token} setToken={setToken} />}
           />
           <Route
-            path="Post"
+            path="/newfeed"
             element={<PostPage />}
           />
           <Route 

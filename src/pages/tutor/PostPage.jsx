@@ -1,27 +1,46 @@
 import {
   Typography,
   Box,
-  Grid,
   Card,
   CardMedia,
-  CardContent,
   CardActionArea,
   Avatar,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { GetAllPost } from "../../services/ApiServices/PostService";
+import { GetUserInfo } from "../../services/ApiServices/UserService";
 
 export function PostPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [users, setUsers] = useState({});
+  const [tutorProfile, setTutorProfile] = useState(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const navigate = useNavigate();
+
   const fetchPosts = async () => {
     try {
       const data = await GetAllPost();
-      setPosts(data);
+      // Lọc những bài đăng có status là ACTIVE
+      const activePosts = data.filter(post => post.status === "ACTIVE");
+      setPosts(activePosts);
+
+      const userPromises = activePosts.map(post => GetUserInfo(post.userId));
+      const usersData = await Promise.all(userPromises);
+      const usersMap = usersData.reduce((acc, user) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      setUsers(usersMap);
     } catch (err) {
       if (err.response && err.response.data) {
         setError(err.response.data.message || 'An error occurred. Please try again later.');
@@ -32,6 +51,20 @@ export function PostPage() {
       setLoading(false);
     }
   };
+
+  const handleUserClick = (userId) => {
+    const user = users[userId];
+    if (user) {
+      setTutorProfile(user);
+      setProfileDialogOpen(true);
+    }
+  };
+
+  const handleCloseProfileDialog = () => {
+    setProfileDialogOpen(false);
+    setTutorProfile(null);
+  };
+
   const createMarkup = (htmlString) => {
     return { __html: htmlString };
   };
@@ -67,34 +100,40 @@ export function PostPage() {
   }
 
   return (
-    <Box p={2} maxWidth="1200px" mx="auto">
-      <Typography variant="h4" gutterBottom align="center">
-        Posts
+    <Box p={2} maxWidth="2000px" mx="auto">
+      <Typography sx={{ fontWeight: 'bold' }} variant="h4" gutterBottom align="center">
+        NEWSFEED
       </Typography>
-
       {posts.map((post) => (
         <Box key={post.id} mb={3} mx="auto" maxWidth={600}>
-          <Card sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-            {/* Avatar and username */}
+          <Card sx={{ backgroundColor: "#6c757d4d", boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
             <Box display="flex" alignItems="center" p={1}>
-              <Avatar src={post.avatarUrl} alt={post.username} />
-              <Typography variant="body1" sx={{ marginLeft: 1 }}>{post.username}</Typography>
+              <Avatar src={users[post.userId]?.avatar} alt={users[post.userId]?.userName} />
+              <Typography
+                variant="body1"
+                sx={{
+                  marginLeft: 1,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+                onClick={() => handleUserClick(post.userId)}
+              >
+                {users[post.userId]?.userName}
+              </Typography>
             </Box>
-            {/* Date */}
             <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>
               {new Date(post.createdDate).toLocaleDateString()}
             </Typography>
-            {/* Title */}
             <Typography variant="h5" component="div" sx={{ p: 1 }}>
               {post.title}
             </Typography>
-            {/* Description */}
             <Typography
               variant="body1"
               sx={{ p: 1, whiteSpace: 'pre-line' }}
               dangerouslySetInnerHTML={createMarkup(post.description)}
             />
-            {/* Image */}
             {post.imageUrl && (
               <CardActionArea onClick={() => navigate(`/posts/${post.id}`)} sx={{ flexGrow: 1 }}>
                 <CardMedia
@@ -107,8 +146,83 @@ export function PostPage() {
               </CardActionArea>
             )}
           </Card>
+          <br></br>
         </Box>
       ))}
+      <Dialog
+        open={profileDialogOpen}
+        onClose={handleCloseProfileDialog}
+        aria-labelledby="profile-dialog-title"
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle variant="h4" id="profile-dialog-title">
+          Tutor Profile
+        </DialogTitle>
+        <DialogContent>
+          {tutorProfile && (
+            <>
+              <Box display="flex" alignItems="center" mb={2}>
+                <Avatar
+                  src={tutorProfile.avatar}
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    marginRight: 2,
+                  }}
+                />
+              </Box>
+              <div>
+                <Typography>
+                  <strong>Name: </strong>
+                  {tutorProfile.userName}
+                </Typography>
+                <Typography>
+                  <strong>Email: </strong>
+                  {tutorProfile.email}
+                </Typography>
+                <Typography>
+                  <strong>Phone Number: </strong>
+                  {tutorProfile.phoneNumber}
+                </Typography>
+                <Typography>
+                  <strong>Address: </strong>
+                  {tutorProfile.address}
+                </Typography>
+                <Typography>
+                  <strong>Gender: </strong>
+                  {tutorProfile.gender}
+                </Typography>
+                <Typography>
+                  <strong>Credentials:</strong>
+                </Typography>
+                {tutorProfile.credentials && tutorProfile.credentials.map(
+                  (credential, index) => (
+                    <div key={index}>
+                      <Typography className="block" variant="body1" component="p">
+                        - {credential.name}:
+                      </Typography>
+                      <img
+                        src={credential.image}
+                        alt={`Credential ${index + 1}`}
+                        style={{
+                          display: 'flex',
+                          maxWidth: '60%',
+                          margin: '10px auto',
+                        }}
+                      />
+                      <br />
+                    </div>
+                  )
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseProfileDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

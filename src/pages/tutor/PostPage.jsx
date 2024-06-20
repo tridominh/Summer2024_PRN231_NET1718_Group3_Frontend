@@ -6,6 +6,7 @@ import {
   CardMedia,
   CardContent,
   CardActionArea,
+  Avatar,
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +18,6 @@ export function PostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
   const fetchPosts = async () => {
     try {
       const data = await GetAllPost();
@@ -31,6 +31,9 @@ export function PostPage() {
     } finally {
       setLoading(false);
     }
+  };
+  const createMarkup = (htmlString) => {
+    return { __html: htmlString };
   };
 
   useEffect(() => {
@@ -69,33 +72,43 @@ export function PostPage() {
         Posts
       </Typography>
 
-      <Grid className="justify-center flex-wrap" container spacing={3}>
-        {posts.map((post) => (
-          <Grid sx={{minWidth: "51%"}} item key={post.id} xs={12} sm={6} md={4}>
-            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {posts.map((post) => (
+        <Box key={post.id} mb={3} mx="auto" maxWidth={600}>
+          <Card sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            {/* Avatar and username */}
+            <Box display="flex" alignItems="center" p={1}>
+              <Avatar src={post.avatarUrl} alt={post.username} />
+              <Typography variant="body1" sx={{ marginLeft: 1 }}>{post.username}</Typography>
+            </Box>
+            {/* Date */}
+            <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>
+              {new Date(post.createdDate).toLocaleDateString()}
+            </Typography>
+            {/* Title */}
+            <Typography variant="h5" component="div" sx={{ p: 1 }}>
+              {post.title}
+            </Typography>
+            {/* Description */}
+            <Typography
+              variant="body1"
+              sx={{ p: 1, whiteSpace: 'pre-line' }}
+              dangerouslySetInnerHTML={createMarkup(post.description)}
+            />
+            {/* Image */}
+            {post.imageUrl && (
               <CardActionArea onClick={() => navigate(`/posts/${post.id}`)} sx={{ flexGrow: 1 }}>
-                {post.imageUrl && (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={post.imageUrl}
-                    alt={post.title}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {new Date(post.createdDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="h5" component="div" gutterBottom>
-                    {post.title}
-                  </Typography>
-                </CardContent>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={post.imageUrl}
+                  alt={post.title}
+                  sx={{ objectFit: 'cover' }}
+                />
               </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+            )}
+          </Card>
+        </Box>
+      ))}
     </Box>
   );
 }

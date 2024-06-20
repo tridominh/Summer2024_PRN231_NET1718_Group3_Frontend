@@ -19,10 +19,10 @@ import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTu
 import { ChartPage } from "./component/ChartPage.jsx";
 import Test from "./Test.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
-import { PostPage } from "./pages/tutor/PostPage";
 import { ModeratorTutorPost } from "./pages/moderator/ModeratorTutorPost.jsx";
 import { PostDetails } from "./pages/tutor/PostDetails";
 import { CreatePostPage } from "./pages/tutor/CreatePostPage";
+import { PostPage } from "./pages/tutor/PostPage.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -46,7 +46,7 @@ function App() {
             element={<Profile token={token} setToken={setToken} />}
           />
           <Route
-            path="/newfeed"
+            path="/newsfeed"
             element={<PostPage />}
           />
           <Route 

@@ -47,6 +47,15 @@ export async function SendStatusMailCredentials(payload) {
   return response.data;
 }
 
+export async function SendStatusMailPost(payload) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Authentication/SendStatusMailPost`,
+    payload,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}
+
 
 export async function GetUserInfoById(id) {
   const response = await axios.get(

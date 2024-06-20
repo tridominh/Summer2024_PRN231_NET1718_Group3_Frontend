@@ -14,7 +14,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
 
 const adminPages = [];
-const moderatorPages = ["Manage Credential", "Tutor Application Request"];
+const moderatorPages = ["Manage Credentials", "Tutor Application Request", "Manage Posts"];
 const studentPages = ["Request", "Schedule"];
 const tutorPages = ["Student Request", "Schedule"];
 const settings = ["Profile", "Dashboard", "Logout"];
@@ -37,8 +37,10 @@ function Heading({ token, setToken, removeToken, userRole }) {
     if (page) {
       if (page === "Request") {
         navigate("/student/requests");
-      } else if (page === "Manage Credential") {
-        navigate("/manage-credential");
+      } else if (page === "Manage Credentials") {
+        navigate("/manage-credentials");
+      }else if (page === "Manage Posts") {
+        navigate("/manage-posts");
       } else if (page === "Tutor Application Requests") {
         navigate("/tutor-application-requests");
       } else if (page === "Student Request") {

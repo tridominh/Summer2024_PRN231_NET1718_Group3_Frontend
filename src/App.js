@@ -20,6 +20,7 @@ import { ChartPage } from "./component/ChartPage.jsx";
 import Test from "./Test.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 import { PostPage } from "./pages/tutor/PostPage";
+import { ModeratorTutorPost } from "./pages/moderator/ModeratorTutorPost.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -136,13 +137,21 @@ function App() {
           ></Route>
           {/*Moderator paths*/}
           <Route
-            path="/manage-credential"
+            path="/manage-credentials"
             element={
               <PrivateRoute role="Moderator">
                 <ModeratorHome />
               </PrivateRoute>
             }
           />{" "}
+          <Route
+            path="/manage-posts"
+            element={
+              <PrivateRoute role="Moderator">
+                <ModeratorTutorPost />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/tutor application request"
             element={

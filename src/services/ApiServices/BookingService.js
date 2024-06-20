@@ -79,3 +79,12 @@ export async function AcceptTutor(acceptTutorDto) {
   return response.data;
 }
 
+export async function CancelApplication(cancelApplicationDto) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Booking/CancelApplication`,
+    cancelApplicationDto,
+    ngrokSkipWarning,
+  );
+
+  return response.data;
+}

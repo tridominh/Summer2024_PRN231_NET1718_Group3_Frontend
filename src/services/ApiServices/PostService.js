@@ -10,3 +10,29 @@ export async function GetAllPost() {
   );
   return response.data;
 }
+
+export async function GetPostById(id) {
+  const response = await axios.get(
+      `${getEndpoint()}/api/Post/Get?id=${id}`,
+      ngrokSkipWarning
+  );
+  return response.data;
+}
+
+export async function AddPost(postDTO) {
+  const response = await axios.post(
+      `${getEndpoint()}/api/Post/Add`,
+      postDTO,
+      ngrokSkipWarning
+  );
+  return response.data;
+}
+
+export async function UpdatePost(postDTO) {
+  const response = await axios.put(
+      `${getEndpoint()}/api/Post/Update`,
+      postDTO,
+      ngrokSkipWarning
+  );
+  return response.data;
+}

@@ -20,10 +20,12 @@ import { ModeratorTutorApplicationRequests } from "./pages/moderator/ModeratorTu
 import { ChartPage } from "./component/ChartPage.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 import { PostPage } from "./pages/tutor/PostPage";
+import { PostDetails } from "./pages/tutor/PostDetails";
+import { CreatePostPage } from "./pages/tutor/CreatePostPage";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
-  const id = token ? parseJwt(token).id : null;
+  const id = token ? parseJwt(token).nameid : null;
   return (
     <BrowserRouter>
       <Routes>
@@ -45,6 +47,14 @@ function App() {
           <Route
             path="Post"
             element={<PostPage />}
+          />
+          <Route 
+            path="/posts/:id" 
+            element={<PostDetails />} 
+          />
+          <Route 
+            path="/create-post"
+            element={<CreatePostPage userId={id}/>} 
           />
           <Route
             path="ProfileTutor"

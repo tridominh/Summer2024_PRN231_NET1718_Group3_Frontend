@@ -78,4 +78,3 @@ export async function AcceptTutor(acceptTutorDto) {
 
   return response.data;
 }
-

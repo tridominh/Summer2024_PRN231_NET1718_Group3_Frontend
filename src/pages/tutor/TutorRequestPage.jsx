@@ -14,7 +14,7 @@ import {
 import { Link } from "react-router-dom";
 
 import parseJwt from "../../services/parseJwt";
-import { ApplyToBooking, GetAllBookings, GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
+import { ApplyToBooking, CancelApplication, GetAllBookings } from "../../services/ApiServices/BookingService";
 import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
 
 function a11yProps(index) {
@@ -27,6 +27,7 @@ function a11yProps(index) {
 export default function TutorRequestsPage() {
   const [bookings, setBookings] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [tabValue, setTabValue] = useState(0);
   const [allBookings, setAllBookings] = useState([]);
   const [appliedBookings, setAppliedBookings] = useState([]);
@@ -99,9 +100,37 @@ export default function TutorRequestsPage() {
       });
   
       setBookings(updatedBookings);
+      setSnackbarMessage('Applied successfully, please wait for student response');
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error applying to booking:", error);
+    }
+  };
+
+  const handleCancel = async (bookingId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = Number(parseJwt(token).nameid);
+  
+      const cancelBookingDto = {
+        bookingId: bookingId,
+        userId: userId,
+      };
+  
+      const response = await CancelApplication(cancelBookingDto);
+  
+      const updatedBookings = bookings.map((booking) => {
+        if (booking.id === bookingId) {
+          return { ...booking, tutorApplied: false };
+        }
+        return booking;
+      });
+  
+      setBookings(updatedBookings);
+      setSnackbarMessage('Application canceled successfully');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error canceling application:", error);
     }
   };
   
@@ -123,10 +152,10 @@ export default function TutorRequestsPage() {
               className="text-center"
               color="text.secondary"
             >
-              Subject: <strong> {booking.subject.name}</strong>
+              Subject: <strong> {booking.subjectName}</strong>
             </Typography>
             <Typography color="text.secondary">
-              Level: <strong> {booking.level.levelName}</strong>
+              Level: <strong> {booking.levelName}</strong>
             </Typography>
             <Typography color="text.secondary">
               Description: <strong>{booking.description}</strong>
@@ -149,14 +178,24 @@ export default function TutorRequestsPage() {
                 Apply
               </Button>
             ) : (
-              <Button
-                sx={{ mt: 2 }}
-                variant="contained"
-                color="primary"
-                disabled
-              >
-                Applied
-              </Button>
+              <>
+                <Button
+                  sx={{ mt: 2, mr: 1 }}
+                  variant="contained"
+                  color="primary"
+                  disabled
+                >
+                  Applied
+                </Button>
+                <Button
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleCancel(booking.id)}
+                >
+                  Cancel
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>
@@ -205,7 +244,7 @@ export default function TutorRequestsPage() {
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        message="Applied successfully, please wait for student response"
+        message={snackbarMessage}
       />
     </Container>
   );

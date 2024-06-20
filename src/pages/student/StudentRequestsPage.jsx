@@ -140,15 +140,10 @@ export default function StudentRequestsPage() {
                 <Typography color="text.secondary">
                   Status: <strong>{request.status}</strong>
                 </Typography>
-                <Typography color="text.secondary">
-                  Number of Tutors applying:{" "}
-                  <strong>
-                    {
-                      request.bookingUsers.filter((item) => {
-                        return item.role === "Tutor";
-                      }).length
-                    }
-                  </strong>
+                <Typography color="blue" textAlign={"right"} className="mt-2 underline">
+                  <div onClick={() => handleOpenDialog(request.id)} style={{ cursor: "pointer" }}>
+                    Tutors Requests
+                  </div>
                 </Typography>
               </CardContent>
             </Card>
@@ -163,7 +158,7 @@ export default function StudentRequestsPage() {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle id="dialog-title">Tutors Applied to Request</DialogTitle>
+        <DialogTitle id="dialog-title">List tutors applied</DialogTitle>
         <DialogContent>
           {appliedTutors.length === 0 ? (
             <Typography variant="body1" color="text.secondary" align="center">
@@ -250,18 +245,28 @@ export default function StudentRequestsPage() {
                 </Typography>
                 {filterAcceptedCredentials(tutorProfile.credentials).map(
                   (credential, index) => (
-                    <div className="flex justify-center mb-3" key={index}>
+                    <div
+                    className="mt-1"
+                      key={index}
+                    >
+                      <Typography className="block" variant="body1" component="p">
+                        <>- {credential.name}:</>
+                      </Typography>
                       <img
                         src={credential.image}
                         alt={`Credential ${index + 1}`}
+                        className="justify-center"
                         style={{
-                          maxWidth: "60%",
-                          margin: "10px 0",
+                          display: 'flex',
+                          maxWidth: '60%',
+                          margin: '10px auto',
                         }}
                       />
+                      <br></br>
                     </div>
-                  ),
+                  )
                 )}
+
               </div>
             </>
           )}

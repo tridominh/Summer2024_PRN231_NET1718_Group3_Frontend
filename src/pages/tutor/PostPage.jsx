@@ -1,83 +1,101 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import { useEffect, useState } from "react"
+import {
+  Typography,
+  Box,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActionArea,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { GetAllPost } from "../../services/ApiServices/PostService";
 
 export function PostPage() {
-    const [posts, setPosts] = useState([])
-    const [error, setError] = useState("")
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const fetchPosts = async (e) => {
-        let data = null;
-        try {
-          data = await GetAllPost();
-          setPosts(data);
-        }
-        catch (err) {
-            //console.log(err);
-          if (err.response.data.message) {
-            // If the error response contains a message, set it as the error message
-            setError(err.response.data.message);
-          }
-          else if (err.response.data[0].description) {
-            setError(err.response.data[0].description);
-          }
-          else if (err.response.data) {
-            setError(err.response.data);
-          }
-          else {
-            // If the error is something else, set a generic error message
-            setError('An error occurred. Please try again later.');
-          }
-          return;
-        }
-      };
-
-    useEffect(() => {
-        fetchPosts()
-    }, [])
-
-    if(posts.length == 0) {
-        return (
-            <div>
-                No Posts
-            </div>
-        )
+  const fetchPosts = async () => {
+    try {
+      const data = await GetAllPost();
+      setPosts(data);
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'An error occurred. Please try again later.');
+      } else {
+        setError('An error occurred. Please try again later.');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  if (loading) {
     return (
-        <div>
-            {/*JSON.stringify(posts)*/}
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Dessert (100g serving)</TableCell>
-                    <TableCell align="right">Calories</TableCell>
-                    <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                    <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                    <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {posts.map((post) => (
-                    <TableRow
-                      key={post.title}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {post.title}
-                      </TableCell>
-                      <TableCell align="right">{post.description}</TableCell>
-                      <TableCell align="right">{post.imageUrl}</TableCell>
-                      <TableCell align="right">{post.createdDate}</TableCell>
-                      <TableCell align="right">{post.updatedDate}</TableCell>
-                      <TableCell align="right">{post.status}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-        </div>
-    )
-}
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <Typography variant="h6">No Posts</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box p={2} maxWidth="1200px" mx="auto">
+      <Typography variant="h4" gutterBottom align="center">
+        Posts
+      </Typography>
+
+      <Grid className="justify-center flex-wrap" container spacing={3}>
+        {posts.map((post) => (
+          <Grid sx={{minWidth: "51%"}} item key={post.id} xs={12} sm={6} md={4}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <CardActionArea onClick={() => navigate(`/posts/${post.id}`)} sx={{ flexGrow: 1 }}>
+                {post.imageUrl && (
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={post.imageUrl}
+                    alt={post.title}
+                    sx={{ objectFit: 'cover' }}
+                  />
+                )}
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {new Date(post.createdDate).toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="h5" component="div" gutterBottom>
+                    {post.title}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+}

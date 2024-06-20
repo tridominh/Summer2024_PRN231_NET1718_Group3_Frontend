@@ -20,10 +20,13 @@ import { ChartPage } from "./component/ChartPage.jsx";
 import Test from "./Test.jsx";
 import TutorRequestsPage from "./pages/tutor/TutorRequestPage.jsx";
 import { PostPage } from "./pages/tutor/PostPage";
+import { ModeratorTutorPost } from "./pages/moderator/ModeratorTutorPost.jsx";
+import { PostDetails } from "./pages/tutor/PostDetails";
+import { CreatePostPage } from "./pages/tutor/CreatePostPage";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
-  const id = token ? parseJwt(token).id : null;
+  const id = token ? parseJwt(token).nameid : null;
   return (
     <BrowserRouter>
       <Routes>
@@ -42,7 +45,18 @@ function App() {
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
-          <Route path="Post" element={<PostPage />} />
+          <Route
+            path="/newfeed"
+            element={<PostPage />}
+          />
+          <Route 
+            path="/posts/:id" 
+            element={<PostDetails />} 
+          />
+          <Route 
+            path="/create-post"
+            element={<CreatePostPage userId={id}/>} 
+          />
           <Route
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
@@ -136,13 +150,21 @@ function App() {
           ></Route>
           {/*Moderator paths*/}
           <Route
-            path="/manage-credential"
+            path="/manage-credentials"
             element={
               <PrivateRoute role="Moderator">
                 <ModeratorHome />
               </PrivateRoute>
             }
           />{" "}
+          <Route
+            path="/manage-posts"
+            element={
+              <PrivateRoute role="Moderator">
+                <ModeratorTutorPost />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/tutor application request"
             element={

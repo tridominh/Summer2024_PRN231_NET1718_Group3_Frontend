@@ -14,9 +14,13 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
 
 const adminPages = [];
-const moderatorPages = ["Manage Credential", "Tutor Application Request"];
+const moderatorPages = [
+  "Manage Credentials",
+  "Tutor Application Request",
+  "Manage Posts",
+];
 const studentPages = ["Request", "Schedule"];
-const tutorPages = ["Student Request", "Schedule"];
+const tutorPages = ["Student Request", "Schedule", "Newfeed"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
@@ -37,8 +41,12 @@ function Heading({ token, setToken, removeToken, userRole }) {
     if (page) {
       if (page === "Request") {
         navigate("/student/requests");
-      } else if (page === "Manage Credential") {
-        navigate("/manage-credential");
+      } else if (page === "Manage Credentials") {
+        navigate("/manage-credentials");
+      } else if (page === "Newfeed") {
+        navigate("/newfeed");
+      } else if (page === "Manage Posts") {
+        navigate("/manage-posts");
       } else if (page === "Tutor Application Requests") {
         navigate("/tutor-application-requests");
       } else if (page === "Student Request") {
@@ -84,8 +92,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
             noWrap
             component="div"
             onClick={() =>
-              // navigate(userRole === "Student" ? "/student-home" : "/tutor-home")
-              navigate("/")
+              // navigate("/")
+              (window.location.href = "/")
             }
             sx={{
               mr: 2,

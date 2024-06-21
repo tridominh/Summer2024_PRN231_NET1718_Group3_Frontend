@@ -152,7 +152,7 @@ export function ProfileTutor({ token, setToken }) {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later.",
       );
     }
   };
@@ -164,7 +164,7 @@ export function ProfileTutor({ token, setToken }) {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later.",
       );
     }
   };
@@ -245,16 +245,20 @@ export function ProfileTutor({ token, setToken }) {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later.",
       );
       console.error(error);
     }
   };
 
   const validateCredential = (credential) => {
-    const nameRegex = /^[A-Z\s]+$/;
-    const typeRegex = /^[A-Z\s]+$/;
-
+    const nameRegex = /^[a-zA-Z\sÀ-ỹ]+$/;
+    const typeRegex = /^[a-zA-Z\sÀ-ỹ]+$/;
+console.log(credential.name)
+    console.log(credential.type)
+    console.log(selectedSubject)
+    console.log(credential.image)
+    credential.image = credentialImageFile
     if (
       !credential.name ||
       !credential.type ||
@@ -264,6 +268,7 @@ export function ProfileTutor({ token, setToken }) {
       setErrorMessage("Name, Type, Image and Subject are required.");
       return false;
     }
+    
 
     if (credential.name.length > 100 || !nameRegex.test(credential.name)) {
       setErrorMessage(
@@ -295,10 +300,10 @@ export function ProfileTutor({ token, setToken }) {
       };
 
       let addCredential = {
-        tutorId: selectedCredential.tutorId,
+        tutorId: id,
         name: selectedCredential.name,
         type: selectedCredential.type,
-        image: selectedCredential.image,
+        image: "",
         status: "Pending",
         subjectId: selectedSubject,
       };
@@ -355,7 +360,7 @@ export function ProfileTutor({ token, setToken }) {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "An error occurred. Please try again later.",
+        "An error occurred. Please try again later.",
       );
       console.error(error);
     }
@@ -416,7 +421,8 @@ export function ProfileTutor({ token, setToken }) {
             {row[column.dataKey]}
           </TableCell>
         ) : (
-          <TableCell key={column.dataKey} text-align="center">
+          <TableCell style={{ minWidth: "300px" }}
+            key={column.dataKey} text-align="center">
             <Button
               variant="contained"
               color="primary"
@@ -450,50 +456,50 @@ export function ProfileTutor({ token, setToken }) {
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Paper sx={{ padding: 3, marginBottom: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
-          Profile
-        </Typography>
-        <Box display="flex" alignItems="center" mb={2}>
-          <Avatar
-            src={userInfo.avatar}
-            sx={{ width: 120, height: 120, marginRight: 2 }}
-          />
-          <Box>
-            <Typography variant="h6">{userInfo.userName}</Typography>
-            <Typography>{userInfo.email}</Typography>
-          </Box>
-        </Box>
-        <Box display="flex" justifyContent="flex-start" mb={2}>
-          <Button variant="contained" color="primary" onClick={handleOpen}>
-            Edit Profile
+      <Box className="user-info-wrapper mb-5" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', display: 'flex', gap: 4 }}>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h4" gutterBottom>
+            <strong>USER INFORMATION</strong>
+          </Typography>
+          <Typography variant="body1"><strong>Name:</strong> {userInfo.userName}</Typography>
+          <Typography variant="body1"><strong>Email:</strong> {userInfo.email}</Typography>
+          <Typography variant="body1"><strong>Phone number:</strong> {userInfo.phoneNumber}</Typography>
+          <Typography variant="body1"><strong>Address:</strong> {userInfo.address}</Typography>
+          <Typography variant="body1"><strong>Gender:</strong> {userInfo.gender}</Typography>
+          <Button variant="contained" color="primary" onClick={handleOpen} sx={{ mt: 2 }}>
+            Edit
           </Button>
         </Box>
-      </Paper>
-      <Paper sx={{ padding: 3, marginBottom: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Avatar
+            src={userInfo.avatar}
+            alt="User Avatar"
+            sx={{ width: 150, height: 150, mb: 2 }}
+          />
+          <Typography variant="body1"><strong>Avatar</strong></Typography>
+        </Box>
+      </Box>
+      <Box className="credit-info-wrapper mb-5" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
-          Credit
+          CREDITS
         </Typography>
-        <Box>
-          <Typography variant="h6">Your credit balance</Typography>
-          <Typography>{formatPrice(userInfo.credit)}</Typography>
+        <Box display="flex" alignItems="center" mb={2}>
+          <Typography variant="h6">Your credit balance:</Typography>
+          <Typography sx={{ ml: 1 }}>{formatPrice(userInfo.credit)}</Typography>
         </Box>
         <Box display="flex" justifyContent="flex-start" mb={2}>
           <Button variant="contained" color="primary" onClick={handleOpenCredit}>
             Add Credit
           </Button>
         </Box>
-      </Paper>
-      <Paper sx={{ padding: 3, marginBottom: 3 }}>
+      </Box>
+
+      <Box className="credentials-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
-          Credentials
+          CREDENTIALS
         </Typography>
         <Box display="flex" justifyContent="flex-start" mb={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleOpenCredential()}
-          >
+          <Button variant="contained" color="primary" onClick={handleOpenCredential}>
             Add Credential
           </Button>
         </Box>
@@ -502,10 +508,7 @@ export function ProfileTutor({ token, setToken }) {
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell
-                    key={column.dataKey}
-                    style={{ minWidth: 200, flex: 1 }}
-                  >
+                  <TableCell key={column.dataKey} style={{ minWidth: 200, flex: 1 }}>
                     {column.label}
                   </TableCell>
                 ))}
@@ -520,7 +523,8 @@ export function ProfileTutor({ token, setToken }) {
             </TableBody>
           </Table>
         </TableContainer>
-      </Paper>
+      </Box>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Edit Profile</DialogTitle>
         <DialogContent>
@@ -688,7 +692,7 @@ export function ProfileTutor({ token, setToken }) {
           <Button onClick={handleCloseView}>Close</Button>
         </DialogActions>
       </Dialog>
-      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id}/>
+      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
 
       <Snackbar
         open={snackbarOpen}

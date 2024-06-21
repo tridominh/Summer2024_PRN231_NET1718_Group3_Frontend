@@ -33,11 +33,11 @@ export function Profile({ token, setToken }) {
     const [gender, setGender] = useState(userInfo.gender);
 
     //credit dialog state
-  const [openCredit, setOpenCredit] = useState(false);
+    const [openCredit, setOpenCredit] = useState(false);
 
-  const handleOpenCredit = () => {
-    setOpenCredit((openCredit) => !openCredit);
-  };
+    const handleOpenCredit = () => {
+        setOpenCredit((openCredit) => !openCredit);
+    };
 
     const handleOpen = () => setOpen(true);
 
@@ -109,7 +109,7 @@ export function Profile({ token, setToken }) {
         fetchUserInfo();
     }, []);
 
-    if(!token){
+    if (!token) {
         return (
             <div>
                 <h1>Please login</h1>
@@ -119,7 +119,7 @@ export function Profile({ token, setToken }) {
 
     return (
         <>
-            <div className="flex content-center items-center" style={{ height: "65vh" }}>
+            <Box sx={{ padding: 3 }}>
                 <Box className="user-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', display: 'flex', gap: 4 }}>
                     <Box sx={{ flex: 1 }}>
                         <Typography variant="h4" gutterBottom>
@@ -143,99 +143,99 @@ export function Profile({ token, setToken }) {
                         <Typography variant="body1"><strong>Avatar</strong></Typography>
                     </Box>
                 </Box>
-                        <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Edit User Information</DialogTitle>
-                    <DialogContent>
-                        <form onSubmit={async (event) => {
-                            event.preventDefault();
-                            await updateUserInfo();
-                            handleClose();
-                        }}>
-                            <TextField
-                                label="Username"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                                disabled
-                            />
-                            <TextField
-                                label="Phone Number"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                label="Address"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <TextField
-                                disabled
-                                label="Status"
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <InputLabel id="gender-label">Gender</InputLabel>
-                            <Select
-                                labelId="gender-label"
-                                value={gender}
-                                onChange={(e) => setGender(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            >
-                                <MenuItem value="Male">Male</MenuItem>
-                                <MenuItem value="Female">Female</MenuItem>
-                                <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
-                            </Select>
-                            <TextField
-                                label="Avatar"
-                                type="file"
-                                onChange={(e) => setAvatarFile(e.target.files[0])}
-                                fullWidth
-                                margin="normal"
-                            />
-                            <DialogActions>
-                                <Button onClick={handleClose} color="secondary">
-                                    Cancel
-                                </Button>
-                                <Button type="submit" color="primary">
-                                    Save
-                                </Button>
-                            </DialogActions>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
-        <Paper sx={{ padding: 3, marginBottom: 3, maxWidth: 800, mx: "auto" }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
-          Credit
-        </Typography>
-        <Box>
-          <Typography variant="h6">Your credit balance</Typography>
-          <Typography>{formatPrice(userInfo.credit)}</Typography>
-        </Box>
-        <Box display="flex" justifyContent="flex-start" mb={2}>
-          <Button variant="contained" color="primary" onClick={handleOpenCredit}>
-            Add Credit
-          </Button>
-        </Box>
-      </Paper>
+            </Box>
+
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Edit User Information</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={async (event) => {
+                        event.preventDefault();
+                        await updateUserInfo();
+                        handleClose();
+                    }}>
+                        <TextField
+                            label="Username"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            disabled
+                        />
+                        <TextField
+                            label="Phone Number"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            disabled
+                            label="Status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <InputLabel id="gender-label">Gender</InputLabel>
+                        <Select
+                            labelId="gender-label"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        >
+                            <MenuItem value="Male">Male</MenuItem>
+                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
+                        </Select>
+                        <TextField
+                            type="file"
+                            onChange={(e) => setAvatarFile(e.target.files[0])}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <DialogActions>
+                            <Button onClick={handleClose} color="secondary">
+                                Cancel
+                            </Button>
+                            <Button type="submit" color="primary">
+                                Save
+                            </Button>
+                        </DialogActions>
+                    </form>
+                </DialogContent>
+            </Dialog>
+            <Box className="credit-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
+                <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
+                    CREDITS
+                </Typography>
+                <Box display="flex" alignItems="center" mb={2}>
+                    <Typography variant="h6">Your credit balance:</Typography>
+                    <Typography sx={{ ml: 1 }}>{formatPrice(userInfo.credit)}</Typography>
+                </Box>
+                <Box display="flex" justifyContent="flex-start" mb={2}>
+                    <Button variant="contained" color="primary" onClick={handleOpenCredit}>
+                        Add Credit
+                    </Button>
+                </Box>
+            </Box>
 
 
-      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id}/>
+            <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
 
         </>
     );

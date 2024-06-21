@@ -37,6 +37,7 @@ export default function StudentRequestsPage() {
 
         const bookingResponse = await GetAllBookingsByStatus("PENDING");
         const allBookings = bookingResponse.data;
+        console.log(allBookings);
         const studentBookings = allBookings.filter((booking) => {
           return (
             booking.bookingUsers[0].userId === userId &&
@@ -140,8 +141,15 @@ export default function StudentRequestsPage() {
                 <Typography color="text.secondary">
                   Status: <strong>{request.status}</strong>
                 </Typography>
-                <Typography color="blue" textAlign={"right"} className="mt-2 underline">
-                  <div onClick={() => handleOpenDialog(request.id)} style={{ cursor: "pointer" }}>
+                <Typography
+                  color="blue"
+                  textAlign={"right"}
+                  className="mt-2 underline"
+                >
+                  <div
+                    onClick={() => handleOpenDialog(request.id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     Tutors Requests
                   </div>
                 </Typography>
@@ -245,11 +253,12 @@ export default function StudentRequestsPage() {
                 </Typography>
                 {filterAcceptedCredentials(tutorProfile.credentials).map(
                   (credential, index) => (
-                    <div
-                    className="mt-1"
-                      key={index}
-                    >
-                      <Typography className="block" variant="body1" component="p">
+                    <div className="mt-1" key={index}>
+                      <Typography
+                        className="block"
+                        variant="body1"
+                        component="p"
+                      >
                         <>- {credential.name}:</>
                       </Typography>
                       <img
@@ -257,16 +266,15 @@ export default function StudentRequestsPage() {
                         alt={`Credential ${index + 1}`}
                         className="justify-center"
                         style={{
-                          display: 'flex',
-                          maxWidth: '60%',
-                          margin: '10px auto',
+                          display: "flex",
+                          maxWidth: "60%",
+                          margin: "10px auto",
                         }}
                       />
                       <br></br>
                     </div>
-                  )
+                  ),
                 )}
-
               </div>
             </>
           )}

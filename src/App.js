@@ -47,7 +47,7 @@ function App() {
           />
           <Route
             path="/newsfeed"
-            element={<PostPage />}
+            element={<PostPage id ={id} />}
           />
           <Route 
             path="/posts/:id" 

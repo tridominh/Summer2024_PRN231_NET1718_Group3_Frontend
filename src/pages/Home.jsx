@@ -11,6 +11,7 @@ export function Home({ token, setToken }) {
   const [signUpCompletedMessage, setSignUpCompletedMessage] = useState("");
   const [OTPSend, setOTPSend] = useState(false);
   const [signUpCompleted, setSignUpCompleted] = useState(false);
+  const [notLogin, setNotLogin] = useState(false);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -18,6 +19,7 @@ export function Home({ token, setToken }) {
     }
     setOTPSend(false);
     setSignUpCompleted(false);
+    setNotLogin(false);
   };
 
   return (
@@ -83,7 +85,7 @@ export function Home({ token, setToken }) {
               data-aos="fade-up"
               data-aos-delay=""
             >
-              <BookingRequestForm token={token} />
+              <BookingRequestForm token={token} setNotLogin={setNotLogin}/>
             </div>
           </div>
         </div>
@@ -291,7 +293,7 @@ export function Home({ token, setToken }) {
         </Alert>
       </Snackbar>
       <Snackbar
-        open={!token}
+        open={notLogin}
         autoHideDuration={6000}
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}

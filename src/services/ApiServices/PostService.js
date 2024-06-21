@@ -32,7 +32,14 @@ export async function UpdatePost(postDTO) {
   const response = await axios.put(
       `${getEndpoint()}/api/Post/Update`,
       postDTO,
-      ngrokSkipWarning
+      { headers: { "bypass-tunnel-reminder": "true", "Content-Type":"multipart/form-data" } }
+  );
+  return response.data;
+}
+
+export async function DeletePost(id) {
+  const response = await axios.delete(
+      `${getEndpoint()}/api/Post/Delete?id=${id}`, ngrokSkipWarning
   );
   return response.data;
 }

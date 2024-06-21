@@ -12,12 +12,13 @@ import {
   DialogContentText,
   DialogTitle,
   Grid,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import StarIcon from '@mui/icons-material/Star';
 import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
 import parseJwt from "../../services/parseJwt";
 import { Link } from "react-router-dom";
-
 import { GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
 
@@ -37,7 +38,6 @@ export default function StudentRequestsPage() {
 
         const bookingResponse = await GetAllBookingsByStatus("PENDING");
         const allBookings = bookingResponse.data;
-        console.log(allBookings);
         const studentBookings = allBookings.filter((booking) => {
           return (
             booking.bookingUsers[0].userId === userId &&
@@ -56,9 +56,13 @@ export default function StudentRequestsPage() {
   const handleOpenDialog = async (bookingId) => {
     try {
       const tutorsResponse = await GetAllTutorsByBooking(bookingId);
-      console.log(tutorsResponse.data);
       if (Array.isArray(tutorsResponse.data)) {
-        setAppliedTutors(tutorsResponse.data);
+        const tutorInfoPromises = tutorsResponse.data.map(async (tutor) => {
+          const profile = await GetUserInfo(tutor.user.id);
+          return { ...tutor, user: profile };
+        });
+        const tutorsWithPosts = await Promise.all(tutorInfoPromises);
+        setAppliedTutors(tutorsWithPosts);
         setSelectedBookingId(bookingId);
         setDialogOpen(true);
       } else {
@@ -77,7 +81,6 @@ export default function StudentRequestsPage() {
   };
 
   const handleAccept = (tutorId) => {
-    // Handle accept logic here
     console.log("Accepted tutor with ID:", tutorId);
   };
 
@@ -184,6 +187,15 @@ export default function StudentRequestsPage() {
                   className="cursor-pointer text-blue-500"
                 >
                   {`${index + 1}. ${tutor.user.userName}`}
+                  {tutor.user.posts.length > 0 &&
+                    tutor.user.posts.some(post => post.status === "ACTIVE") && (
+                    <Tooltip title="Tutors have contributed to improving students' knowledge.">
+                      <StarIcon
+                        className="mb-1"
+                        style={{ color: "red", marginLeft: "5px" }}
+                      />
+                    </Tooltip>
+                  )}
                 </span>
                 <div className="mb-3">
                   <Button

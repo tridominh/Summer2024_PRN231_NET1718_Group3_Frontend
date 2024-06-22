@@ -252,8 +252,8 @@ export function ProfileTutor({ token, setToken }) {
   };
 
   const validateCredential = (credential) => {
-    const nameRegex = /^[a-zA-Z\sÀ-ỹ]+$/;
-    const typeRegex = /^[a-zA-Z\sÀ-ỹ]+$/;
+    const nameRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
+    const typeRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
 console.log(credential.name)
     console.log(credential.type)
     console.log(selectedSubject)

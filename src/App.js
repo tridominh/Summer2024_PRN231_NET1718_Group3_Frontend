@@ -23,6 +23,7 @@ import { ModeratorTutorPost } from "./pages/moderator/ModeratorTutorPost.jsx";
 import { PostDetails } from "./pages/tutor/PostDetails";
 import { CreatePostPage } from "./pages/tutor/CreatePostPage";
 import { PostPage } from "./pages/tutor/PostPage.jsx";
+import PendingPost from "./pages/tutor/PendingPost.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -48,6 +49,10 @@ function App() {
           <Route
             path="/newsfeed"
             element={<PostPage id ={id} />}
+          />
+          <Route 
+            path="/pending-post" 
+            element={<PendingPost userId={id} />} 
           />
           <Route 
             path="/posts/:id" 

@@ -134,8 +134,8 @@ export function Register({ token, setOTPSend, setSignIn, setSignUpCompleted, set
     };
     
     const validateCredential = (credential) => {
-        const nameRegex = /^[A-Z\s]+$/;
-        const typeRegex = /^[A-Z\s]+$/;
+        const nameRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
+        const typeRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
 
         if (!credential.name || !credential.type || !selectedSubject || !credential.image) {
             setErrorMessage("Name, Type, Image and Subject are required.");

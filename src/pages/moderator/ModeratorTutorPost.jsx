@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { TableVirtuoso } from "react-virtuoso";
-import { GetAllPost, GetPostById, UpdatePost } from "../../services/ApiServices/PostService";
+import { DeletePost, GetAllPost, GetPostById, UpdatePost } from "../../services/ApiServices/PostService";
 import { SendStatusMailPost, GetUserInfo } from "../../services/ApiServices/UserService";
 
 export function ModeratorTutorPost() {
@@ -23,7 +23,8 @@ export function ModeratorTutorPost() {
                 const userInfo = await GetUserInfo(post.userId);
                 return {
                     ...post,
-                    userName: userInfo.userName
+                    userName: userInfo.userName,
+                    email: userInfo.email
                 };
             }));
             setPosts(postsWithUserInfo);
@@ -38,18 +39,34 @@ export function ModeratorTutorPost() {
     const approvePost = async (post) => {
         try {
             const updatedDates = new Date().toISOString();
-            const updatedPost = { 
-                id: post.id,
-                userId: post.userId,
-                title: post.title,
-                description: post.description,
-                imageUrl: post.imageUrl,
-                createdDate: post.createdDate,
-                updatedDate: updatedDates,
-                status: "ACTIVE" };
-            await UpdatePost(updatedPost);
+            const formData = new FormData();
+            formData.append(
+                "id",post.id
+            )
+            formData.append(
+                "userId",post.userId
+            )
+            formData.append(
+                "title",post.title
+            )
+            formData.append(
+                "description",post.description
+            )
+            formData.append(
+                "imageUrl",post.imageUrl
+            )
+            formData.append(
+                "createdDate",post.createdDate
+            )
+            formData.append(
+                "updatedDate",updatedDates
+            )
+            formData.append(
+                "status","ACTIVE"
+            )
+            await UpdatePost(formData);
             await SendStatusMailPost({
-                email: post.userId.email,
+                email: post.email,
                 status: "ACTIVE"
             });
             await fetchPosts();
@@ -64,18 +81,34 @@ export function ModeratorTutorPost() {
     const rejectPost = async (post) => {
         try {
             const updatedDates = new Date().toISOString();
-            const updatedPost = { 
-                id: post.id,
-                userId: post.userId,
-                title: post.title,
-                description: post.description,
-                imageUrl: post.imageUrl,
-                createdDate: post.createdDate,
-                updatedDate: updatedDates,
-                status: "REJECTED" };
-            await UpdatePost(updatedPost);
+            const formData = new FormData();
+            formData.append(
+                "id",post.id
+            )
+            formData.append(
+                "userId",post.userId
+            )
+            formData.append(
+                "title",post.title
+            )
+            formData.append(
+                "description",post.description
+            )
+            formData.append(
+                "imageUrl",post.imageUrl
+            )
+            formData.append(
+                "createdDate",post.createdDate
+            )
+            formData.append(
+                "updatedDate",updatedDates
+            )
+            formData.append(
+                "status","REJECTED"
+            )
+            await DeletePost(post.id);
             await SendStatusMailPost({
-                email: post.userId.email,
+                email: post.email,
                 status: "REJECTED"
             });
             await fetchPosts();
@@ -234,7 +267,16 @@ export function ModeratorTutorPost() {
                             </Typography>
                             <Typography variant="body1">
                                 <strong>Status:</strong> {selectedPostDetails.status}
-                            </Typography>   
+                            </Typography> 
+                            {selectedPostDetails.imageUrl && (
+                                <img
+                                    src={selectedPostDetails.imageUrl}
+                                    alt="Post"
+                                    style={{ display: "flex",
+                                        maxWidth: "60%",
+                                        margin: "10px auto",}}
+                                />
+                            )}  
                         </>
                     )}
                 </DialogContent>

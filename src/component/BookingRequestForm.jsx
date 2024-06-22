@@ -30,7 +30,7 @@ const daysOfWeek = [
   "Sunday",
 ];
 
-export default function BookingRequestForm({ token }) {
+export default function BookingRequestForm({ token, setNotLogin }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -352,6 +352,13 @@ export default function BookingRequestForm({ token }) {
         />
         <Button
           fullWidth
+          onClick={(e)=>{
+            if(!token){
+              e.preventDefault();
+              setNotLogin(true);
+              return e;
+            }
+          }}
           type="submit"
           variant="contained"
           color="primary"

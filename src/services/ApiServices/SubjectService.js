@@ -8,6 +8,11 @@ export async function GetAllSubjects() {
     `${getEndpoint()}/api/Subject/GetAll`,
     ngrokSkipWarning,
   );
+
+  if (!response.ok) {
+    throw new Error("Error fetching subjects");
+  }
+
   return response.data;
 }
 

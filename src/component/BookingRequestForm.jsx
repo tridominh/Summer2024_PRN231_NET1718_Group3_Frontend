@@ -341,6 +341,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           Other
         </Typography>
         <TextField
+          multiline
           name="description"
           fullWidth
           variant="outlined"

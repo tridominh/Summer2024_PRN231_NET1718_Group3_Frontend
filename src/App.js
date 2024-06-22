@@ -41,34 +41,33 @@ function App() {
             />
           }
         >
-          <Route index element={<Home token={token} setToken={setToken} />} />
+          <Route
+            index
+            element={<Home token={token} setToken={setToken} />}
+          />
+          <Route
+            path="/pending-post"
+            element={<PendingPost userId={id} />}
+          />
           <Route
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
+          <Route path="/newsfeed" element={<PostPage id={id} />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
           <Route
-            path="/newsfeed"
-            element={<PostPage id ={id} />}
-          />
-          <Route 
-            path="/pending-post" 
-            element={<PendingPost userId={id} />} 
-          />
-          <Route 
-            path="/posts/:id" 
-            element={<PostDetails />} 
-          />
-          <Route 
             path="/create-post"
-            element={<CreatePostPage userId={id}/>} 
+            element={<CreatePostPage userId={id} />}
           />
           <Route
             path="ProfileTutor"
-            element={<ProfileTutor token={token} setToken={setToken} />}
+            element={
+              <ProfileTutor token={token} setToken={setToken} />
+            }
           />
           {/* Student paths */}
           <Route
-            path="/student/booking"
+            path="/student/booking/:id?"
             element={
               <PrivateRoute role={"Student"}>
                 <StudentBookingRequest />
@@ -97,7 +96,12 @@ function App() {
             element={
               <PrivateRoute role="Admin">
                 <AdminDashboard
-                  Element={<Features token={token} setToken={setToken} />}
+                  Element={
+                    <Features
+                      token={token}
+                      setToken={setToken}
+                    />
+                  }
                   removeToken={removeToken}
                 />
               </PrivateRoute>
@@ -115,7 +119,10 @@ function App() {
             path="/about"
             element={
               <PrivateRoute role="Tutor">
-                <ProfileTutor token={token} setToken={setToken} />
+                <ProfileTutor
+                  token={token}
+                  setToken={setToken}
+                />
               </PrivateRoute>
             }
           ></Route>

@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { formatPrice } from "../services/utils";
 
 export default function BookingDetails({ booking }) {
   const navigate = useNavigate();
@@ -54,8 +55,16 @@ export default function BookingDetails({ booking }) {
               Number Of Slots: <strong>{booking.numOfSlots}</strong>
             </Typography>
             <Typography color="text.secondary">
-              Price Per Slot: <strong>{booking.pricePerSlot}</strong>
+              Price Per Slot:{" "}
+              <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
             </Typography>
+            <Typography color="text.secondary">
+              Total Price:{" "}
+              <strong>
+                {formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")}
+              </strong>
+            </Typography>
+
             <Typography color="text.secondary">
               Description: <strong>{booking.description}</strong>
             </Typography>

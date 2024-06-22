@@ -45,25 +45,16 @@ function App() {
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}
           />
-          <Route
-            path="/newsfeed"
-            element={<PostPage />}
-          />
-          <Route 
-            path="/posts/:id" 
-            element={<PostDetails />} 
-          />
-          <Route 
-            path="/create-post"
-            element={<CreatePostPage userId={id}/>} 
-          />
+          <Route path="/newsfeed" element={<PostPage />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="/create-post" element={<CreatePostPage userId={id} />} />
           <Route
             path="ProfileTutor"
             element={<ProfileTutor token={token} setToken={setToken} />}
           />
           {/* Student paths */}
           <Route
-            path="/student/booking"
+            path="/student/booking/:id?"
             element={
               <PrivateRoute role={"Student"}>
                 <StudentBookingRequest />

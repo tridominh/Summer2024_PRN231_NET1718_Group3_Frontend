@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Dialog,
   DialogActions,
@@ -14,20 +15,26 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { GetAllBookingsByStatus } from "../../services/ApiServices/BookingService";
+import {
+  AcceptTutor,
+  GetAllBookingsByStatus,
+} from "../../services/ApiServices/BookingService";
 import parseJwt from "../../services/parseJwt";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
 
 export default function StudentRequestsPage() {
+  const navigate = useNavigate();
+
   const [requests, setRequests] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [appliedTutors, setAppliedTutors] = useState([]);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [tutorProfile, setTutorProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchRequests() {
@@ -46,12 +53,20 @@ export default function StudentRequestsPage() {
         });
 
         setRequests(studentBookings);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching requests:", error);
+        setIsLoading(false);
       }
     }
     fetchRequests();
   }, []);
+
+  const convertToDate = (dateTime) => {
+    const date = new Date(dateTime);
+
+    return date.toLocaleDateString("en-CA");
+  };
 
   const handleOpenDialog = async (bookingId) => {
     try {
@@ -76,9 +91,15 @@ export default function StudentRequestsPage() {
     setDialogOpen(false);
   };
 
-  const handleAccept = (tutorId) => {
-    // Handle accept logic here
-    console.log("Accepted tutor with ID:", tutorId);
+  const handleAccept = async (tutorId) => {
+    const acceptTutorDto = {
+      bookingId: selectedBookingId,
+      tutorId: tutorId,
+    };
+
+    await AcceptTutor(acceptTutorDto);
+
+    navigate("/student/booking/" + acceptTutorDto.bookingId);
   };
 
   const handleOpenProfileDialog = async (userId) => {
@@ -113,6 +134,33 @@ export default function StudentRequestsPage() {
       >
         Create New Request
       </Button>
+
+      {isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "auto",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+
+      {requests.length === 0 && !isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "auto",
+          }}
+        >
+          <Typography variant="body1">No requests found</Typography>
+        </Box>
+      )}
+
       <Grid container spacing={3}>
         {requests.map((request, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
@@ -125,6 +173,11 @@ export default function StudentRequestsPage() {
                 >
                   Subject: <strong> {request.subjectName}</strong>
                 </Typography>
+                <Typography color="text.secondary">
+                  Created Date:{" "}
+                  <strong> {convertToDate(request.createdDate)}</strong>
+                </Typography>
+
                 <Typography color="text.secondary">
                   Level: <strong> {request.levelName}</strong>
                 </Typography>
@@ -187,7 +240,7 @@ export default function StudentRequestsPage() {
                 </span>
                 <div className="mb-3">
                   <Button
-                    onClick={() => handleAccept(tutor.id)}
+                    onClick={() => handleAccept(tutor.userId)}
                     variant="contained"
                     color="primary"
                     sx={{ ml: 1 }}

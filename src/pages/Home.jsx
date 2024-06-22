@@ -2,15 +2,18 @@ import { useState } from "react";
 import { Login } from "../component/Login";
 import { Register } from "../component/Register";
 import ContactUs from "../component/ContactUs";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, Button, Snackbar, Typography } from "@mui/material";
 import BookingRequestForm from "../component/BookingRequestForm";
+import parseJwt from "../services/parseJwt";
+import { Link } from "react-router-dom";
 
 export function Home({ token, setToken }) {
   const [signIn, setSignIn] = useState(false);
-
   const [signUpCompletedMessage, setSignUpCompletedMessage] = useState("");
   const [OTPSend, setOTPSend] = useState(false);
   const [signUpCompleted, setSignUpCompleted] = useState(false);
+
+  const userRole = parseJwt(token)?.role;
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -75,19 +78,47 @@ export function Home({ token, setToken }) {
         </div>
       </div>
 
-      <div className="site-section" id="finding-tutor-section">
-        <div className="container">
-          <div className="row mb-5 justify-content-center">
-            <div
-              className="col-lg-7 text-center"
-              data-aos="fade-up"
-              data-aos-delay=""
-            >
-              <BookingRequestForm token={token} />
+      {(userRole === "Student" || userRole == null) && (
+        <div className="site-section" id="request-section">
+          <div className="container">
+            <div className="row mb-5 justify-content-center">
+              <div
+                className="col-lg-7 text-center"
+                data-aos="fade-up"
+                data-aos-delay=""
+              >
+                <BookingRequestForm token={token} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {userRole === "Tutor" && (
+        <div className="site-section" id="request-section">
+          <div className="container">
+            <div className="row mb-5 justify-content-center">
+              <div
+                className="col-lg-7 text-center"
+                data-aos="fade-up"
+                data-aos-delay=""
+              >
+                <Typography
+                  variant="h4"
+                  className="text-center text-violet-800"
+                >
+                  Find and Apply Student Requests here
+                </Typography>
+                <Link style={{ margin: "auto" }} to="/tutor/request">
+                  <Button sx={{ marginTop: "3rem" }} variant="contained">
+                    Student Requests
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="site-section" id="programs-section">
         <div className="container">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BookingRequestForm from "../../component/BookingRequestForm";
 import {
   Box,
@@ -9,6 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import BookingDetails from "../../component/BookingDetails";
+import { useParams } from "react-router-dom";
+import { GetAllBookings } from "../../services/ApiServices/BookingService";
 
 const steps = [
   "Enter your request details",
@@ -18,8 +20,27 @@ const steps = [
 
 export default function StudentBookingRequest() {
   const token = localStorage.getItem("token");
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [completed, setCompleted] = React.useState(new Set());
+  const { id } = useParams();
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [completed, setCompleted] = useState(new Set());
+  const [booking, setBooking] = useState(null);
+
+  useEffect(() => {
+    async function fetchApprovedBooking() {
+      if (id != null) {
+        const allBookings = await GetAllBookings();
+        const approvedBooking = allBookings.find((booking) => {
+          return booking.id == id;
+        });
+
+        setBooking(approvedBooking);
+        setActiveStep(1);
+      }
+    }
+
+    fetchApprovedBooking();
+  }, [id]);
 
   const isStepCompleted = (step) => {
     return completed.has(step);
@@ -42,7 +63,7 @@ export default function StudentBookingRequest() {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Stepper activeStep={activeStep}>
+      <Stepper sx={{ marginY: "3rem" }} activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
           const labelProps = {};
@@ -67,9 +88,8 @@ export default function StudentBookingRequest() {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
           {activeStep === 0 && <BookingRequestForm token={token} />}
-          {activeStep === 1 && <BookingDetails />}
+          {activeStep === 1 && <BookingDetails booking={booking} />}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button
               color="inherit"
@@ -80,7 +100,7 @@ export default function StudentBookingRequest() {
               Back
             </Button>
 
-            <Button onClick={handleNext}>
+            <Button disabled={activeStep === 0} onClick={handleNext}>
               {activeStep === steps.length - 1 ? "Finish" : "Next"}
             </Button>
           </Box>

@@ -13,9 +13,11 @@ import {
   Button
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext  } from "react";
 import { GetAllPost } from "../../services/ApiServices/PostService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
+import { AuthContext } from "../context/AuthProvider";
+import { CreatePostPage } from './CreatePostPage'; 
 
 export function PostPage() {
   const [posts, setPosts] = useState([]);
@@ -25,6 +27,16 @@ export function PostPage() {
   const [tutorProfile, setTutorProfile] = useState(null);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { auth } = useContext(AuthContext);
+  const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
+ 
+  const handleOpenCreatePostDialog = () => {
+    setCreatePostDialogOpen(true);
+  };
+
+  const handleCloseCreatePostDialog = () => {
+    setCreatePostDialogOpen(false);
+  };
 
   const fetchPosts = async () => {
     try {
@@ -101,6 +113,15 @@ export function PostPage() {
 
   return (
     <Box p={2} maxWidth="2000px" mx="auto">
+      <Box display="flex" justifyContent="space-between" alignItems="center"> 
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleOpenCreatePostDialog} // Open the dialog
+        >
+          Create Post
+        </Button>
+      </Box>
       <Typography sx={{ fontWeight: 'bold' }} variant="h4" gutterBottom align="center">
         NEWSFEED
       </Typography>
@@ -222,6 +243,18 @@ export function PostPage() {
         <DialogActions>
           <Button onClick={handleCloseProfileDialog}>Close</Button>
         </DialogActions>
+      </Dialog>
+      <Dialog
+        open={createPostDialogOpen}
+        onClose={handleCloseCreatePostDialog}
+        aria-labelledby="create-post-dialog-title"
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle id="create-post-dialog-title">Create New Post</DialogTitle>
+        <DialogContent>
+          {auth?.user?.id && <CreatePostPage userId={auth.user.id} />} 
+        </DialogContent>
       </Dialog>
     </Box>
   );

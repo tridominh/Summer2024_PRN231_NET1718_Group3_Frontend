@@ -15,8 +15,8 @@ import { useNavigate } from "react-router-dom";
 
 const adminPages = [];
 const moderatorPages = ["Manage Credentials", "Tutor Application Request", "Manage Posts", "Newsfeed"];
-const studentPages = ["Request", "Schedule", "Newfeed"];
-const tutorPages = ["Student Request", "Schedule", "Newfeed"];
+const studentPages = ["Request", "Schedule", "Newsfeed"];
+const tutorPages = ["Student Request", "Schedule", "Newsfeed"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {

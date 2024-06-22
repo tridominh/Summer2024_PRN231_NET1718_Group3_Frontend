@@ -7,6 +7,7 @@ import { AddPost } from "../../services/ApiServices/PostService";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
+import { Alert, Snackbar } from "@mui/material";
 
 const Input = styled('input')({
   display: 'none',
@@ -39,6 +40,7 @@ export function CreatePostPage({userId}) {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const navigate = useNavigate();
+  const [submissionStatus, setSubmissionStatus] = useState(null);
 
   const handleFieldChange = (name, value, type) => {
     setFields(prevFields =>
@@ -80,15 +82,31 @@ export function CreatePostPage({userId}) {
     });
 
     try {
-      const newPost = await AddPost(formData);
-      navigate(`/posts/${newPost.id}`);
+      await AddPost(formData);
+      setSubmissionStatus('success');
+      setTimeout(() => {
+        navigate('/newsfeed');
+      }, 3000); 
     } catch (error) {
       console.error("Error creating post:", error);
+      setSubmissionStatus('error');
     }
   };
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={2}>
+      <Snackbar
+        open={submissionStatus !== null}
+        autoHideDuration={6000}
+        onClose={() => setSubmissionStatus(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity={submissionStatus} onClose={() => setSubmissionStatus(null)}>
+          {submissionStatus === 'success'
+            ? 'Post created successfully! It\'s pending approval.'
+            : 'Failed to create post. Please try again.'}
+        </Alert>
+      </Snackbar>
       <CustomPaper elevation={3}>
         <Typography variant="h4" align="center" gutterBottom>
           Create New Post

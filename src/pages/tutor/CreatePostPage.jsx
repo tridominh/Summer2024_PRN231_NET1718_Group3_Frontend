@@ -86,7 +86,7 @@ export function CreatePostPage({userId}) {
       setSubmissionStatus('success');
       setTimeout(() => {
         navigate('/newsfeed');
-      }, 3000); 
+      }, 2000); 
     } catch (error) {
       console.error("Error creating post:", error);
       setSubmissionStatus('error');

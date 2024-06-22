@@ -18,6 +18,7 @@ import { GetAllLevels } from "../services/ApiServices/LevelService";
 import parseJwt from "../services/parseJwt";
 import { CreateBooking } from "../services/ApiServices/BookingService";
 import { Delete } from "@mui/icons-material";
+import { CreateSchedule } from "../services/ApiServices/ScheduleService";
 
 const daysOfWeek = [
   "Monday",
@@ -29,7 +30,7 @@ const daysOfWeek = [
   "Sunday",
 ];
 
-export default function BookingRequestForm({ token }) {
+export default function BookingRequestForm({ token, setNotLogin }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -43,7 +44,7 @@ export default function BookingRequestForm({ token }) {
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
   const [schedules, setSchedules] = useState([
-    { day: "", startTime: "00:00:00", endTime: "00:00:00" },
+    { dayOfWeek: "", startTime: "00:00:00", endTime: "00:00:00" },
   ]);
 
   useEffect(() => {
@@ -92,11 +93,26 @@ export default function BookingRequestForm({ token }) {
     const bookingCreateResponse = await CreateBooking(bookingDto);
     console.log(bookingCreateResponse);
 
+    schedules.forEach(async (schedule) => {
+      const createScheduleDto = {
+        bookingId: bookingCreateResponse.id,
+        dayOfWeek: schedule.dayOfWeek,
+        duration: formData.duration + ":00",
+        startTime: schedule.startTime + ":00",
+        status: "ACTIVE",
+      };
+      console.log(createScheduleDto);
+
+      const scheduleResponse = await CreateSchedule(createScheduleDto);
+
+      console.log(scheduleResponse);
+    });
+
     navigate("/student/requests");
   };
 
   const handleAddSchedule = () => {
-    setSchedules([...schedules, { day: "", startTime: "", endTime: "" }]);
+    setSchedules([...schedules, { dayOfWeek: "", startTime: "", endTime: "" }]);
   };
 
   const handleRemoveSchedule = (index) => {
@@ -244,9 +260,9 @@ export default function BookingRequestForm({ token }) {
               <TextField
                 select
                 label="Day"
-                value={schedule.day}
+                value={schedule.dayOfWeek}
                 onChange={(e) =>
-                  handleScheduleChange(index, "day", e.target.value)
+                  handleScheduleChange(index, "dayOfWeek", e.target.value)
                 }
                 fullWidth
                 variant="outlined"
@@ -325,6 +341,7 @@ export default function BookingRequestForm({ token }) {
           Other
         </Typography>
         <TextField
+          multiline
           name="description"
           fullWidth
           variant="outlined"
@@ -335,6 +352,13 @@ export default function BookingRequestForm({ token }) {
         />
         <Button
           fullWidth
+          onClick={(e)=>{
+            if(!token){
+              e.preventDefault();
+              setNotLogin(true);
+              return e;
+            }
+          }}
           type="submit"
           variant="contained"
           color="primary"

@@ -228,7 +228,8 @@ export default function TutorRequestsPage() {
               className="mt-2 underline"
             >
             </Typography>
-            {!booking.tutorApproved && !booking.tutorApplied ? (
+            {/*JSON.stringify(booking)*/}
+            {(!booking.tutorApproved && !booking.tutorApplied) ? (
               <Button
                 sx={{ mt: 2 }}
                 className="start-80"

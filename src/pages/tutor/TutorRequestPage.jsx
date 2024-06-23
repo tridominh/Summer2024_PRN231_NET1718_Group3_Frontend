@@ -11,7 +11,7 @@ import {
   Tab,
   Box,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import parseJwt from "../../services/parseJwt";
 import { ApplyToBooking, CancelApplication, GetAllBookings } from "../../services/ApiServices/BookingService";
@@ -25,6 +25,7 @@ function a11yProps(index) {
 }
 
 export default function TutorRequestsPage() {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -45,34 +46,48 @@ export default function TutorRequestsPage() {
         const tutorBookingIds = bookingUsers
           .filter(
             (bookingUser) =>
-              bookingUser.userId === userId 
-                    )
+              bookingUser.userId === userId
+          )
           .map((bookingUser) => bookingUser.bookingId);
 
         const tutorBookings = allBookings.map((booking) => ({
           ...booking,
           tutorApplied: tutorBookingIds.includes(booking.id),
+          tutorApproved: bookingUsers.some((bookingUser) => bookingUser.bookingId === booking.id && bookingUser.userId === userId && bookingUser.status === "APPROVED"),
         }));
+
         const tutorAppliedBookingIds = bookingUsers
-        .filter(
-          (bookingUser) =>
-            bookingUser.userId === userId && bookingUser.status === "APPLIED"
-        )
-        .map((bookingUser) => bookingUser.bookingId);
+          .filter(
+            (bookingUser) =>
+              bookingUser.userId === userId && bookingUser.status === "APPLIED"
+          )
+          .map((bookingUser) => bookingUser.bookingId);
 
-      const appliedBookings = allBookings
-        .filter((booking) => tutorAppliedBookingIds.includes(booking.id))
-        .map((booking) => ({
-          ...booking,
-          tutorApplied: true,
-        }));
+        const appliedBookings = allBookings
+          .filter((booking) => tutorAppliedBookingIds.includes(booking.id))
+          .map((booking) => ({
+            ...booking,
+            tutorApplied: true,
+          }));
 
-        console.log(appliedBookings);
-        console.log(appliedBookings);
+        const tutorApprovedBookingIds = bookingUsers
+          .filter(
+            (bookingUser) =>
+              bookingUser.userId === userId && bookingUser.status === "APPROVED"
+          )
+          .map((bookingUser) => bookingUser.bookingId);
+
+        const approvedBookings = allBookings
+          .filter((booking) => tutorApprovedBookingIds.includes(booking.id))
+          .map((booking) => ({
+            ...booking,
+            tutorApproved: true,
+          }));
+
         setBookings(tutorBookings);
         setAllBookings(tutorBookings);
         setAppliedBookings(appliedBookings);
-        setApprovedBookings(tutorBookings.filter((booking) => booking.status === "APPROVED"));
+        setApprovedBookings(approvedBookings);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -80,25 +95,30 @@ export default function TutorRequestsPage() {
     fetchBookings();
   }, []);
 
+  const convertToDate = (dateTime) => {
+    const date = new Date(dateTime);
+    return date.toLocaleDateString("en-CA");
+  };
+
   const handleApply = async (bookingId) => {
     try {
       const token = localStorage.getItem("token");
       const userId = Number(parseJwt(token).nameid);
-  
+
       const applyBookingDto = {
         bookingId: bookingId,
         userId: userId,
       };
-  
-      const response = await ApplyToBooking(applyBookingDto);
-  
+
+      await ApplyToBooking(applyBookingDto);
+
       const updatedBookings = bookings.map((booking) => {
         if (booking.id === bookingId) {
           return { ...booking, tutorApplied: true };
         }
         return booking;
       });
-  
+
       setBookings(updatedBookings);
       setSnackbarMessage('Applied successfully, please wait for student response');
       setSnackbarOpen(true);
@@ -111,21 +131,21 @@ export default function TutorRequestsPage() {
     try {
       const token = localStorage.getItem("token");
       const userId = Number(parseJwt(token).nameid);
-  
+
       const cancelBookingDto = {
         bookingId: bookingId,
         userId: userId,
       };
-  
-      const response = await CancelApplication(cancelBookingDto);
-  
+
+      await CancelApplication(cancelBookingDto);
+
       const updatedBookings = bookings.map((booking) => {
         if (booking.id === bookingId) {
           return { ...booking, tutorApplied: false };
         }
         return booking;
       });
-  
+
       setBookings(updatedBookings);
       setSnackbarMessage('Application canceled successfully');
       setSnackbarOpen(true);
@@ -133,7 +153,7 @@ export default function TutorRequestsPage() {
       console.error("Error canceling application:", error);
     }
   };
-  
+
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
@@ -145,32 +165,73 @@ export default function TutorRequestsPage() {
   const renderBookings = (filteredBookings) => {
     return filteredBookings.map((booking, index) => (
       <Grid item xs={12} sm={6} md={4} key={index}>
-        <Card className="p-4 border border-black rounded-md shadow-md mt-5">
+        <Card style={{ height: "295px" }} className="p-4 border border-black rounded-md shadow-md mt-5">
           <CardContent>
+            <div className="mb-2">
+              <Typography
+                sx={{ fontWeight: "bold" }}
+                className="text-center"
+                color="text.secondary"
+              >
+                <strong>
+                  Subject:{" "}
+                </strong>
+                {booking.subjectName}
+              </Typography>
+            </div>
+            <Typography color="text.secondary">
+              <strong>
+                Create Date:{" "}
+              </strong>
+              {" "}
+              {convertToDate(booking.createdDate)}
+            </Typography>
+
+            <Typography color="text.secondary">
+              <strong>
+                Grade:{" "}
+              </strong>{booking.levelName}
+            </Typography>
+            <Typography color="text.secondary">
+              <strong>
+                Slot per week:{" "}
+              </strong>
+              {booking.numOfSlots}
+            </Typography>
+            <Typography color="text.secondary">
+              <strong>
+                Price Per Slot:{" "}
+              </strong>
+              {booking.pricePerSlot}
+            </Typography>
+            <Typography color="text.secondary">
+              <strong>
+                Description:{" "}
+              </strong>
+              {booking.description}
+            </Typography>
+
+            <Typography color="text.secondary">
+              <strong>
+                Status:{" "}
+              </strong> {booking.status}
+            </Typography>
             <Typography
-              sx={{ fontWeight: "bold" }}
-              className="text-center"
-              color="text.secondary"
+              color="blue"
+              textAlign={"right"}
+              className="mt-2 underline"
             >
-              Subject: <strong> {booking.subjectName}</strong>
             </Typography>
-            <Typography color="text.secondary">
-              Level: <strong> {booking.levelName}</strong>
+            <Typography
+              color="blue"
+              textAlign={"right"}
+              className="mt-2 underline"
+            >
             </Typography>
-            <Typography color="text.secondary">
-              Description: <strong>{booking.description}</strong>
-            </Typography>
-            <Typography color="text.secondary">
-              Status: <strong>{booking.status}</strong>
-            </Typography>
-            <Typography color="text.secondary" textAlign={"right"} className="mt-2">
-              <Link to="#" underline="hover">
-                View more
-              </Link>
-            </Typography>
-            {!booking.tutorApplied ? (
+            {!booking.tutorApproved && !booking.tutorApplied ? (
               <Button
                 sx={{ mt: 2 }}
+                className="start-80"
                 variant="contained"
                 color="primary"
                 onClick={() => handleApply(booking.id)}
@@ -178,24 +239,26 @@ export default function TutorRequestsPage() {
                 Apply
               </Button>
             ) : (
-              <>
-                <Button
-                  sx={{ mt: 2, mr: 1 }}
-                  variant="contained"
-                  color="primary"
-                  disabled
-                >
-                  Applied
-                </Button>
-                <Button
-                  sx={{ mt: 2 }}
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleCancel(booking.id)}
-                >
-                  Cancel
-                </Button>
-              </>
+              !booking.tutorApproved && booking.tutorApplied && (
+                <>
+                  <Button
+                    sx={{ mt: 2, mr: 1 }}
+                    variant="contained"
+                    color="primary"
+                    disabled
+                  >
+                    Applied
+                  </Button>
+                  <Button
+                    sx={{ mt: 2 }}
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleCancel(booking.id)}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )
             )}
           </CardContent>
         </Card>
@@ -223,7 +286,7 @@ export default function TutorRequestsPage() {
       </Box>
 
       <Box role="tabpanel" hidden={tabValue !== 0}>
-        <Grid container spacing={3}>
+        <Grid style={{ height: "295px" }} container spacing={3}>
           {renderBookings(allBookings)}
         </Grid>
       </Box>

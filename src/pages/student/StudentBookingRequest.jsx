@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import BookingDetails from "../../component/BookingDetails";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { GetAllBookings } from "../../services/ApiServices/BookingService";
 
 const steps = [
@@ -18,9 +18,10 @@ const steps = [
   "Finish Booking",
 ];
 
-export default function StudentBookingRequest() {
+export default function StudentBookingRequest({ userId }) {
   const token = localStorage.getItem("token");
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState(new Set());
@@ -82,25 +83,30 @@ export default function StudentBookingRequest() {
 
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
+          <Typography sx={{ mt: 2, mb: 1 }} align="center">
+            Thanks for choosing our service :)
           </Typography>
+          <Box display="flex" flexDirection="column" alignItems="center" my={3}>
+          <Button onClick={() => navigate("/student/requests")} variant="contained" color="primary">
+            Go to Requests
+          </Button>
+          </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>
           {activeStep === 0 && <BookingRequestForm token={token} />}
-          {activeStep === 1 && <BookingDetails booking={booking} />}
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+          {activeStep === 1 && <BookingDetails booking={booking} userId={userId} handleNext={handleNext}/>}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Button
               color="inherit"
-              disabled={activeStep === 0 || activeStep === 1}
+              disabled={activeStep === 0 || activeStep === 2 || activeStep === 1}
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
               Back
             </Button>
 
-            <Button disabled={activeStep === 0} onClick={handleNext}>
+            <Button disabled={activeStep === 1 || activeStep === 0  } onClick={handleNext}>
               {activeStep === steps.length - 1 ? "Finish" : "Next"}
             </Button>
           </Box>

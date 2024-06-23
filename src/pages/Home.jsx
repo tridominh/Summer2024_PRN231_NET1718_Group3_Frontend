@@ -14,7 +14,7 @@ export function Home({ token, setToken }) {
     const [signUpCompleted, setSignUpCompleted] = useState(false);
     const [notLogin, setNotLogin] = useState(false);
 
-    const userRole = parseJwt(token)?.role;
+    const userRole = token ? parseJwt(token)?.role : null;
 
     const handleClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -91,7 +91,7 @@ export function Home({ token, setToken }) {
                                 data-aos="fade-up"
                                 data-aos-delay=""
                             >
-                                <BookingRequestForm token={token} />
+                                <BookingRequestForm token={token} setNotLogin={setNotLogin} />
                             </div>
                         </div>
                     </div>

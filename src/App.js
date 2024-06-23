@@ -70,7 +70,7 @@ function App() {
             path="/student/booking/:id?"
             element={
               <PrivateRoute role={"Student"}>
-                <StudentBookingRequest />
+                <StudentBookingRequest userId={id}/>
               </PrivateRoute>
             }
           />

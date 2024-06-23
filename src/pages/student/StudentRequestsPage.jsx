@@ -15,6 +15,9 @@ import {
     Grid,
     Tooltip,
     Typography,
+    Tabs,
+    Tab,
+    Snackbar,
 } from "@mui/material";
 import {
     AcceptTutor,
@@ -23,19 +26,21 @@ import {
 import parseJwt from "../../services/parseJwt";
 import { Link, useNavigate } from "react-router-dom";
 import { GetAllTutorsByBooking } from "../../services/ApiServices/BookingService";
-import { GetUserInfo } from "../../services/ApiServices/UserService";
+import { GetUserInfo, SendStatusMailApproveTeaching } from "../../services/ApiServices/UserService";
 import StarIcon from "@mui/icons-material/Star";
 
 export default function StudentRequestsPage() {
     const navigate = useNavigate();
-
     const [requests, setRequests] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [appliedTutors, setAppliedTutors] = useState([]);
-    const [selectedBookingId, setSelectedBookingId] = useState(null);
+    const [selectedBooking, setSelectedBooking] = useState(null);
     const [profileDialogOpen, setProfileDialogOpen] = useState(false);
     const [tutorProfile, setTutorProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [tabValue, setTabValue] = useState(0);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     useEffect(() => {
         async function fetchRequests() {
@@ -43,16 +48,29 @@ export default function StudentRequestsPage() {
                 const token = localStorage.getItem("token");
                 const userId = Number(parseJwt(token).nameid);
 
-                const bookingResponse = await GetAllBookingsByStatus("PENDING");
-                const allBookings = bookingResponse.data;
-                const studentBookings = allBookings.filter((booking) => {
-                    return (
+                const pendingResponse = await GetAllBookingsByStatus("PENDING");
+                const paidResponse = await GetAllBookingsByStatus("PAID");
+
+                const allPendingBookings = pendingResponse.data;
+                const allPaidBookings = paidResponse.data;
+
+                const studentPendingBookings = allPendingBookings.filter(
+                    (booking) =>
                         booking.bookingUsers[0].userId === userId &&
                         booking.bookingUsers[0].role === "STUDENT"
-                    );
+                );
+
+                const studentPaidBookings = allPaidBookings.filter(
+                    (booking) =>
+                        booking.bookingUsers[0].userId === userId &&
+                        booking.bookingUsers[0].role === "STUDENT"
+                );
+
+                setRequests({
+                    pending: studentPendingBookings,
+                    paid: studentPaidBookings,
                 });
 
-                setRequests(studentBookings);
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching requests:", error);
@@ -64,13 +82,12 @@ export default function StudentRequestsPage() {
 
     const convertToDate = (dateTime) => {
         const date = new Date(dateTime);
-
         return date.toLocaleDateString("en-CA");
     };
 
-    const handleOpenDialog = async (bookingId) => {
+    const handleOpenDialog = async (booking) => {
         try {
-            const tutorsResponse = await GetAllTutorsByBooking(bookingId);
+            const tutorsResponse = await GetAllTutorsByBooking(booking.id);
             if (Array.isArray(tutorsResponse.data)) {
                 const tutorInfoPromises = tutorsResponse.data.map(
                     async (tutor) => {
@@ -80,7 +97,7 @@ export default function StudentRequestsPage() {
                 );
                 const tutorsWithPosts = await Promise.all(tutorInfoPromises);
                 setAppliedTutors(tutorsWithPosts);
-                setSelectedBookingId(bookingId);
+                setSelectedBooking(booking);
                 setDialogOpen(true);
             } else {
                 console.error(
@@ -97,15 +114,33 @@ export default function StudentRequestsPage() {
         setDialogOpen(false);
     };
 
-    const handleAccept = async (tutorId) => {
-        const acceptTutorDto = {
-            bookingId: selectedBookingId,
-            tutorId: tutorId,
-        };
+    const handleAccept = async (tutor) => {
+        try {
+            const acceptTutorDto = {
+                bookingId: selectedBooking.id,
+                tutorId: tutor.userId,
+            };
 
-        await AcceptTutor(acceptTutorDto);
+            await SendStatusMailApproveTeaching({
+                email: tutor.user.email,
+                status: "APPROVED",
+            });
 
-        navigate("/student/booking/" + acceptTutorDto.bookingId);
+            await AcceptTutor(acceptTutorDto);
+
+            navigate(`/student/booking/${acceptTutorDto.bookingId}`);
+        } catch (error) {
+            console.error("Error in handleAccept:", error);
+            if (error.response) {
+                console.error("Response data:", error.response.data);
+                console.error("Response status:", error.response.status);
+                console.error("Response headers:", error.response.headers);
+            } else if (error.request) {
+                console.error("Request data:", error.request);
+            } else {
+                console.error("Error message:", error.message);
+            }
+        }
     };
 
     const handleOpenProfileDialog = async (userId) => {
@@ -128,12 +163,108 @@ export default function StudentRequestsPage() {
         );
     };
 
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+
+    const renderBookings = (bookings) => {
+        return bookings.map((request, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card className="p-4 border border-black rounded-md shadow-md">
+                    <CardContent>
+                        <div className="mb-2">
+                            <Typography
+                                sx={{ fontWeight: "bold" }}
+                                className="text-center"
+                                color="text.secondary"
+                            >
+                                <strong>
+                                    Subject:{" "}
+                                </strong>
+                                {request.subjectName}
+                            </Typography>
+                        </div>
+                        <Typography color="text.secondary">
+                            <strong>
+                                Create Date:{" "}
+                            </strong>
+                            {" "}
+                            {convertToDate(request.createdDate)}
+                        </Typography>
+
+                        <Typography color="text.secondary">
+                            <strong>
+                                Grade:{" "}
+                            </strong>{request.levelName}
+                        </Typography>
+                        <Typography color="text.secondary">
+                            <strong>
+                                Slot per week:{" "}
+                            </strong>
+                            {request.numOfSlots}
+                        </Typography>
+                        <Typography color="text.secondary">
+                            <strong>
+                                Price Per Slot:{" "}
+                            </strong>
+                            {request.pricePerSlot}
+                        </Typography>
+                        <Typography color="text.secondary">
+                            <strong>
+                                Description:{" "}
+                            </strong>
+                            {request.description}
+                        </Typography>
+
+                        <Typography color="text.secondary">
+                            <strong>
+                                Status:{" "}
+                            </strong> {request.status}
+                        </Typography>
+                        {request.status !== "PAID" && (
+                            <Typography
+                                color="blue"
+                                textAlign={"right"}
+                                className="mt-2 underline"
+                            >
+                                <div
+                                    onClick={() =>
+                                        navigate(`/student/booking/${request.id}`)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    View Booking Details
+                                </div>
+                            </Typography>
+                        )}
+                        <Typography
+                            color="blue"
+                            textAlign={"right"}
+                            className="mt-2 underline"
+                        >
+                            <div
+                                onClick={() => handleOpenDialog(request)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                Tutors Requests
+                            </div>
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+        ));
+    };
+
     return (
         <Container maxWidth="max-w-7xl mx-auto p-4" className="my-3">
             <Typography
                 variant="h4"
                 align="center"
-                className="text-violet-800 my-3"
+                className="text-violet-800 my-3 mt-5"
             >
                 Your Requests
             </Typography>
@@ -146,6 +277,18 @@ export default function StudentRequestsPage() {
             >
                 Create New Request
             </Button>
+
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+                <Tabs
+                    value={tabValue}
+                    onChange={handleChangeTab}
+                    aria-label="requests tabs"
+                    centered
+                >
+                    <Tab label="Pending" />
+                    <Tab label="Paid" />
+                </Tabs>
+            </Box>
 
             {isLoading && (
                 <Box
@@ -160,78 +303,21 @@ export default function StudentRequestsPage() {
                 </Box>
             )}
 
-            {requests.length === 0 && !isLoading && (
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        margin: "auto",
-                    }}
-                >
-                    <Typography variant="body1">No requests found</Typography>
+            {tabValue === 0 && (
+                <Box role="tabpanel">
+                    <Grid container spacing={3}>
+                        {renderBookings(requests.pending || [])}
+                    </Grid>
                 </Box>
             )}
 
-            <Grid container spacing={3}>
-                {requests.map((request, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
-                        <Card className="p-4 border border-black rounded-md shadow-md">
-                            <CardContent>
-                                <Typography
-                                    sx={{ fontWeight: "bold" }}
-                                    className="text-center"
-                                    color="text.secondary"
-                                >
-                                    Subject:{" "}
-                                    <strong> {request.subjectName}</strong>
-                                </Typography>
-                                <Typography color="text.secondary">
-                                    Created Date:{" "}
-                                    <strong>
-                                        {" "}
-                                        {convertToDate(request.createdDate)}
-                                    </strong>
-                                </Typography>
-
-                                <Typography color="text.secondary">
-                                    Level: <strong> {request.levelName}</strong>
-                                </Typography>
-                                <Typography color="text.secondary">
-                                    Number Of Slots:{" "}
-                                    <strong>{request.numOfSlots}</strong>
-                                </Typography>
-                                <Typography color="text.secondary">
-                                    Price Per Slot:{" "}
-                                    <strong>{request.pricePerSlot}</strong>
-                                </Typography>
-                                <Typography color="text.secondary">
-                                    Description:{" "}
-                                    <strong>{request.description}</strong>
-                                </Typography>
-
-                                <Typography color="text.secondary">
-                                    Status: <strong>{request.status}</strong>
-                                </Typography>
-                                <Typography
-                                    color="blue"
-                                    textAlign={"right"}
-                                    className="mt-2 underline"
-                                >
-                                    <div
-                                        onClick={() =>
-                                            handleOpenDialog(request.id)
-                                        }
-                                        style={{ cursor: "pointer" }}
-                                    >
-                                        Tutors Requests
-                                    </div>
-                                </Typography>
-                            </CardContent>
-                        </Card>
+            {tabValue === 1 && (
+                <Box role="tabpanel">
+                    <Grid container spacing={3}>
+                        {renderBookings(requests.paid || [])}
                     </Grid>
-                ))}
-            </Grid>
+                </Box>
+            )}
 
             <Dialog
                 open={dialogOpen}
@@ -282,10 +368,11 @@ export default function StudentRequestsPage() {
                                 <div className="mb-3">
                                     <Button
                                         onClick={() =>
-                                            handleAccept(tutor.userId)
+                                            handleAccept(tutor)
                                         }
                                         variant="contained"
                                         color="primary"
+                                        disabled={selectedBooking.status === "PAID"}
                                         sx={{ ml: 1 }}
                                     >
                                         Accept
@@ -379,6 +466,18 @@ export default function StudentRequestsPage() {
                     <Button onClick={handleCloseProfileDialog}>Close</Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                message={snackbarMessage}
+                action={
+                    <Button color="inherit" size="small" onClick={handleCloseSnackbar}>
+                        Close
+                    </Button>
+                }
+            />
         </Container>
     );
 }

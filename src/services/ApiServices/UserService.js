@@ -38,6 +38,25 @@ export async function SendStatusMail(id) {
   return response.data;
 }
 
+export async function SendStatusMailApproveTeaching(data) {
+  try {
+      const response = await axios.post(
+          `${getEndpoint()}/api/Authentication/SendStatusMailApproveTeaching`,
+          data,
+          {
+              headers: {
+                  'Content-Type': 'application/json',
+                  ...ngrokSkipWarning
+              }
+          }
+      );
+      return response.data;
+  } catch (error) {
+      console.error("Error sending approval email:", error);
+      throw error; // Ensure errors are propagated
+  }
+}
+
 export async function SendStatusMailCredentials(payload) {
   const response = await axios.post(
     `${getEndpoint()}/api/Authentication/SendStatusMailCredentials`,

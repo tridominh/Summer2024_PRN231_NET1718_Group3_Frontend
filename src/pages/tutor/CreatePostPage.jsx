@@ -9,6 +9,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import { formatPrice } from '../../services/formatPrice';
 import { PayService } from "../../services/ApiServices/VnpayService";
+import { Snackbar, Alert } from '@mui/material';
+
 
 const Input = styled('input')({
   display: 'none',
@@ -41,6 +43,7 @@ export function CreatePostPage({userId}) {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [openConfirmPost, setOpenConfirmPost] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const [openConfirmCredit, setOpenConfirmCredit] = useState(false);
   const navigate = useNavigate();
@@ -51,6 +54,13 @@ export function CreatePostPage({userId}) {
     );
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+  
     const handleCloseConfirmPost = () => {
         setOpenConfirmPost(x => !x);
     };
@@ -104,145 +114,154 @@ export function CreatePostPage({userId}) {
         }
     };
 
-  const handleSubmit = async (event) => {
-    //event.preventDefault();
-
-    const formData = new FormData();
-    formData.append("Title", fields.find(field => field.name === "title").value);
-    formData.append("Description", fields.find(field => field.name === "description").value);
-    formData.append("UserId", userId);
-
-    imageFiles.forEach((file, index) => {
-      formData.append("ImageFile", file);
-    });
-
-    try {
-      const newPost = await AddPost(formData);
-      handleCloseConfirmPost();
-      navigate(`/posts/${newPost.id}`);
-    } catch (error) {
-      if(error.response.status == 400 && error.response.data == "Not enough credit") {
-          //console.log("Not enough credit");
-          handleCloseConfirmPost();
-          setOpenConfirmCredit(true);
+    const handleSubmit = async (event) => {
+      const formData = new FormData();
+      formData.append("Title", fields.find(field => field.name === "title").value);
+      if(!fields.find(field => field.name === "description").value)
+        formData.append("Description", " ");
+      else
+        formData.append("Description", fields.find(field => field.name === "description").value);
+      formData.append("UserId", userId);
+    
+      imageFiles.forEach((file, index) => {
+        formData.append("ImageFile", file);
+      });
+    
+      try {
+        const newPost = await AddPost(formData);
+        handleCloseConfirmPost();
+        navigate(`/posts/${newPost.id}`,{state:{openPost:true}});
+        setOpenSnackbar(true);
+      } catch (error) {
+        if(error.response.status == 400 && error.response.data == "Not enough credit") {
+            handleCloseConfirmPost();
+            setOpenConfirmCredit(true);
+        }
+        console.error("Error creating post:", error);
       }
-      console.error("Error creating post:", error);
-    }
-  };
+    };
+    
 
-  return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={2}>
-      <CustomPaper elevation={3}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Create New Post
-        </Typography>
-
-        <form onSubmit={(e) => {
-            e.preventDefault()
-            handleCloseConfirmPost()
-        }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <CustomTextField
-                label="Title"
-                fullWidth
-                variant="outlined"
-                value={fields.find(field => field.name === "title").value}
-                onChange={(e) => handleFieldChange("title", e.target.value, "text")}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box mb={2}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Description
-                </Typography>
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={fields.find(field => field.name === "description").value}
-                  onChange={(event, editor) => handleFieldChange("description", editor.getData(), "richtext")}
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={2}>
+        <CustomPaper elevation={3}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Create New Post
+          </Typography>
+    
+          <form onSubmit={(e) => {
+              e.preventDefault()
+              handleCloseConfirmPost()
+          }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <CustomTextField
+                  label="Title"
+                  fullWidth
+                  variant="outlined"
+                  value={fields.find(field => field.name === "title").value}
+                  onChange={(e) => handleFieldChange("title", e.target.value, "text")}
                 />
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <label htmlFor="image-upload">
-                <Input
-                  accept="image/*"
-                  id="image-upload"
-                  type="file"
-                  multiple
-                  onChange={handleImageChange}
-                />
-                <CustomButton variant="contained" component="span" startIcon={<PhotoCamera />}>
-                  Upload Images
+              </Grid>
+    
+              <Grid item xs={12}>
+                <Box mb={2}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Description
+                  </Typography>
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={fields.find(field => field.name === "description").value}
+                    onChange={(event, editor) => handleFieldChange("description", editor.getData(), "richtext")}
+                  />
+                </Box>
+              </Grid>
+    
+              <Grid item xs={12}>
+                <label htmlFor="image-upload">
+                  <Input
+                    accept="image/*"
+                    id="image-upload"
+                    type="file"
+                    multiple
+                    onChange={handleImageChange}
+                  />
+                  <CustomButton variant="contained" component="span" startIcon={<PhotoCamera />}>
+                    Upload Images
+                  </CustomButton>
+                </label>
+    
+                <Box mt={2} display="flex" flexWrap="wrap" gap={2}>
+                  {imagePreviews.map((preview, index) => (
+                    <Box key={index} position="relative">
+                      <Avatar
+                        variant="square"
+                        alt={`Image Preview ${index + 1}`}
+                        src={preview}
+                        sx={{ width: 200, height: 150 }}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        onClick={() => handleRemoveImage(index)}
+                        sx={{ position: 'absolute', top: 0, right: 0 }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              </Grid>
+              <div className="text-red-500">{`You need ${formatPrice(10000)} to create a post.`}</div>
+              <Grid item xs={12} align="center">
+                <CustomButton type="submit" variant="contained" color="primary">
+                  Create Post
                 </CustomButton>
-              </label>
-
-              <Box mt={2} display="flex" flexWrap="wrap" gap={2}>
-                {imagePreviews.map((preview, index) => (
-                  <Box key={index} position="relative">
-                    <Avatar
-                      variant="square"
-                      alt={`Image Preview ${index + 1}`}
-                      src={preview}
-                      sx={{ width: 200, height: 150 }}
-                    />
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => handleRemoveImage(index)}
-                      sx={{ position: 'absolute', top: 0, right: 0 }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                ))}
-              </Box>
+              </Grid>
             </Grid>
-            <div className="text-red-500">{`You need ${formatPrice(10000)} to create a post.`}</div>
-            <Grid item xs={12} align="center">
-              <CustomButton type="submit" variant="contained" color="primary">
-                Create Post
-              </CustomButton>
-            </Grid>
-          </Grid>
-        </form>
-      </CustomPaper>
-      <Dialog open={openConfirmPost} onClose={handleCloseConfirmPost}>
-        <DialogTitle>Are you sure to upload this post</DialogTitle>
-        <DialogContent>
-          <Box display="flex" flexDirection="column" gap={2}>
-            <div className="font-semibold text-lg">
-                This will use {formatPrice(10000)} of your credit balance.
-            </div>
-      {/*<div className="text-red-500">{errorMessage}</div>*/}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmPost}>Cancel</Button>
-          <Button onClick={handleConfirmPost} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Dialog confirm add credit */}
-      <Dialog open={openConfirmCredit} onClose={handleCloseConfirmCredit}>
-        <DialogTitle>You don't have enough credit</DialogTitle>
-        <DialogContent>
-          <Box display="flex" flexDirection="column" gap={2}>
-            <div className="font-semibold text-lg">
-                Do you want to add {formatPrice(10000)} to your credit balance.
-            </div>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmCredit}>Cancel</Button>
-          <Button onClick={handleConfirmCredit} color="primary">
-            Add more credit
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
+          </form>
+        </CustomPaper>
+        <Dialog open={openConfirmPost} onClose={handleCloseConfirmPost}>
+          <DialogTitle>Are you sure to upload this post</DialogTitle>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" gap={2}>
+              <div className="font-semibold text-lg">
+                  This will use {formatPrice(10000)} of your credit balance.
+              </div>
+        {/*<div className="text-red-500">{errorMessage}</div>*/}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmPost}>Cancel</Button>
+            <Button onClick={handleConfirmPost} color="primary">
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+    
+        {/* Dialog confirm add credit */}
+        <Dialog open={openConfirmCredit} onClose={handleCloseConfirmCredit}>
+          <DialogTitle>You don't have enough credit</DialogTitle>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" gap={2}>
+              <div className="font-semibold text-lg">
+                  Do you want to add {formatPrice(10000)} to your credit balance.
+              </div>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmCredit}>Cancel</Button>
+            <Button onClick={handleConfirmCredit} color="primary">
+              Add more credit
+            </Button>
+          </DialogActions>
+        </Dialog>
+        
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+          <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+            Your post is being waited for accept
+          </Alert>
+        </Snackbar>
+      </Box>
+    );
+    
 }

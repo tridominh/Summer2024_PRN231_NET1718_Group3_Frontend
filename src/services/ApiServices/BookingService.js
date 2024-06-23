@@ -50,6 +50,16 @@ export async function UpdateBooking(updateBookingDto) {
     return response.data.data;
 }
 
+export async function UpdateBookingStatus(updateBookingDto) {
+    const response = await axios.post(
+        `${getEndpoint()}/api/Booking/UpdateStatus`,
+        updateBookingDto,
+        ngrokSkipWarning
+    );
+
+    return response.data.data;
+}
+
 export async function ApplyToBooking(applyBookingDto) {
     const response = await axios.post(
         `${getEndpoint()}/api/Booking/Apply`,

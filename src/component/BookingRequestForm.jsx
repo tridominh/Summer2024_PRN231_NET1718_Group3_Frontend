@@ -325,7 +325,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           Add Schedule
         </Button>
         <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">
-          Price
+          Price (VNĐ)
         </Typography>
         <TextField
           type="number"
@@ -334,7 +334,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           variant="outlined"
           className="bg-gray-50"
           id="outlined-controlled"
-          label="Budget Per Slot"
+          label="Budget Per Slot (VNĐ)"
           onChange={handleChange}
         />
         <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">

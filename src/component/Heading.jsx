@@ -21,7 +21,7 @@ const moderatorPages = [
   "Newsfeed",
 ];
 const studentPages = ["Request", "Schedule", "Newsfeed"];
-const tutorPages = ["Student Request", "Schedule", "Newsfeed"];
+const tutorPages = ["Student Request", "Schedule", "Newsfeed", "Create Post", "Pending Post"];
 const settings = ["Profile", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
@@ -44,6 +44,10 @@ function Heading({ token, setToken, removeToken, userRole }) {
         navigate("/student/requests");
       } else if (page === "Manage Credentials") {
         navigate("/manage-credentials");
+      } else if (page === "Pending Post") {
+        navigate("/pending-post");
+      } else if (page === "Create Post") {
+        navigate("/create-post");
       } else if (page === "Newsfeed") {
         navigate("/newsfeed");
       } else if (page === "Manage Posts") {

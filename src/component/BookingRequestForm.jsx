@@ -30,6 +30,29 @@ const daysOfWeek = [
   "Sunday",
 ];
 
+const durationOptions = [
+  {
+    value: "01:00",
+    label: "1h",
+  },
+  {
+    value: "01:30",
+    label: "1h30m",
+  },
+  {
+    value: "02:00",
+    label: "2h",
+  },
+  {
+    value: "02:30",
+    label: "2h30m",
+  },
+  {
+    value: "03:00",
+    label: "3h",
+  },
+];
+
 export default function BookingRequestForm({ token, setNotLogin }) {
   const navigate = useNavigate();
 
@@ -38,13 +61,13 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     level: "",
     description: "",
     numOfWeeks: 0,
-    duration: "00:00",
+    duration: "01:00",
     pricePerSlot: 0,
   });
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
   const [schedules, setSchedules] = useState([
-    { dayOfWeek: "", startTime: "00:00:00", endTime: "00:00:00" },
+    { dayOfWeek: "Monday", startTime: "09:00", endTime: "10:00" },
   ]);
 
   useEffect(() => {
@@ -61,16 +84,40 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     }
 
     fetchData();
-  }, []);
+  }, [formData]);
+
+  // const handleChange = (event) => {
+  //   const { name, value } = event.target;
+  //
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value,
+  //   }));
+  //
+  //   console.log("Prop Name: " + [name]);
+  //   console.log(formData);
+  // };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    setFormData((prevData) => {
+      const newFormData = { ...prevData, [name]: value };
+      if (name === "duration") {
+        updateAllEndTimes(newFormData, schedules);
+      }
+      return newFormData;
+    });
 
     console.log(formData);
+  };
+
+  const updateAllEndTimes = (newFormData, newSchedules) => {
+    const updatedSchedules = newSchedules.map((schedule) => ({
+      ...schedule,
+      endTime: calculateEndTime(schedule.startTime, newFormData.duration),
+    }));
+    setSchedules(updatedSchedules);
   };
 
   const handleSubmit = async (event) => {
@@ -112,7 +159,14 @@ export default function BookingRequestForm({ token, setNotLogin }) {
   };
 
   const handleAddSchedule = () => {
-    setSchedules([...schedules, { dayOfWeek: "", startTime: "", endTime: "" }]);
+    setSchedules([
+      ...schedules,
+      {
+        dayOfWeek: "Monday",
+        startTime: "09:00",
+        endTime: calculateEndTime("09:00", formData.duration),
+      },
+    ]);
   };
 
   const handleRemoveSchedule = (index) => {
@@ -233,21 +287,39 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           label="Number of Weeks"
           onChange={handleChange}
         />
+        {/* <TextField */}
+        {/*   label="Slot Duration" */}
+        {/*   name="duration" */}
+        {/*   fullWidth */}
+        {/*   type="text" */}
+        {/*   value={formData.duration} */}
+        {/*   onChange={handleChange} */}
+        {/*   InputLabelProps={{ */}
+        {/*     shrink: true, */}
+        {/*   }} */}
+        {/*   inputProps={{ */}
+        {/*     pattern: "[0-9]{2}:[0-9]{2}", */}
+        {/*     placeholder: "HH:MM", */}
+        {/*   }} */}
+        {/* /> */}
+
         <TextField
-          label="Slot Duration"
-          name="duration"
           fullWidth
+          id="outlined-select-currency"
+          name="duration"
           type="text"
+          select
+          label="Duration"
           value={formData.duration}
           onChange={handleChange}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputProps={{
-            pattern: "[0-9]{2}:[0-9]{2}",
-            placeholder: "HH:MM",
-          }}
-        />
+          defaultValue="01:00"
+        >
+          {durationOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
         {schedules.map((schedule, index) => (
           <Grid
             container
@@ -289,7 +361,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
                   shrink: true,
                 }}
                 inputProps={{
-                  step: 300, // 5 minutes
+                  step: 60 * 5,
                 }}
               />
             </Grid>
@@ -305,7 +377,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
                   shrink: true,
                 }}
                 inputProps={{
-                  step: 300, // 5 minutes
+                  step: 60 * 5,
                 }}
               />
             </Grid>
@@ -352,8 +424,8 @@ export default function BookingRequestForm({ token, setNotLogin }) {
         />
         <Button
           fullWidth
-          onClick={(e)=>{
-            if(!token){
+          onClick={(e) => {
+            if (!token) {
               e.preventDefault();
               setNotLogin(true);
               return e;

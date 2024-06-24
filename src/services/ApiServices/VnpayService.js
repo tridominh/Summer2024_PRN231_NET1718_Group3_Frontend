@@ -31,3 +31,12 @@ export async function TransferMoney(data) {
   return response.data;
 }
 
+export async function TransferMoneyTutor(data) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Vnpay/TransferMoneyTutor`,
+    data,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}
+

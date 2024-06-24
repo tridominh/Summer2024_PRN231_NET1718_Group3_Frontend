@@ -42,11 +42,19 @@ export const MainListItems = () => (
       </ListItemIcon>
       <ListItemText primary="Subjects &amp; Levels" />
     </ListItemButton>
+<<<<<<< HEAD
     <ListItemButton component={RouterLink} to="/admin/transfer-to-tutor">
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Transfer to Tutor" />
+=======
+    <ListItemButton component={RouterLink} to="/admin/booking">
+      <ListItemIcon>
+        <BarChartIcon />
+      </ListItemIcon>
+      <ListItemText primary="Bookings" />
+>>>>>>> 35bed97129aa67578fb3ec5dfadc6e04403afa17
     </ListItemButton>
   </React.Fragment>
 );

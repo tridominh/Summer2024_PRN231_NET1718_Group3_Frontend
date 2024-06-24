@@ -14,13 +14,17 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import parseJwt from "../../services/parseJwt";
-import { ApplyToBooking, CancelApplication, GetAllBookings } from "../../services/ApiServices/BookingService";
+import {
+  ApplyToBooking,
+  CancelApplication,
+  GetAllBookings,
+} from "../../services/ApiServices/BookingService";
 import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
 
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 
@@ -28,7 +32,7 @@ export default function TutorRequestsPage() {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [allBookings, setAllBookings] = useState([]);
   const [appliedBookings, setAppliedBookings] = useState([]);
@@ -41,25 +45,29 @@ export default function TutorRequestsPage() {
         const userId = Number(parseJwt(token).nameid);
 
         const bookingResponse = await GetAllBookings();
-        const allBookings = bookingResponse;
+        const allBookings = bookingResponse.sort(
+          (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
+        );
         const bookingUsers = await GetAllBookingUsers();
         const tutorBookingIds = bookingUsers
-          .filter(
-            (bookingUser) =>
-              bookingUser.userId === userId
-          )
+          .filter((bookingUser) => bookingUser.userId === userId)
           .map((bookingUser) => bookingUser.bookingId);
 
         const tutorBookings = allBookings.map((booking) => ({
           ...booking,
           tutorApplied: tutorBookingIds.includes(booking.id),
-          tutorApproved: bookingUsers.some((bookingUser) => bookingUser.bookingId === booking.id && bookingUser.userId === userId && bookingUser.status === "APPROVED"),
+          tutorApproved: bookingUsers.some(
+            (bookingUser) =>
+              bookingUser.bookingId === booking.id &&
+              bookingUser.userId === userId &&
+              bookingUser.status === "APPROVED",
+          ),
         }));
 
         const tutorAppliedBookingIds = bookingUsers
           .filter(
             (bookingUser) =>
-              bookingUser.userId === userId && bookingUser.status === "APPLIED"
+              bookingUser.userId === userId && bookingUser.status === "APPLIED",
           )
           .map((bookingUser) => bookingUser.bookingId);
 
@@ -73,7 +81,8 @@ export default function TutorRequestsPage() {
         const tutorApprovedBookingIds = bookingUsers
           .filter(
             (bookingUser) =>
-              bookingUser.userId === userId && bookingUser.status === "APPROVED"
+              bookingUser.userId === userId &&
+              bookingUser.status === "APPROVED",
           )
           .map((bookingUser) => bookingUser.bookingId);
 
@@ -120,7 +129,9 @@ export default function TutorRequestsPage() {
       });
 
       setBookings(updatedBookings);
-      setSnackbarMessage('Applied successfully, please wait for student response');
+      setSnackbarMessage(
+        "Applied successfully, please wait for student response",
+      );
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error applying to booking:", error);
@@ -147,7 +158,7 @@ export default function TutorRequestsPage() {
       });
 
       setBookings(updatedBookings);
-      setSnackbarMessage('Application canceled successfully');
+      setSnackbarMessage("Application canceled successfully");
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error canceling application:", error);
@@ -165,7 +176,10 @@ export default function TutorRequestsPage() {
   const renderBookings = (filteredBookings) => {
     return filteredBookings.map((booking, index) => (
       <Grid item xs={12} sm={6} md={4} key={index}>
-        <Card style={{ height: "295px" }} className="p-4 border border-black rounded-md shadow-md mt-5">
+        <Card
+          style={{ height: "295px" }}
+          className="p-4 border border-black rounded-md shadow-md mt-5"
+        >
           <CardContent>
             <div className="mb-2">
               <Typography
@@ -173,61 +187,45 @@ export default function TutorRequestsPage() {
                 className="text-center"
                 color="text.secondary"
               >
-                <strong>
-                  Subject:{" "}
-                </strong>
+                <strong>Subject: </strong>
                 {booking.subjectName}
               </Typography>
             </div>
             <Typography color="text.secondary">
-              <strong>
-                Create Date:{" "}
-              </strong>
-              {" "}
+              <strong>Create Date: </strong>{" "}
               {convertToDate(booking.createdDate)}
             </Typography>
 
             <Typography color="text.secondary">
-              <strong>
-                Grade:{" "}
-              </strong>{booking.levelName}
+              <strong>Grade: </strong>
+              {booking.levelName}
             </Typography>
             <Typography color="text.secondary">
-              <strong>
-                Slot per week:{" "}
-              </strong>
+              <strong>Slot per week: </strong>
               {booking.numOfSlots}
             </Typography>
             <Typography color="text.secondary">
-              <strong>
-                Price Per Slot:{" "}
-              </strong>
+              <strong>Price Per Slot: </strong>
               {booking.pricePerSlot}
             </Typography>
             <Typography color="text.secondary">
-              <strong>
-                Description:{" "}
-              </strong>
+              <strong>Description: </strong>
               {booking.description}
             </Typography>
 
             <Typography color="text.secondary">
-              <strong>
-                Status:{" "}
-              </strong> {booking.status}
+              <strong>Status: </strong> {booking.status}
             </Typography>
             <Typography
               color="blue"
               textAlign={"right"}
               className="mt-2 underline"
-            >
-            </Typography>
+            ></Typography>
             <Typography
               color="blue"
               textAlign={"right"}
               className="mt-2 underline"
-            >
-            </Typography>
+            ></Typography>
             {!booking.tutorApproved && !booking.tutorApplied ? (
               <Button
                 sx={{ mt: 2 }}
@@ -239,7 +237,8 @@ export default function TutorRequestsPage() {
                 Apply
               </Button>
             ) : (
-              !booking.tutorApproved && booking.tutorApplied && (
+              !booking.tutorApproved &&
+              booking.tutorApplied && (
                 <>
                   <Button
                     sx={{ mt: 2, mr: 1 }}
@@ -268,11 +267,15 @@ export default function TutorRequestsPage() {
 
   return (
     <Container maxWidth="max-w-7xl mx-auto p-4" className="my-3">
-      <Typography variant="h4" align="center" className="text-violet-800 my-3 mt-5">
+      <Typography
+        variant="h4"
+        align="center"
+        className="text-violet-800 my-3 mt-5"
+      >
         Students Requests
       </Typography>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs
           value={tabValue}
           onChange={handleChangeTab}
@@ -312,3 +315,4 @@ export default function TutorRequestsPage() {
     </Container>
   );
 }
+

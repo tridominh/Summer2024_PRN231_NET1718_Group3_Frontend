@@ -24,6 +24,7 @@ import { PostDetails } from "./pages/tutor/PostDetails";
 import { CreatePostPage } from "./pages/tutor/CreatePostPage";
 import { PostPage } from "./pages/tutor/PostPage.jsx";
 import PendingPost from "./pages/tutor/PendingPost.jsx";
+import { TransferToTutor } from "./pages/admin/TransferToTutor.jsx";
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -149,6 +150,17 @@ function App() {
               </PrivateRoute>
             }
           ></Route>
+          <Route
+            path="/admin/transfer-to-tutor"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard
+                  Element={<TransferToTutor />}
+                  removeToken={removeToken}
+                />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/admin/tutors-management"
             element={

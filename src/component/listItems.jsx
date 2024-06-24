@@ -42,6 +42,12 @@ export const MainListItems = () => (
       </ListItemIcon>
       <ListItemText primary="Subjects &amp; Levels" />
     </ListItemButton>
+    <ListItemButton component={RouterLink} to="/admin/transfer-to-tutor">
+      <ListItemIcon>
+        <AssignmentIcon />
+      </ListItemIcon>
+      <ListItemText primary="Transfer to Tutor" />
+    </ListItemButton>
   </React.Fragment>
 );
 

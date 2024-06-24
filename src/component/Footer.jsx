@@ -8,7 +8,6 @@ export default function Footer() {
       sx={{
         py: 3,
         px: 2,
-        mt: "20rem",
         // display: "flex",
         // flexDirection: "column",
         // justifyContent: "flex-end",

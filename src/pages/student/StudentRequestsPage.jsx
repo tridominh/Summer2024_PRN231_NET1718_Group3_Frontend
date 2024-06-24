@@ -176,7 +176,7 @@ export default function StudentRequestsPage() {
 
   const renderBookings = (bookings) => {
     return bookings.map((request, index) => (
-      <Grid item xs={12} sm={6} md={4} key={index}>
+      <Grid  item xs={12} sm={6} md={4} key={index}>
         <Card className="p-4 border border-black rounded-md shadow-md">
           <CardContent>
             <div className="mb-2">

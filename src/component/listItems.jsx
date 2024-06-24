@@ -7,12 +7,14 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CastForEducationIcon from '@mui/icons-material/CastForEducation';
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 
 export const MainListItems = () => (
   <React.Fragment>
-    <ListItemButton component={RouterLink} to="/profile">
+    <ListItemButton component={RouterLink} to="/admin/profile">
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
@@ -38,23 +40,15 @@ export const MainListItems = () => (
     </ListItemButton>
     <ListItemButton component={RouterLink} to="/admin/subject-level">
       <ListItemIcon>
-        <BarChartIcon />
+        <CastForEducationIcon />
       </ListItemIcon>
       <ListItemText primary="Subjects &amp; Levels" />
     </ListItemButton>
-<<<<<<< HEAD
-    <ListItemButton component={RouterLink} to="/admin/transfer-to-tutor">
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Transfer to Tutor" />
-=======
     <ListItemButton component={RouterLink} to="/admin/booking">
       <ListItemIcon>
-        <BarChartIcon />
+        <AccountBalanceWalletIcon />
       </ListItemIcon>
       <ListItemText primary="Bookings" />
->>>>>>> 35bed97129aa67578fb3ec5dfadc6e04403afa17
     </ListItemButton>
   </React.Fragment>
 );

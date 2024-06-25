@@ -295,7 +295,7 @@ export default function TutorRequestsPage() {
             </Box>
 
             <Box role="tabpanel" hidden={tabValue !== 0}>
-                <Grid style={{ height: "295px" }} container spacing={3}>
+                <Grid  container spacing={3}>
                     {renderBookings(allBookings)}
                 </Grid>
             </Box>

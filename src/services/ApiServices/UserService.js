@@ -66,6 +66,15 @@ export async function SendStatusMailCredentials(payload) {
   return response.data;
 }
 
+export async function SendStatusMailTransfermoneyForTeaching(payload) {
+  const response = await axios.post(
+    `${getEndpoint()}/api/Authentication/SendStatusMailTransfermoneyForTeaching`,
+    payload,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}
+
 export async function SendStatusMailPost(payload) {
   const response = await axios.post(
     `${getEndpoint()}/api/Authentication/SendStatusMailPost`,

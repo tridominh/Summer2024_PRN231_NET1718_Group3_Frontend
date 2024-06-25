@@ -7,7 +7,11 @@ import {
   StepLabel,
   Stepper,
   Typography,
+  Snackbar,
+  Alert,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import BookingDetails from "../../component/BookingDetails";
 import { useNavigate, useParams } from "react-router-dom";
 import { GetAllBookings } from "../../services/ApiServices/BookingService";
@@ -22,10 +26,19 @@ export default function StudentBookingRequest({ userId }) {
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
 
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState(new Set());
   const [booking, setBooking] = useState(null);
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   useEffect(() => {
     async function fetchApprovedBooking() {
@@ -54,6 +67,9 @@ export default function StudentBookingRequest({ userId }) {
       newCompleted.delete(activeStep);
     }
 
+    if(activeStep + 1 == 2){
+        setOpenSnackbar(true);
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setCompleted(newCompleted);
   };
@@ -112,6 +128,25 @@ export default function StudentBookingRequest({ userId }) {
           </Box>
         </React.Fragment>
       )}
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={handleSnackbarClose}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          Payment processed successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -104,9 +104,8 @@ export default function AdminDashboard({ Element, removeToken }) {
     navigate("/");
   };
 
-  // Hàm để xử lý sự kiện khi một tài khoản "Student" đăng kí thành công
   const handleStudentRegistration = () => {
-    setNotificationCount(notificationCount + 1); // Tăng số lượng thông báo
+    setNotificationCount(notificationCount + 1);
   };
 
   return (
@@ -116,7 +115,7 @@ export default function AdminDashboard({ Element, removeToken }) {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: "24px", // keep right padding when drawer closed
+              pr: "24px", 
             }}
           >
             <IconButton

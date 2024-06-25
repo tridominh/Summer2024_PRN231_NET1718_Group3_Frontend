@@ -14,7 +14,7 @@ export function ChartPage() {
 
   const fetchTransactions = async () => {
     try {
-      const data = await GetAllByTypeTransaction("TRANSFER");
+      const data = await GetAllByTypeTransaction(["TRANSFER","POST"]);
       setTransactions(data.data);
     } catch (err) {
       console.error("Error fetching transactions:", err);

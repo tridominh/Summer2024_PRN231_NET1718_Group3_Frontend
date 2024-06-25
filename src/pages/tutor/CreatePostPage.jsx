@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TextField, Button, Box, Typography, Grid, Paper, Avatar, IconButton } from "@mui/material";
+import { TextField, Button, Box, Typography, Grid, Paper, Avatar, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -7,7 +7,8 @@ import { AddPost } from "../../services/ApiServices/PostService";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
-import { Alert, Snackbar } from "@mui/material";
+import { formatPrice } from '../../services/formatPrice';
+import { PayService } from "../../services/ApiServices/VnpayService";
 
 const Input = styled('input')({
   display: 'none',
@@ -32,20 +33,48 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export function CreatePostPage({userId}) {
+export function CreatePostPage({ userId }) {
   const [fields, setFields] = useState([
     { name: "title", value: "", type: "text" },
     { name: "description", value: "", type: "richtext" },
   ]);
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [openConfirmPost, setOpenConfirmPost] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openConfirmCredit, setOpenConfirmCredit] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   const navigate = useNavigate();
-  const [submissionStatus, setSubmissionStatus] = useState(null);
 
   const handleFieldChange = (name, value, type) => {
     setFields(prevFields =>
       prevFields.map(field => (field.name === name ? { ...field, value, type } : field))
     );
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  const handleCloseConfirmPost = () => {
+    setOpenConfirmPost(x => !x);
+  };
+
+  const handleCloseConfirmCredit = () => {
+    setOpenConfirmCredit(x => !x);
+  };
+
+  const handleConfirmPost = () => {
+    handleSubmit();
+  };
+
+  const handleConfirmCredit = () => {
+    addCredit();
   };
 
   useEffect(() => {
@@ -69,50 +98,62 @@ export function CreatePostPage({userId}) {
     setImagePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const addCredit = async () => {
+    try {
+      let payDto = {
+        userId: userId,
+        amount: 10000,
+        orderInfo: "Add Credit",
+      }
+      const response = await PayService(payDto);
+      window.location.href = response.data;
+      handleCloseConfirmCredit();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("Title", fields.find(field => field.name === "title").value);
-    formData.append("Description", fields.find(field => field.name === "description").value);
+    formData.append("Description", fields.find(field => field.name === "description").value || " ");
     formData.append("UserId", userId);
 
-    imageFiles.forEach((file, index) => {
-      formData.append("ImageFile", file);
+    imageFiles.forEach((file) => {
+      formData.append("ImageFiles", file);
     });
 
     try {
-      await AddPost(formData);
-      setSubmissionStatus('success');
-      setTimeout(() => {
-        navigate('/newsfeed');
-      }, 2000); 
+      const newPost = await AddPost(formData);
+      handleCloseConfirmPost();
+      navigate(`/posts/${newPost.id}`, { state: { openPost: true } });
+      setSnackbarMessage("Your post is being waited for accept");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
     } catch (error) {
-      console.error("Error creating post:", error);
-      setSubmissionStatus('error');
+      if (error.response.status === 400 && error.response.data === "Not enough credit") {
+        handleCloseConfirmPost();
+        setOpenConfirmCredit(true);
+      } else {
+        setSnackbarMessage("Error creating post");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+        console.error("Error creating post:", error);
+      }
     }
   };
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={2}>
-      <Snackbar
-        open={submissionStatus !== null}
-        autoHideDuration={6000}
-        onClose={() => setSubmissionStatus(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert severity={submissionStatus} onClose={() => setSubmissionStatus(null)}>
-          {submissionStatus === 'success'
-            ? 'Post created successfully! It\'s pending approval.'
-            : 'Failed to create post. Please try again.'}
-        </Alert>
-      </Snackbar>
       <CustomPaper elevation={3}>
         <Typography variant="h4" align="center" gutterBottom>
           Create New Post
         </Typography>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          handleCloseConfirmPost()
+        }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <CustomTextField
@@ -171,6 +212,7 @@ export function CreatePostPage({userId}) {
                 ))}
               </Box>
             </Grid>
+            <div className="text-red-500">{`You need ${formatPrice(10000)} to create a post.`}</div>
             <Grid item xs={12} align="center">
               <CustomButton type="submit" variant="contained" color="primary">
                 Create Post
@@ -179,6 +221,45 @@ export function CreatePostPage({userId}) {
           </Grid>
         </form>
       </CustomPaper>
+      <Dialog open={openConfirmPost} onClose={handleCloseConfirmPost}>
+        <DialogTitle>Are you sure to upload this post</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2}>
+            <div className="font-semibold text-lg">
+              This will use {formatPrice(10000)} of your credit balance.
+            </div>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmPost}>Cancel</Button>
+          <Button onClick={handleConfirmPost} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openConfirmCredit} onClose={handleCloseConfirmCredit}>
+        <DialogTitle>You don't have enough credit</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2}>
+            <div className="font-semibold text-lg">
+              Do you want to add {formatPrice(10000)} to your credit balance.
+            </div>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmCredit}>Cancel</Button>
+          <Button onClick={handleConfirmCredit} color="primary">
+            Add more credit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

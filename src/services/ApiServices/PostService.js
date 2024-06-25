@@ -11,9 +11,17 @@ export async function GetAllPost() {
   return response.data;
 }
 
-export async function GetPostById(id) {
+export async function GetPost(id) {
   const response = await axios.get(
       `${getEndpoint()}/api/Post/Get?id=${id}`,
+      ngrokSkipWarning
+  );
+  return response.data;
+}
+
+export async function GetPostById(id) {
+  const response = await axios.get(
+      `${getEndpoint()}/api/Post/GetPostsByUserId?id=${id}`,
       ngrokSkipWarning
   );
   return response.data;

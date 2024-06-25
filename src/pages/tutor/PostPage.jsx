@@ -67,7 +67,7 @@ export function PostPage({ id }) {
       if (err.response && err.response.data) {
         setError(
           err.response.data.message ||
-            "An error occurred. Please try again later."
+          "An error occurred. Please try again later."
         );
       } else {
         setError("An error occurred. Please try again later.");
@@ -195,13 +195,16 @@ export function PostPage({ id }) {
   return (
     <Box p={2} maxWidth="2000px" mx="auto">
       <Typography
-        sx={{ fontWeight: "bold" }}
         variant="h4"
         gutterBottom
-        align="center"
+        style={{
+          textAlign: "center",
+          fontWeight: "bold",
+          color: "#5c6bc0",
+        }}
       >
-        NEWSFEED
-      </Typography>
+        Newsfeed                
+        </Typography>
       {posts.map((post) => (
         <Box key={post.id} mb={3} mx="auto" maxWidth={600}>
           <Card
@@ -333,12 +336,12 @@ export function PostPage({ id }) {
           </Typography>
         </DialogContent>
         <DialogActions>
-        <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
+          <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
             Yes
           </Button>
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
-          </Button>    
+          </Button>
         </DialogActions>
       </Dialog>
       <Dialog

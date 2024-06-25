@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -5,81 +6,235 @@ import {
   CardContent,
   Grid,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+  IconButton,
 } from "@mui/material";
-import React from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { formatPrice } from "../services/utils";
+import { CheckCreditService, PayService, TransferMoney } from "../services/ApiServices/VnpayService";
+import { AcceptTutor, UpdateBookingStatus } from "../services/ApiServices/BookingService";
 
-export default function BookingDetails({ booking }) {
+export default function BookingDetails({ booking, userId, handleNext }) {
   const navigate = useNavigate();
-  const acceptedBooking = booking?.bookingUsers?.filter((bookingUser) => {
-    return bookingUser.role === "TUTOR" && bookingUser.status === "ACCEPTED";
-  });
+  const [openConfirmPayment, setOpenConfirmPayment] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openConfirmCredit, setOpenConfirmCredit] = useState(false);
+  const [needCredit, setNeedCredit] = useState(0);
+  const [acceptedBooking, setAcceptedBooking] = useState([]);
+
+  useEffect(() => {
+    if (booking) {
+      // Lọc ra danh sách tutor đã được chấp nhận
+      const acceptedTutors = booking?.bookingUsers?.filter(
+        (bookingUser) =>
+          bookingUser.role === "TUTOR" && bookingUser.status === "APPROVED"
+      );
+      setAcceptedBooking(acceptedTutors);
+    }
+  }, [booking]);
+
+  const tutorId = booking?.bookingUsers?.find((bookingUser) => bookingUser.role === "TUTOR")?.userId;
+
+  const handleCloseConfirmPayment = () => {
+    setOpenConfirmPayment(false);
+  };
+
+  const handleConfirmPayment = () => {
+    processPayment();
+  };
+
+  const handleCloseConfirmCredit = () => {
+    setOpenConfirmCredit(false);
+  };
+
+  const handleConfirmCredit = () => {
+    addCredit();
+  };
+
+  const addCredit = async () => {
+    try {
+      let payDto = {
+        userId: userId,
+        amount: needCredit,
+        orderInfo: "Add Credit",
+      };
+      const response = await PayService(payDto);
+      window.location.href = response.data;
+      handleCloseConfirmCredit();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  const processPayment = async () => {
+    try {
+      let payDto = {
+        userId: userId,
+        amount: booking.pricePerSlot * booking.numOfSlots,
+        orderInfo: "Booking Payment",
+      };
+      const response = await CheckCreditService(payDto);
+      setOpenConfirmPayment(false);
+      await TransferMoney({
+        userId: userId,
+        receiverId: tutorId,
+        amount: booking.pricePerSlot * booking.numOfSlots,
+        orderInfo: "Booking Payment",
+      });
+      await UpdateBookingStatus({
+        bookingId: booking.id,
+        status: "PAID"
+      });
+      setOpenSnackbar(true);
+      handleNext();
+    } catch (error) {
+      if (error.response.status === 400) {
+        setNeedCredit(parseInt(error.response.data));
+        setOpenConfirmPayment(false);
+        setOpenConfirmCredit(true);
+      }
+      console.error(error);
+    }
+  };
 
   return (
-    <Box component="section">
-      <Typography variant="h4" align="center" className="text-violet-800" my-3>
-        Booking Details
-      </Typography>
+    <Box component="section" p={4}>
+      <div >
+        <Typography variant="h4" align="center" color="primary" gutterBottom>
+          Booking Details
+        </Typography>
+      </div>
       {!booking && (
-        <div className="my-3">
-          <p>Failed to fetch booking</p>
-        </div>
+        <Box textAlign="center" my={3}>
+          <Typography variant="h6" color="error">
+            Failed to fetch booking
+          </Typography>
+        </Box>
       )}
-      {!acceptedBooking && (
-        <div className="flex flex-col justify-items-center items-center my-3">
-          <p className="text-center">You haven't approved any tutors yet.</p>
-          <Button
-            onClick={() => navigate("/student/requests")}
-            variant="contained"
-          >
+      {acceptedBooking.length === 0 && (
+        <Box display="flex" flexDirection="column" alignItems="center" my={3}>
+          <Typography variant="h6" align="center" gutterBottom>
+            You haven't approved any tutors yet.
+          </Typography>
+          <Button onClick={() => navigate("/student/requests")} variant="contained" color="primary">
             Go to Requests
           </Button>
-        </div>
+        </Box>
       )}
-      <Grid item xs={12} sm={6} md={4}>
-        <Card className="p-4 border border-black rounded-md shadow-md">
-          <CardContent>
-            <Typography
-              sx={{ fontWeight: "bold" }}
-              className="text-center"
-              color="text.secondary"
+      {booking && (
+        <Grid
+          container
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          style={{ minHeight: '25vh' }}
+        >
+          <Grid item xs={12} sm={8} md={6}>
+            <Card className="p-4 border border-black rounded-md shadow-md">
+              <CardContent>
+                <Typography variant="h6" color="textSecondary">
+                  Subject: <strong>{booking.subjectName}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Level: <strong>{booking.levelName}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Number Of Slots: <strong>{booking.numOfSlots}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Price Per Slot: <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Total Price: <strong>{formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Description: <strong>{booking.description}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Status: <strong>{booking.status}</strong>
+                </Typography>
+              </CardContent>
+            </Card>
+            <Box mt={2} textAlign="center">
+              <Button
+                onClick={() => setOpenConfirmPayment(true)}
+                variant="contained"
+                color="primary"
+                disabled={acceptedBooking.length === 0}
+              >
+                Pay bill
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      )}
+
+      <Dialog open={openConfirmPayment} onClose={handleCloseConfirmPayment}>
+        <DialogTitle>Confirm Payment</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            This will use {formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")} of your credit balance.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmPayment} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmPayment} color="primary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openConfirmCredit} onClose={handleCloseConfirmCredit}>
+        <DialogTitle>Insufficient Credit</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            Do you want to add {formatPrice(needCredit, "VND")} to your credit balance?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmCredit} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmCredit} color="primary">
+            Add Credit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={handleSnackbarClose}
             >
-              Subject: <strong> {booking.subjectName}</strong>
-            </Typography>
-
-            <Typography color="text.secondary">
-              Level: <strong> {booking.levelName}</strong>
-            </Typography>
-            <Typography color="text.secondary">
-              Number Of Slots: <strong>{booking.numOfSlots}</strong>
-            </Typography>
-            <Typography color="text.secondary">
-              Price Per Slot:{" "}
-              <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
-            </Typography>
-            <Typography color="text.secondary">
-              Total Price:{" "}
-              <strong>
-                {formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")}
-              </strong>
-            </Typography>
-
-            <Typography color="text.secondary">
-              Description: <strong>{booking.description}</strong>
-            </Typography>
-
-            <Typography color="text.secondary">
-              Status: <strong>{booking.status}</strong>
-            </Typography>
-            <Typography
-              color="blue"
-              textAlign={"right"}
-              className="mt-2 underline"
-            ></Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          Payment processed successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -9,10 +9,6 @@ export async function GetAllLevels() {
     ngrokSkipWarning,
   );
 
-  if (!response.ok) {
-    throw new Error("Error fetching subjects");
-  }
-
   return response.data;
 }
 

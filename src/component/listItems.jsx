@@ -7,11 +7,14 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CastForEducationIcon from '@mui/icons-material/CastForEducation';
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { styled } from '@mui/material/styles';
 
 export const MainListItems = () => (
   <React.Fragment>
-    <ListItemButton component={RouterLink} to="/profile">
+    <ListItemButton component={RouterLink} to="/admin/profile">
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
@@ -37,12 +40,26 @@ export const MainListItems = () => (
     </ListItemButton>
     <ListItemButton component={RouterLink} to="/admin/subject-level">
       <ListItemIcon>
-        <BarChartIcon />
+        <CastForEducationIcon />
       </ListItemIcon>
       <ListItemText primary="Subjects &amp; Levels" />
     </ListItemButton>
+    <ListItemButton component={RouterLink} to="/admin/booking">
+      <ListItemIcon>
+        <AccountBalanceWalletIcon />
+      </ListItemIcon>
+      <ListItemText primary="Bookings" />
+    </ListItemButton>
   </React.Fragment>
 );
+
+const CustomListItemButton = styled(ListItemButton)(({ theme }) => ({
+  backgroundColor: 'brown',
+  color: 'white',
+  '&:hover': {
+    backgroundColor: 'brown',
+  },
+}));
 
 export const SecondaryListItems = ({ logout }) => (
   <React.Fragment>
@@ -67,11 +84,13 @@ export const SecondaryListItems = ({ logout }) => (
       </ListItemIcon>
       <ListItemText primary="Year-end sale" />
     </ListItemButton>
-    <ListItemButton onClick={logout}>
+    <CustomListItemButton  onClick={logout}>
       <ListItemIcon>
       </ListItemIcon>
-      <ListItemText primary="Logout" />
-    </ListItemButton>
+      <div style={{marginLeft:"18px"}}>
+      <ListItemText  primary="Logout" />
+      </div>
+    </CustomListItemButton >
   </React.Fragment>
 );
 

@@ -1,80 +1,101 @@
-import * as React from "react";
+import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { LineChart, axisClasses } from "@mui/x-charts";
-
+import { Line } from "react-chartjs-2";
 import Title from "./Title";
+import moment from "moment";
+import 'chartjs-adapter-moment';
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  TimeScale,
+  Title as ChartTitle,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-// Generate Sales Data
-function createData(time, amount) {
-  return { time, amount: amount ?? null };
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  TimeScale,
+  ChartTitle,
+  Tooltip,
+  Legend
+);
+
+function createData(date, amount) {
+  return { date, amount };
 }
 
-const data = [
-  createData("00:00", 0),
-  createData("03:00", 300),
-  createData("06:00", 600),
-  createData("09:00", 800),
-  createData("12:00", 1500),
-  createData("15:00", 2000),
-  createData("18:00", 2400),
-  createData("21:00", 2400),
-  createData("24:00"),
-];
-
-export default function Chart() {
+export default function Chart({ transactions }) {
   const theme = useTheme();
+
+  const aggregatedData = transactions.reduce((acc, transaction) => {
+    const date = moment(transaction.createdDate).format("YYYY-MM-DD");
+    if (!acc[date]) {
+      acc[date] = 0;
+    }
+    acc[date] += transaction.amount;
+    return acc;
+  }, {});
+
+  const chartData = [];
+  let currentDate = moment().startOf("day");
+  const endDate = moment("2024-12-31");
+
+  while (currentDate.isBefore(endDate)) {
+    const dateStr = currentDate.format("YYYY-MM-DD");
+    chartData.push({
+      date: dateStr,
+      amount: aggregatedData[dateStr] || 0,
+    });
+    currentDate = currentDate.add(1, "day");
+  }
+
+  const data = {
+    labels: chartData.map((d) => d.date),
+    datasets: [
+      {
+        label: "Total Amount",
+        data: chartData.map((d) => d.amount),
+        borderColor: theme.palette.primary.main,
+        fill: false,
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      x: {
+        type: "time",
+        time: {
+          unit: "month",
+          tooltipFormat: "DD MMM YYYY",
+        },
+        title: {
+          display: true,
+          text: "Date",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Total Amount (VNĐ)",
+        },
+        beginAtZero: true,
+      },
+    },
+  };
 
   return (
     <React.Fragment>
-      <Title>Today</Title>
-      <div style={{ width: "100%", flexGrow: 1, overflow: "hidden" }}>
-        <LineChart
-          dataset={data}
-          margin={{
-            top: 16,
-            right: 20,
-            left: 70,
-            bottom: 30,
-          }}
-          xAxis={[
-            {
-              scaleType: "point",
-              dataKey: "time",
-              tickNumber: 2,
-              tickLabelStyle: theme.typography.body2,
-            },
-          ]}
-          yAxis={[
-            {
-              label: "Sales ($)",
-              labelStyle: {
-                ...theme.typography.body1,
-                fill: theme.palette.text.primary,
-              },
-              tickLabelStyle: theme.typography.body2,
-              max: 2500,
-              tickNumber: 3,
-            },
-          ]}
-          series={[
-            {
-              dataKey: "amount",
-              showMark: false,
-              color: theme.palette.primary.light,
-            },
-          ]}
-          sx={{
-            [`.${axisClasses.root} line`]: {
-              stroke: theme.palette.text.secondary,
-            },
-            [`.${axisClasses.root} text`]: {
-              fill: theme.palette.text.secondary,
-            },
-            [`& .${axisClasses.left} .${axisClasses.label}`]: {
-              transform: "translateX(-25px)",
-            },
-          }}
-        />
+      <Title>Recent Transfers</Title>
+      <div style={{ width: "90%", flexGrow: 1 }}>
+        <Line data={data} options={options} />
       </div>
     </React.Fragment>
   );

@@ -21,7 +21,7 @@ import {
   UpdatePost,
 } from "../../services/ApiServices/PostService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
-import { AuthContext } from "../context/AuthProvider";
+// import { AuthContext } from "../context/AuthProvider";
 import { CreatePostPage } from './CreatePostPage'; 
 
 export function PostPage({ id }) {
@@ -36,7 +36,7 @@ export function PostPage({ id }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for delete confirmation dialog
   const [postIdToDelete, setPostIdToDelete] = useState(null); // State to store the postId to delete
   const navigate = useNavigate();
-  const { auth } = useContext(AuthContext);
+  // const { auth } = useContext(AuthContext);
   const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
  
   const handleOpenCreatePostDialog = () => {
@@ -422,9 +422,9 @@ export function PostPage({ id }) {
         maxWidth="md"
       >
         <DialogTitle id="create-post-dialog-title">Create New Post</DialogTitle>
-        <DialogContent>
+        {/* <DialogContent>
           {auth?.user?.id && <CreatePostPage userId={auth.user.id} />} 
-        </DialogContent>
+        </DialogContent> */}
       </Dialog>
     </Box>
   );

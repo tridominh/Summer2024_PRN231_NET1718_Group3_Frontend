@@ -28,7 +28,7 @@ export function SchedulePage({ token }) {
     let data = null;
     try {
       data = await GetAllSchedulesOfUser(id);
-      data = data.filter(x => x.booking.status == "DONE");
+      data = data.filter(x => x.booking.status == "PAID" || x.booking.status == "TRANSFERRED");
       console.log(data);
       setSchedules(data);
       let eventList = [];
@@ -83,9 +83,10 @@ export function SchedulePage({ token }) {
         //const end = moment(endDate);
         const events = [];
         let slotsAdded = 0;
-        //console.log(start);
+        //console.log(numOfSlot);
+        //console.log(dayOfWeek);
 
-        for (let m = start; slotsAdded < numOfSlot-1; m.add(1, 'days')) {
+        for (let m = start; slotsAdded < numOfSlot; m.add(1, 'days')) {
             if (dayOfWeek == m.day()) {
                 const startDateTime = moment(m.format('YYYY-MM-DD') + "T" + startTime);
                 const endDateTime = startDateTime.clone().add(moment.duration(duration))
@@ -96,6 +97,7 @@ export function SchedulePage({ token }) {
                     end: endDateTime.format('YYYY-MM-DDTHH:mm:ss'),
                     allDay: false
                 });
+                slotsAdded++;
                 if(!existingDates.includes(m.format('YYYY-MM-DD'))){
                     events.push({
                         title: subjectName,
@@ -103,7 +105,6 @@ export function SchedulePage({ token }) {
                         allDay: true
                     });
                     existingDates.push(m.format('YYYY-MM-DD'));
-                    slotsAdded++;
                 }
             }
         }
@@ -159,7 +160,7 @@ export function SchedulePage({ token }) {
               listWeek: { buttonText: 'list' }
           }}
           events={events}
-          dayMaxEvents={1}
+          dayMaxEvents={3}
           eventDisplay='auto'
         />
     </div>

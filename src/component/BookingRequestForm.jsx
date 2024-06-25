@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -18,7 +19,11 @@ import { GetAllLevels } from "../services/ApiServices/LevelService";
 import parseJwt from "../services/parseJwt";
 import { CreateBooking } from "../services/ApiServices/BookingService";
 import { Delete } from "@mui/icons-material";
-import { CreateSchedule } from "../services/ApiServices/ScheduleService";
+import {
+  CreateSchedule,
+  GetAllSchedulesOfUser,
+  isOverlapping,
+} from "../services/ApiServices/ScheduleService";
 
 const daysOfWeek = [
   "Monday",
@@ -55,6 +60,7 @@ const durationOptions = [
 
 export default function BookingRequestForm({ token, setNotLogin }) {
   const navigate = useNavigate();
+  const userId = token ? parseJwt(token).nameid : null;
 
   const [formData, setFormData] = useState({
     subject: "",
@@ -69,6 +75,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
   const [schedules, setSchedules] = useState([
     { dayOfWeek: "Monday", startTime: "09:00", endTime: "10:00" },
   ]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -85,18 +92,6 @@ export default function BookingRequestForm({ token, setNotLogin }) {
 
     fetchData();
   }, [formData]);
-
-  // const handleChange = (event) => {
-  //   const { name, value } = event.target;
-  //
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  //
-  //   console.log("Prop Name: " + [name]);
-  //   console.log(formData);
-  // };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -122,6 +117,16 @@ export default function BookingRequestForm({ token, setNotLogin }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const existingSchedules = await GetAllSchedulesOfUser(userId);
+
+    schedules.forEach((schedule) => {
+      if (isOverlapping(existingSchedules, schedule)) {
+        setError("Overlapping schedule. Please choose another time");
+        return;
+      }
+    });
+
     if (!token) {
       console.log("User is not logged in, navigating to #login-signup");
       window.location.hash = "#login-signup";
@@ -225,6 +230,9 @@ export default function BookingRequestForm({ token, setNotLogin }) {
       <Typography variant="h4" align="center" className="text-violet-800 my-3">
         Post Booking Request
       </Typography>
+
+      {error && <Alert severity="error">{error}</Alert>}
+
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -406,8 +414,9 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           variant="outlined"
           className="bg-gray-50"
           id="outlined-controlled"
-          label="Budget Per Slot (VNĐ)"
+          label="Price Per Slot (VNĐ)"
           onChange={handleChange}
+          inputProps={{ step: 500 }}
         />
         <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">
           Other

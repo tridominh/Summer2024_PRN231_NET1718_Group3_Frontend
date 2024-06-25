@@ -24,6 +24,7 @@
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.3",
     "chartjs-adapter-moment": "^1.0.1",
     "gapi-script": "^1.2.0",
     "i": "^0.3.7",

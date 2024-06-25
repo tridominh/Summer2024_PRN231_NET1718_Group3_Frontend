@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { TableVirtuoso } from "react-virtuoso";
-import { DeletePost, GetAllPost, GetPostById, UpdatePost } from "../../services/ApiServices/PostService";
+import { DeletePost, GetAllPost, GetPost, GetPostById, Refund, UpdatePost } from "../../services/ApiServices/PostService";
 import { SendStatusMailPost, GetUserInfo } from "../../services/ApiServices/UserService";
 
 export function ModeratorTutorPost() {
@@ -107,6 +107,7 @@ export function ModeratorTutorPost() {
                 "status","REJECTED"
             )
             await DeletePost(post.id);
+            await Refund(post);
             await SendStatusMailPost({
                 email: post.email,
                 status: "REJECTED"
@@ -122,8 +123,9 @@ export function ModeratorTutorPost() {
 
     const handleViewPostDetails = async (postId) => {
         try {
-            const post = await GetPostById(postId);
+            const post = await GetPost(postId);
             const userInfo = await GetUserInfo(post.userId);
+            console.log(post);
             setSelectedPostDetails({
                 ...post,
                 userName: userInfo.userName

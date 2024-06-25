@@ -22,7 +22,11 @@ export default function Deposits({ transactions }) {
   const [allTransactions, setAllTransactions] = useState([]);
 
   const totalAmount = transactions.reduce((accumulator, currentValue) => {
+    if(currentValue.type == "POST")
     return accumulator + currentValue.amount;
+  else{
+    return accumulator + ((currentValue.amount)*0.2);
+  }
   }, 0);
 
   const handleClickOpen = async () => {
@@ -39,8 +43,8 @@ export default function Deposits({ transactions }) {
     setValue(newValue);
   };
 
-  const bookingTransactions = allTransactions.filter(transaction => transaction.amount !== 10000);
-  const postTransactions = allTransactions.filter(transaction => transaction.amount === 10000);
+  const bookingTransactions = allTransactions.filter(transaction =>transaction.type == "TRANSFER" && transaction.amount !== 10000);
+  const postTransactions = allTransactions.filter(transaction => transaction.amount === 10000 && transaction.type == "POST");
 
   return (
     <React.Fragment>
@@ -68,7 +72,7 @@ export default function Deposits({ transactions }) {
                   <TableCell>Id</TableCell>
                   <TableCell>UserId</TableCell>
                   <TableCell>CreateDate</TableCell>
-                  <TableCell>Amount (20%)</TableCell>
+                  <TableCell>Amount (20%) (VND)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -90,7 +94,7 @@ export default function Deposits({ transactions }) {
                   <TableCell>Id</TableCell>
                   <TableCell>UserId</TableCell>
                   <TableCell>CreateDate</TableCell>
-                  <TableCell>Amount</TableCell>
+                  <TableCell>Amount (VND)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

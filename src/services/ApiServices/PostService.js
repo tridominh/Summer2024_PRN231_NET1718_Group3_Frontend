@@ -36,6 +36,15 @@ export async function AddPost(postDTO) {
   return response.data;
 }
 
+export async function Refund(postDTO) {
+  const response = await axios.post(
+      `${getEndpoint()}/api/Post/Refund`,
+      postDTO,
+      ngrokSkipWarning
+  );
+  return response.data;
+}
+
 export async function UpdatePost(postDTO) {
   const response = await axios.put(
       `${getEndpoint()}/api/Post/Update`,

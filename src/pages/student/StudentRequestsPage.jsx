@@ -23,6 +23,7 @@ import {
 import {
   AcceptTutor,
   GetAllBookingsByStatus,
+  UpdateBookingStatus,
 } from "../../services/ApiServices/BookingService";
 import parseJwt from "../../services/parseJwt";
 import { Link, useNavigate } from "react-router-dom";
@@ -41,6 +42,7 @@ export default function StudentRequestsPage() {
     pending: [],
     approved: [],
     paid: [],
+    cancelled: [],
   });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [appliedTutors, setAppliedTutors] = useState([]);
@@ -63,6 +65,7 @@ export default function StudentRequestsPage() {
         const pendingResponse = await GetAllBookingsByStatus("PENDING");
         const approvedResponse = await GetAllBookingsByStatus("APPROVED");
         const paidResponse = await GetAllBookingsByStatus("PAID");
+        const cancelledResponse = await GetAllBookingsByStatus("CANCELLED");
 
         const allPendingBookings = pendingResponse.data.sort(
           (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
@@ -72,6 +75,9 @@ export default function StudentRequestsPage() {
         );
 
         const allPaidBookings = paidResponse.data.sort(
+          (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
+        );
+        const allCancelledBookings = cancelledResponse.data.sort(
           (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
         );
 
@@ -93,10 +99,17 @@ export default function StudentRequestsPage() {
             booking.bookingUsers[0].role === "STUDENT",
         );
 
+        const studentCancelledBookings = allCancelledBookings.filter(
+          (booking) =>
+            booking.bookingUsers[0].userId === userId &&
+            booking.bookingUsers[0].role === "STUDENT",
+        );
+
         setRequests({
           pending: studentPendingBookings,
           approved: studentApprovedBookings,
           paid: studentPaidBookings,
+          cancelled: studentCancelledBookings,
         });
 
         setIsLoading(false);
@@ -206,6 +219,62 @@ export default function StudentRequestsPage() {
     setSnackbarOpen(false);
   };
 
+  const handleCancel = async (bookingId) => {
+    try {
+      await UpdateBookingStatus({
+        bookingId: bookingId, 
+        status: "CANCELLED"});
+      setSnackbarMessage("Booking cancelled successfully");
+      setSnackbarOpen(true);
+
+      // Refresh the booking list
+      const token = localStorage.getItem("token");
+      const userId = Number(parseJwt(token).nameid);
+
+      const pendingResponse = await GetAllBookingsByStatus("PENDING");
+      const paidResponse = await GetAllBookingsByStatus("PAID");
+      const cancelledResponse = await GetAllBookingsByStatus("CANCELLED");
+
+      const allPendingBookings = pendingResponse.data.sort(
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+      );
+      const allPaidBookings = paidResponse.data.sort(
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+      );
+      const allCancelledBookings = cancelledResponse.data.sort(
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+      );
+
+      const studentPendingBookings = allPendingBookings.filter(
+        (booking) =>
+          booking.bookingUsers[0].userId === userId &&
+          booking.bookingUsers[0].role === "STUDENT"
+      );
+
+      const studentPaidBookings = allPaidBookings.filter(
+        (booking) =>
+          booking.bookingUsers[0].userId === userId &&
+          booking.bookingUsers[0].role === "STUDENT"
+      );
+
+      const studentCancelledBookings = allCancelledBookings.filter(
+        (booking) =>
+          booking.bookingUsers[0].userId === userId &&
+          booking.bookingUsers[0].role === "STUDENT"
+      );
+
+      setRequests({
+        pending: studentPendingBookings,
+        paid: studentPaidBookings,
+        cancelled: studentCancelledBookings,
+      });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      setSnackbarMessage("Failed to cancel booking");
+      setSnackbarOpen(true);
+    }
+  };
+
   const renderBookings = (bookings) => {
     return getCurrentRequests(bookings).map((request, index) => (
       <Grid item xs={12} sm={6} md={4} key={index}>
@@ -246,32 +315,46 @@ export default function StudentRequestsPage() {
             <Typography color="text.secondary">
               <strong>Status: </strong> {request.status}
             </Typography>
-            {request.status !== "PAID" && (
-              <Typography
-                color="blue"
-                textAlign={"right"}
-                className="mt-2 underline"
-              >
-                <div
-                  onClick={() => navigate(`/student/booking/${request.id}`)}
-                  style={{ cursor: "pointer" }}
+            <div className="flex justify-between mt-3">
+              {request.status === "PENDING" && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleCancel(request.id)}
+                  disabled={request.bookingUsers.filter(bookingUser => bookingUser.role == "TUTOR").length > 0}
                 >
-                  View Booking Details
-                </div>
-              </Typography>
-            )}
-            <Typography
-              color="blue"
-              textAlign={"right"}
-              className="mt-2 underline"
-            >
-              <div
-                onClick={() => handleOpenDialog(request)}
-                style={{ cursor: "pointer" }}
-              >
-                Tutors Requests
+                  Cancel
+                </Button>
+              )}
+              <div>
+                {request.status !== "PAID" && request.status !== "CANCELLED"  && (
+                  <Typography
+                    color="blue"
+                    textAlign={"right"}
+                    className="mt-2 underline"
+                  >
+                    <div
+                      onClick={() => navigate(`/student/booking/${request.id}`)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      View Booking Details
+                    </div>
+                  </Typography>
+                )}
+                <Typography
+                  color="blue"
+                  textAlign={"right"}
+                  className="mt-2 underline"
+                >
+                  <div
+                    onClick={() => handleOpenDialog(request)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Tutors Requests
+                  </div>
+                </Typography>
               </div>
-            </Typography>
+            </div>
           </CardContent>
         </Card>
       </Grid>
@@ -307,6 +390,7 @@ export default function StudentRequestsPage() {
           <Tab label="Pending" />
           <Tab label="Approved" />
           <Tab label="Paid" />
+          <Tab label="Cancelled" />
         </Tabs>
       </Box>
 
@@ -365,6 +449,22 @@ export default function StudentRequestsPage() {
           <Box mt={4} display="flex" justifyContent="center">
             <Pagination
               count={Math.ceil(requests.paid.length / requestsPerPage)}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Box>
+        </Box>
+      )}
+
+      {tabValue === 3 && (
+        <Box role="tabpanel">
+          <Grid justifyContent="center" container spacing={3}>
+            {renderBookings(requests.cancelled || [])}
+          </Grid>
+          <Box mt={4} display="flex" justifyContent="center">
+            <Pagination
+              count={Math.ceil(requests.cancelled.length / requestsPerPage)}
               page={currentPage}
               onChange={handlePageChange}
               color="primary"

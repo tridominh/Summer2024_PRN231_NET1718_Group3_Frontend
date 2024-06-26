@@ -23,7 +23,10 @@ export async function CreateSchedule(createScheduleDto) {
 }
 
 export function isOverlapping(existingSchedules, newSchedule) {
-  console.log("Schedule", existingSchedules, newSchedule);
+  if (!existingSchedules) {
+    return false;
+  }
+
   const newStartTime = timeStringToMinutes(newSchedule.startTime + ":00");
   const newEndTime =
     newStartTime + timeStringToMinutes(newSchedule.duration + ":00");
@@ -34,7 +37,8 @@ export function isOverlapping(existingSchedules, newSchedule) {
 
     if (
       newSchedule.dayOfWeek === schedule.dayOfWeek &&
-      (newStartTime < endTime || newEndTime > startTime)
+      newStartTime < endTime &&
+      newEndTime > startTime
     ) {
       return true;
     }

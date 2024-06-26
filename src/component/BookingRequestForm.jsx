@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Alert,
   Box,
   Button,
   Container,
@@ -73,9 +72,20 @@ export default function BookingRequestForm({ token, setNotLogin }) {
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
   const [schedules, setSchedules] = useState([
-    { dayOfWeek: "Monday", startTime: "09:00", endTime: "10:00" },
+    {
+      dayOfWeek: "Monday",
+      startTime: "09:00",
+      endTime: "10:00",
+      duration: formData.duration,
+    },
   ]);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    subject: "",
+    level: "",
+    numOfWeeks: "",
+    pricePerSlot: "",
+    schedule: "",
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -103,8 +113,6 @@ export default function BookingRequestForm({ token, setNotLogin }) {
       }
       return newFormData;
     });
-
-    console.log(formData);
   };
 
   const updateAllEndTimes = (newFormData, newSchedules) => {
@@ -115,17 +123,44 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     setSchedules(updatedSchedules);
   };
 
+  const validateFields = async () => {
+    const errors = {};
+
+    if (!formData.subject) {
+      errors.subject = "Subject is required.";
+    }
+    if (!formData.level) {
+      errors.level = "Level is required.";
+    }
+
+    if (formData.numOfWeeks <= 0) {
+      errors.numOfWeeks = "Number of weeks must be greater than zero.";
+    }
+
+    const existingSchedules = await GetAllSchedulesOfUser(userId);
+    for (let schedule of schedules) {
+      if (isOverlapping(existingSchedules, schedule)) {
+        errors.schedule = "Overlapping schedule. Please choose another time";
+      }
+    }
+
+    if (formData.pricePerSlot <= 0) {
+      errors.pricePerSlot = "Price per slot must be greater than zero.";
+    }
+    return errors;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const existingSchedules = await GetAllSchedulesOfUser(userId);
+    const errors = await validateFields();
+    setErrors(errors);
 
-    schedules.forEach((schedule) => {
-      if (isOverlapping(existingSchedules, schedule)) {
-        setError("Overlapping schedule. Please choose another time");
-        return;
-      }
-    });
+    console.log("Errors:", errors);
+
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
 
     if (!token) {
       console.log("User is not logged in, navigating to #login-signup");
@@ -143,7 +178,6 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     };
 
     const bookingCreateResponse = await CreateBooking(bookingDto);
-    console.log(bookingCreateResponse);
 
     schedules.forEach(async (schedule) => {
       const createScheduleDto = {
@@ -153,11 +187,10 @@ export default function BookingRequestForm({ token, setNotLogin }) {
         startTime: schedule.startTime + ":00",
         status: "ACTIVE",
       };
-      console.log(createScheduleDto);
 
       const scheduleResponse = await CreateSchedule(createScheduleDto);
 
-      console.log(scheduleResponse);
+      console.log("Schedule Response:", scheduleResponse);
     });
 
     navigate("/student/requests");
@@ -231,8 +264,6 @@ export default function BookingRequestForm({ token, setNotLogin }) {
         Post Booking Request
       </Typography>
 
-      {error && <Alert severity="error">{error}</Alert>}
-
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -252,6 +283,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
             value={formData.subject}
             onChange={handleChange}
             className="bg-gray-50"
+            error={errors.subject}
           >
             <MenuItem value="">
               <em>Choose Subject</em>
@@ -272,6 +304,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
             value={formData.level}
             onChange={handleChange}
             className="bg-gray-50"
+            error={errors.level}
           >
             <MenuItem value="">
               <em>Choose Level</em>
@@ -294,7 +327,9 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           id="outlined-controlled"
           label="Number of Weeks"
           onChange={handleChange}
+          error={errors.numOfWeeks}
         />
+
         {/* <TextField */}
         {/*   label="Slot Duration" */}
         {/*   name="duration" */}
@@ -404,6 +439,11 @@ export default function BookingRequestForm({ token, setNotLogin }) {
         <Button variant="contained" color="primary" onClick={handleAddSchedule}>
           Add Schedule
         </Button>
+        {errors.schedule && (
+          <Typography color="error" variant="body2">
+            {errors.schedule}
+          </Typography>
+        )}
         <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">
           Price (VNĐ)
         </Typography>
@@ -416,6 +456,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
           id="outlined-controlled"
           label="Price Per Slot (VNĐ)"
           onChange={handleChange}
+          error={errors.pricePerSlot}
           inputProps={{ step: 500 }}
         />
         <Typography sx={{ fontWeight: "bold" }} variant="body1" align="left">

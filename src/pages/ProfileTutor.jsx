@@ -503,7 +503,7 @@ export function ProfileTutor({ token, setToken }) {
           <Typography variant="body1"><strong>Avatar</strong></Typography>
         </Box>
       </Box>
-      <Box className="credit-info-wrapper mb-5" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
+      {/*<Box className="credit-info-wrapper mb-5" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
           CREDITS
         </Typography>
@@ -545,7 +545,7 @@ export function ProfileTutor({ token, setToken }) {
             </DialogActions>
           </Dialog>
         </Box>
-      </Box>
+      </Box>*/}
 
       <Box className="credentials-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
@@ -745,8 +745,8 @@ export function ProfileTutor({ token, setToken }) {
           <Button onClick={handleCloseView}>Close</Button>
         </DialogActions>
       </Dialog>
-      <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
-
+      {/*<AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
+        */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

@@ -22,7 +22,7 @@ const moderatorPages = [
 ];
 const studentPages = ["Request", "Schedule", "Newsfeed"];
 const tutorPages = ["Student Request", "Schedule", "Newsfeed", "Create Post", "Pending Post"];
-const settings = ["Profile", "Dashboard", "Logout"];
+const settings = ["Credit"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
   const navigate = useNavigate();
@@ -261,6 +261,21 @@ function Heading({ token, setToken, removeToken, userRole }) {
                 >
                   <Typography textAlign="center">Profile</Typography>
                 </MenuItem>
+
+                {settings.map((setting) => (
+                  <MenuItem
+                    key={setting}
+                    onClick={() => {
+                      handleCloseUserMenu();
+                      if (setting === "Credit") {
+                        navigate("/credit");
+                      }
+                    }}
+                  >
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+
                 <MenuItem
                   onClick={() => {
                     handleCloseUserMenu();
@@ -270,7 +285,6 @@ function Heading({ token, setToken, removeToken, userRole }) {
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
-
             </Box>
           )}
         </Toolbar>

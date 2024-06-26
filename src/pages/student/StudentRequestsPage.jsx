@@ -146,7 +146,13 @@ export default function StudentRequestsPage() {
           return { ...tutor, user: profile };
         });
         const tutorsWithPosts = await Promise.all(tutorInfoPromises);
-        setAppliedTutors(tutorsWithPosts);
+        const tutorsWithActivePosts = tutorsWithPosts.map((tutor) => ({
+          ...tutor,
+          activePostsCount: tutor.user.posts.filter(post => post.status === "ACTIVE").length,
+        }));
+        console.log(tutorsWithActivePosts);
+        setAppliedTutors(tutorsWithActivePosts);
+        // setAppliedTutors(tutorsWithPosts);
         setSelectedBooking(booking);
         setDialogOpen(true);
       } else {
@@ -222,8 +228,9 @@ export default function StudentRequestsPage() {
   const handleCancel = async (bookingId) => {
     try {
       await UpdateBookingStatus({
-        bookingId: bookingId, 
-        status: "CANCELLED"});
+        bookingId: bookingId,
+        status: "CANCELLED"
+      });
       setSnackbarMessage("Booking cancelled successfully");
       setSnackbarOpen(true);
 
@@ -327,7 +334,7 @@ export default function StudentRequestsPage() {
                 </Button>
               )}
               <div>
-                {request.status !== "PAID" && request.status !== "CANCELLED"  && (
+                {request.status !== "PAID" && request.status !== "CANCELLED" && (
                   <Typography
                     color="blue"
                     textAlign={"right"}
@@ -341,19 +348,19 @@ export default function StudentRequestsPage() {
                     </div>
                   </Typography>
                 )}
-                {request.status !== "PAID" && request.status !== "CANCELLED"  && (
-                <Typography
-                  color="blue"
-                  textAlign={"right"}
-                  className="mt-2 underline"
-                >
-                  <div
-                    onClick={() => handleOpenDialog(request)}
-                    style={{ cursor: "pointer" }}
+                {request.status !== "PAID" && request.status !== "CANCELLED" && (
+                  <Typography
+                    color="blue"
+                    textAlign={"right"}
+                    className="mt-2 underline"
                   >
-                    Tutors Requests
-                  </div>
-                </Typography>
+                    <div
+                      onClick={() => handleOpenDialog(request)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Tutors Requests
+                    </div>
+                  </Typography>
                 )}
               </div>
             </div>
@@ -497,23 +504,24 @@ export default function StudentRequestsPage() {
               >
                 <span
                   onClick={() => handleOpenProfileDialog(tutor.user.id)}
-                  className="cursor-pointer text-blue-500"
+                  className="cursor-pointer w-full flex text-blue-500"
                 >
-                  {`${index + 1}. ${tutor.user.userName}`}
-                  {tutor.user.posts.length > 0 &&
-                    tutor.user.posts.some(
-                      (post) => post.status === "ACTIVE",
-                    ) && (
-                      <Tooltip title="Tutors have contributed to improving students' knowledge.">
-                        <StarIcon
-                          className="mb-1"
-                          style={{
-                            color: "red",
-                            marginLeft: "5px",
-                          }}
-                        />
-                      </Tooltip>
-                    )}
+                  <span className="">{`${index + 1}. ${tutor.user.userName}`}</span>
+                  <span>{tutor.activePostsCount > 0 && 
+                  (Array.from({ length: parseInt(1)}, (_, index) => index+1).map((_,index) => (
+                    <Tooltip
+                      title={`Tutors have contributed to improving students' knowledge with ${tutor.activePostsCount} post(s).`}
+                    >
+                      <StarIcon
+                        className="mb-1"
+                        style={{
+                          color: "red",
+                          marginLeft: "5px",
+                        }}
+                      />
+                    </Tooltip>
+                  )))
+                  }</span>
                 </span>
                 <div className="mb-3">
                   <Button

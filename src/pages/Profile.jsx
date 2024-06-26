@@ -144,7 +144,7 @@ export function Profile({ token, setToken }) {
     }
 
     return (
-        <>
+        <div style={{height: "80vh"}}>
             <Box sx={{ padding: 3 }}>
                 <Box className="user-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', display: 'flex', gap: 4 }}>
                     <Box sx={{ flex: 1 }}>
@@ -245,7 +245,7 @@ export function Profile({ token, setToken }) {
                     </form>
                 </DialogContent>
             </Dialog>
-            <Box className="credit-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
+        {/*<Box className="credit-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
                 <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
                     CREDITS
                 </Typography>
@@ -291,15 +291,7 @@ export function Profile({ token, setToken }) {
 
 
             <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={handleSnackbarCloseCredit}
-            >
-                <Alert onClose={handleSnackbarCloseCredit} severity="success" sx={{ width: '100%' }}>
-                    Thanks for choosing our service
-                </Alert>
-            </Snackbar>
-        </>
+        */}
+        </div>
     );
 }

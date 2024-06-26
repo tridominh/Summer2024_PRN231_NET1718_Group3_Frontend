@@ -39,75 +39,76 @@ export default function TutorRequestsPage() {
     const [approvedBookings, setApprovedBookings] = useState([]);
 
     useEffect(() => {
-        async function fetchBookings() {
-            try {
-                const token = localStorage.getItem("token");
-                const userId = Number(parseJwt(token).nameid);
-
-                const bookingResponse = await GetAllBookings();
-                const allBookings = bookingResponse.sort(
-                    (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
-                );
-                const bookingUsers = await GetAllBookingUsers();
-                const tutorBookingIds = bookingUsers
-                    .filter((bookingUser) => bookingUser.userId === userId)
-                    .map((bookingUser) => bookingUser.bookingId);
-
-                const tutorBookings = allBookings.map((booking) => ({
-                    ...booking,
-                    tutorApplied: tutorBookingIds.includes(booking.id),
-                    tutorApproved: bookingUsers.some(
-                        (bookingUser) =>
-                            bookingUser.bookingId === booking.id &&
-                            bookingUser.userId === userId &&
-                            bookingUser.status === "APPROVED"
-                    ),
-                }));
-
-                const tutorAppliedBookingIds = bookingUsers
-                    .filter(
-                        (bookingUser) =>
-                            bookingUser.userId === userId &&
-                            bookingUser.status === "APPLIED"
-                    )
-                    .map((bookingUser) => bookingUser.bookingId);
-
-                const appliedBookings = allBookings
-                    .filter((booking) =>
-                        tutorAppliedBookingIds.includes(booking.id)
-                    )
-                    .map((booking) => ({
-                        ...booking,
-                        tutorApplied: true,
-                    }));
-
-                const tutorApprovedBookingIds = bookingUsers
-                    .filter(
-                        (bookingUser) =>
-                            bookingUser.userId === userId &&
-                            bookingUser.status === "APPROVED"
-                    )
-                    .map((bookingUser) => bookingUser.bookingId);
-
-                const approvedBookings = allBookings
-                    .filter((booking) =>
-                        tutorApprovedBookingIds.includes(booking.id)
-                    )
-                    .map((booking) => ({
-                        ...booking,
-                        tutorApproved: true,
-                    }));
-
-                setBookings(tutorBookings);
-                setAllBookings(tutorBookings);
-                setAppliedBookings(appliedBookings);
-                setApprovedBookings(approvedBookings);
-            } catch (error) {
-                console.error("Error fetching bookings:", error);
-            }
-        }
         fetchBookings();
     }, []);
+
+    async function fetchBookings() {
+        try {
+            const token = localStorage.getItem("token");
+            const userId = Number(parseJwt(token).nameid);
+
+            const bookingResponse = await GetAllBookings();
+            const allBookings = bookingResponse.sort(
+                (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+            );
+            const bookingUsers = await GetAllBookingUsers();
+            const tutorBookingIds = bookingUsers
+                .filter((bookingUser) => bookingUser.userId === userId)
+                .map((bookingUser) => bookingUser.bookingId);
+
+            const tutorBookings = allBookings.map((booking) => ({
+                ...booking,
+                tutorApplied: tutorBookingIds.includes(booking.id),
+                tutorApproved: bookingUsers.some(
+                    (bookingUser) =>
+                        bookingUser.bookingId === booking.id &&
+                        bookingUser.userId === userId &&
+                        bookingUser.status === "APPROVED"
+                ),
+            }));
+
+            const tutorAppliedBookingIds = bookingUsers
+                .filter(
+                    (bookingUser) =>
+                        bookingUser.userId === userId &&
+                        bookingUser.status === "APPLIED"
+                )
+                .map((bookingUser) => bookingUser.bookingId);
+
+            const appliedBookings = allBookings
+                .filter((booking) =>
+                    tutorAppliedBookingIds.includes(booking.id)
+                )
+                .map((booking) => ({
+                    ...booking,
+                    tutorApplied: true,
+                }));
+
+            const tutorApprovedBookingIds = bookingUsers
+                .filter(
+                    (bookingUser) =>
+                        bookingUser.userId === userId &&
+                        bookingUser.status === "APPROVED"
+                )
+                .map((bookingUser) => bookingUser.bookingId);
+
+            const approvedBookings = allBookings
+                .filter((booking) =>
+                    tutorApprovedBookingIds.includes(booking.id)
+                )
+                .map((booking) => ({
+                    ...booking,
+                    tutorApproved: true,
+                }));
+
+            setBookings(tutorBookings);
+            setAllBookings(tutorBookings);
+            setAppliedBookings(appliedBookings);
+            setApprovedBookings(approvedBookings);
+        } catch (error) {
+            console.error("Error fetching bookings:", error);
+        }
+    }
 
     const convertToDate = (dateTime) => {
         const date = new Date(dateTime);
@@ -137,6 +138,7 @@ export default function TutorRequestsPage() {
             setSnackbarMessage(
                 "Applied successfully, please wait for student response"
             );
+            fetchBookings();
             setSnackbarOpen(true);
         } catch (error) {
             console.error("Error applying to booking:", error);

@@ -26,6 +26,11 @@ import { PostPage } from "./pages/tutor/PostPage.jsx";
 import PendingPost from "./pages/tutor/PendingPost.jsx";
 import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
 import { AdminProfile } from "./pages/admin/AdminProfile.jsx";
+import FeedbackList from './pages/student/FeedbackList.jsx';
+import FeedbackItem from './pages/student/FeedbackItem';
+import FeedbackForm from './pages/student/FeedbackForm';
+import UpdatePostPage from './pages/tutor/UpdatePostPage';
+
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -51,6 +56,31 @@ function App() {
             path="/pending-post"
             element={<PendingPost userId={id} />}
           />
+          <Route
+      path="/feedback"
+      element={
+        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
+          <FeedbackList />
+        </PrivateRoute>
+      }
+    />
+     <Route path="/update-post/:postId" element={<UpdatePostPage userId={id}/>} />
+    <Route
+      path="/feedback/:id"
+      element={
+        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
+          <FeedbackItem/>
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/feedback/add"
+      element={
+        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
+          <FeedbackForm />
+        </PrivateRoute>
+      }
+    />
           <Route
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}

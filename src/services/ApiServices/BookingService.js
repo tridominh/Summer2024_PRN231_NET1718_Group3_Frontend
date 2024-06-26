@@ -54,7 +54,13 @@ export async function UpdateBookingStatus(updateBookingDto) {
   const response = await axios.put(
     `${getEndpoint()}/api/Booking/UpdateStatus`,
     updateBookingDto,
-    ngrokSkipWarning,
+  {
+    headers: {
+        "bypass-tunnel-reminder": "true",
+        "accept": 'application/json;odata.metadata=minimal;odata.streaming=true',
+        "Content-Type": 'application/json;odata.metadata=minimal;odata.streaming=true'
+    }
+}
   );
 
   return response.data.data;

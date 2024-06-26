@@ -73,7 +73,13 @@ export function PostDetails() {
 
   return (
     <Box p={2} maxWidth="700px" mx="auto">
-      <Card>
+      <Card
+        sx={{
+          backgroundColor: "#fff",
+          borderRadius: "10px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        }}
+      >
         {post.imageUrlList && post.imageUrlList.length > 0 && (
           post.imageUrlList.map((image, index) => (
             <CardMedia
@@ -82,9 +88,10 @@ export function PostDetails() {
               height="400"
               image={image}
               alt={post.title}
+              sx={{ objectFit: "cover", borderRadius: "10px 10px 0 0" }}
               onError={(e) => {
                 e.target.onerror = null; 
-                e.target.src="fallback-image-url.jpg"; // Thay thế bằng một URL ảnh mặc định
+                e.target.src = "fallback-image-url.jpg"; // Replace with a default image URL
               }}
             />
           ))
@@ -93,7 +100,7 @@ export function PostDetails() {
           <Typography variant="h4" gutterBottom>
             {post.title}
           </Typography>
-          <div dangerouslySetInnerHTML={{ __html: post.description }}></div>
+          <Typography variant="body1" dangerouslySetInnerHTML={{ __html: post.description }} sx={{ whiteSpace: "pre-line" }}></Typography>
           <Typography variant="caption" color="text.secondary">
             {new Date(post.createdDate).toLocaleDateString()}
           </Typography>

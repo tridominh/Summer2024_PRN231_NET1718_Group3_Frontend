@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { GetPost, GetPostById } from "../../services/ApiServices/PostService";
+import { GetPost } from "../../services/ApiServices/PostService";
 import {
   Typography,
   Box,
@@ -34,7 +34,16 @@ export function PostDetails() {
     const fetchPost = async () => {
       try {
         const data = await GetPost(id);
-        console.log(data)
+        console.log(data);
+
+        // Check if imageUrl is a JSON string or a single URL
+        if (data.imageUrl.startsWith('[') && data.imageUrl.endsWith(']')) {
+          data.imageUrlList = JSON.parse(data.imageUrl);
+        } else {
+          data.imageUrlList = [data.imageUrl];
+        }
+        
+        console.log(data.imageUrlList); // Kiểm tra danh sách URL hình ảnh
         setPost(data);
       } catch (err) {
         setError(err.message || "An error occurred while fetching the post.");
@@ -44,7 +53,7 @@ export function PostDetails() {
     };
 
     fetchPost();
-  }, [id]); // Fetch the post whenever the ID changes
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -64,22 +73,34 @@ export function PostDetails() {
 
   return (
     <Box p={2} maxWidth="700px" mx="auto">
-      <Card>
-        {post.imageUrl && (
-          <CardMedia
-            component="img"
-            height="400"
-            image={post.imageUrl}
-            alt={post.title}
-          />
+      <Card
+        sx={{
+          backgroundColor: "#fff",
+          borderRadius: "10px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        }}
+      >
+        {post.imageUrlList && post.imageUrlList.length > 0 && (
+          post.imageUrlList.map((image, index) => (
+            <CardMedia
+              key={index}
+              component="img"
+              height="400"
+              image={image}
+              alt={post.title}
+              sx={{ objectFit: "cover", borderRadius: "10px 10px 0 0" }}
+              onError={(e) => {
+                e.target.onerror = null; 
+                e.target.src = "fallback-image-url.jpg"; // Replace with a default image URL
+              }}
+            />
+          ))
         )}
         <CardContent>
           <Typography variant="h4" gutterBottom>
             {post.title}
           </Typography>
-          <div dangerouslySetInnerHTML={{ __html: post.description }}>
-            {/* {post.description} */}
-          </div>
+          <Typography variant="body1" dangerouslySetInnerHTML={{ __html: post.description }} sx={{ whiteSpace: "pre-line" }}></Typography>
           <Typography variant="caption" color="text.secondary">
             {new Date(post.createdDate).toLocaleDateString()}
           </Typography>

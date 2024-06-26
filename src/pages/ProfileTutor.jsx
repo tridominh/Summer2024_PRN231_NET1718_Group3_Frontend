@@ -35,6 +35,7 @@ import {
   Snackbar,
   Alert,
   FormControl,
+  DialogContentText,
 } from "@mui/material";
 import parseJwt from "../services/parseJwt";
 import { GetAllSubjects } from "../services/ApiServices/SubjectService";
@@ -63,9 +64,32 @@ export function ProfileTutor({ token, setToken }) {
     useState(null);
   //credit dialog state
   const [openCredit, setOpenCredit] = useState(false);
+  const [openTakeCredit, setOpenTakeCredit] = useState(false);
+  const [amount, setAmount] = useState('');
 
   const handleOpenCredit = () => {
     setOpenCredit((openCredit) => !openCredit);
+  };
+
+  const handleOpenTakeCredit = () => {
+    setOpenTakeCredit(!openTakeCredit);
+  };
+
+  const handleAmountChange = (event) => {
+    setAmount(event.target.value);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenTakeCredit(false);
+  };
+
+  const handleConfirm = () => {
+    setOpenTakeCredit(false);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarCloseCredit = () => {
+    setSnackbarOpen(false);
   };
 
   const [userName, setUserName] = useState("");
@@ -254,7 +278,7 @@ export function ProfileTutor({ token, setToken }) {
   const validateCredential = (credential) => {
     const nameRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
     const typeRegex = /^[0-9a-zA-Z\sÀ-ỹ!@#$%^&*()_+\-=\[\]{}|;:'",.<>?\/\\`~]+$/;
-console.log(credential.name)
+    console.log(credential.name)
     console.log(credential.type)
     console.log(selectedSubject)
     console.log(credential.image)
@@ -268,7 +292,7 @@ console.log(credential.name)
       setErrorMessage("Name, Type, Image and Subject are required.");
       return false;
     }
-    
+
 
     if (credential.name.length > 100 || !nameRegex.test(credential.name)) {
       setErrorMessage(
@@ -491,6 +515,35 @@ console.log(credential.name)
           <Button variant="contained" color="primary" onClick={handleOpenCredit}>
             Add Credit
           </Button>
+          <Button className="ml-2" variant="contained" color="secondary" onClick={handleOpenTakeCredit}>
+            Withdraw money
+          </Button>
+          <Dialog open={openTakeCredit} onClose={handleCloseDialog}>
+            <DialogTitle>Withdraw Money</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                How much money would you like to take? (VND)
+              </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="amount"
+                label="Money"
+                type="number"
+                fullWidth
+                value={amount}
+                onChange={handleAmountChange}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirm} color="primary">
+                Ok
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Box>
 
@@ -731,6 +784,15 @@ console.log(credential.name)
           sx={{ width: "100%" }}
         >
           Credential updated successfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarCloseCredit}
+      >
+        <Alert onClose={handleSnackbarCloseCredit} severity="success" sx={{ width: '100%' }}>
+          Thanks for choosing our service
         </Alert>
       </Snackbar>
     </Box>

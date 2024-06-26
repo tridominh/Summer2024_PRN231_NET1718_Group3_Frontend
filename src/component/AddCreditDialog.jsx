@@ -37,7 +37,7 @@ export function AddCreditDialog({ open, handleClose, userId }) {
 
     return (
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogTitle>Add more credit</DialogTitle>
         <DialogContent>
           <Box display="flex" flexDirection="column" gap={2}>
             <TextField

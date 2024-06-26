@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GetUserInfo, UpdateUserInfo, UploadAvatar } from "../services/ApiServices/UserService";
-import { Dialog, DialogContent, DialogTitle, Select, MenuItem, InputLabel, TextField, Typography, Box, Avatar, Paper } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, Select, MenuItem, InputLabel, TextField, Typography, Box, Avatar, Paper, Alert, Snackbar, DialogContentText } from "@mui/material";
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import parseJwt from "../services/parseJwt";
@@ -31,9 +31,35 @@ export function Profile({ token, setToken }) {
     const [avatar, setAvatar] = useState(userInfo.avatar);
     const [avatarFile, setAvatarFile] = useState(null);
     const [gender, setGender] = useState(userInfo.gender);
+    const [openTakeCredit, setOpenTakeCredit] = useState(false);
+    const [amount, setAmount] = useState('');
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+
 
     //credit dialog state
     const [openCredit, setOpenCredit] = useState(false);
+
+    const handleOpenTakeCredit = () => {
+        setOpenTakeCredit(!openTakeCredit);
+    };
+
+    const handleAmountChange = (event) => {
+        setAmount(event.target.value);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenTakeCredit(false);
+    };
+
+    const handleConfirm = () => {
+        setOpenTakeCredit(false);
+        setSnackbarOpen(true);
+    };
+
+    const handleSnackbarCloseCredit = () => {
+        setSnackbarOpen(false);
+    };
 
     const handleOpenCredit = () => {
         setOpenCredit((openCredit) => !openCredit);
@@ -231,12 +257,49 @@ export function Profile({ token, setToken }) {
                     <Button variant="contained" color="primary" onClick={handleOpenCredit}>
                         Add Credit
                     </Button>
+                    <Button className="ml-2" variant="contained" color="primary" onClick={handleOpenCredit}>
+                        Withdraw money
+                    </Button>
+                    <Dialog open={openTakeCredit} onClose={handleOpenTakeCredit}>
+                        <DialogTitle>Withdraw Money</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                How much money would you like to take? (VND)
+                            </DialogContentText>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                id="amount"
+                                label="Money"
+                                type="number"
+                                fullWidth
+                                value={amount}
+                                onChange={handleAmountChange}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog} color="primary">
+                                Cancel
+                            </Button>
+                            <Button onClick={handleConfirm} color="primary">
+                                Ok
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Box>
             </Box>
 
 
             <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
-
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarCloseCredit}
+            >
+                <Alert onClose={handleSnackbarCloseCredit} severity="success" sx={{ width: '100%' }}>
+                    Thanks for choosing our service
+                </Alert>
+            </Snackbar>
         </>
     );
 }

@@ -253,24 +253,24 @@ function Heading({ token, setToken, removeToken, userRole }) {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem
-                    key={setting}
-                    onClick={() => {
-                      handleCloseUserMenu();
-                      if (setting === "Logout") {
-                        logout();
-                      } else if (setting === "Profile") {
-                        navigate(getProfileLink());
-                      } else if (setting === "Dashboard") {
-                        navigate("/admin/dashboard");
-                      }
-                    }}
-                  >
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    navigate(getProfileLink());
+                  }}
+                >
+                  <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    logout();
+                  }}
+                >
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
               </Menu>
+
             </Box>
           )}
         </Toolbar>

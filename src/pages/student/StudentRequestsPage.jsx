@@ -341,6 +341,7 @@ export default function StudentRequestsPage() {
                     </div>
                   </Typography>
                 )}
+                {request.status !== "PAID" && request.status !== "CANCELLED"  && (
                 <Typography
                   color="blue"
                   textAlign={"right"}
@@ -353,6 +354,7 @@ export default function StudentRequestsPage() {
                     Tutors Requests
                   </div>
                 </Typography>
+                )}
               </div>
             </div>
           </CardContent>

@@ -13,6 +13,8 @@ import {
   DialogActions,
   Button,
   Popover,
+  CardContent,
+  CardActions,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,8 +23,6 @@ import {
   UpdatePost,
 } from "../../services/ApiServices/PostService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
-// import { AuthContext } from "../context/AuthProvider";
-import { CreatePostPage } from './CreatePostPage'; 
 
 export function PostPage({ id }) {
   const [posts, setPosts] = useState([]);
@@ -36,33 +36,25 @@ export function PostPage({ id }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for delete confirmation dialog
   const [postIdToDelete, setPostIdToDelete] = useState(null); // State to store the postId to delete
   const navigate = useNavigate();
-  // const { auth } = useContext(AuthContext);
-  const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
- 
-  const handleOpenCreatePostDialog = () => {
-    setCreatePostDialogOpen(true);
-  };
-
-  const handleCloseCreatePostDialog = () => {
-    setCreatePostDialogOpen(false);
-  };
 
   const fetchPosts = async () => {
     try {
       const data = await GetAllPost();
       console.log(data);
       const activePosts = data.filter((post) => post.status === "ACTIVE");
+      activePosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate)); // Sắp xếp bài viết
+  
       setPosts(activePosts);
-
+  
       const userPromises = activePosts.map((post) => GetUserInfo(post.userId));
       const usersData = await Promise.all(userPromises);
       const usersMap = usersData.reduce((acc, user) => {
         acc[user.id] = user;
         return acc;
       }, {});
-
+  
       setUsers(usersMap);
-
+  
     } catch (err) {
       if (err.response && err.response.data) {
         setError(
@@ -91,17 +83,17 @@ export function PostPage({ id }) {
   };
 
   const handlePopoverOpen = (event, postId, userId) => {
-    if (id && userId == id) {
+    if (id && userId === id) {
+      console.log("Popover opened for postId:", postId);
       setPopoverAnchorEl(event.currentTarget);
       setCurrentPostId(postId);
     }
-    console.log(id);
-    console.log(userId);
   };
 
   const openPopover = Boolean(popoverAnchorEl);
 
   const handlePopoverClose = () => {
+    console.log("Popover closed");
     setPopoverAnchorEl(null);
     setCurrentPostId(null);
   };
@@ -204,94 +196,110 @@ export function PostPage({ id }) {
         }}
       >
         Newsfeed                
-        </Typography>
-      {posts.map((post) => (
-        <Box key={post.id} mb={3} mx="auto" maxWidth={600}>
-          <Card
-            sx={{
-              backgroundColor: "#6c757d4d",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <Box
-              className="ml-2 mt-2"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              p={1}
+      </Typography>
+      {posts.map((post) => {
+        // Handle imageUrl when it is a JSON string
+        let imageUrls = [];
+        try {
+          imageUrls = JSON.parse(post.imageUrl);
+        } catch (error) {
+          imageUrls = [post.imageUrl];
+        }
+
+        return (
+          <Box key={post.id} mb={3} mx="auto" maxWidth={600}>
+            <Card
+              sx={{
+                backgroundColor: "#fff",
+                borderRadius: "10px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              }}
             >
-              <Box display="flex" alignItems="center">
-                <Avatar
-                  src={users[post.userId]?.avatar}
-                  alt={users[post.userId]?.userName}
-                />
-                <Typography
-                  variant="body1"
-                  sx={{
-                    marginLeft: 1,
-                    fontSize: "17px",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    "&:hover": {
-                      textDecoration: "underline",
-                    },
-                  }}
-                  onClick={() => handleUserClick(post.userId)}
-                >
-                  {users[post.userId]?.userName}
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box display="flex" alignItems="center">
+                    <Avatar
+                      src={users[post.userId]?.avatar}
+                      alt={users[post.userId]?.userName}
+                      sx={{ width: 56, height: 56, border: "2px solid #5c6bc0" }}
+                    />
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        marginLeft: 1,
+                        fontSize: "17px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        "&:hover": {
+                          textDecoration: "underline",
+                        },
+                      }}
+                      onClick={() => handleUserClick(post.userId)}
+                    >
+                      {users[post.userId]?.userName}
+                    </Typography>
+                  </Box>
+                  {id && post.userId === id && (
+                    <Button
+                      style={{
+                        fontSize: "20px",
+                        color: "#5c6bc0",
+                        fontWeight: "bold",
+                      }}
+                      onClick={(event) => {
+                        console.log("Popover button clicked");
+                        handlePopoverOpen(event, post.id, post.userId);
+                      }}
+                    >
+                      ...
+                    </Button>
+                  )}
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>
+                  {new Date(post.createdDate).toLocaleDateString()}
                 </Typography>
-              </Box>
-              {/* {JSON.stringify(post.userId)} */}
-              {id && post.userId == id && (
-                <Button
-                  className="mb-2"
-                  style={{
-                    marginLeft: "300px",
-                    fontSize: "20px",
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                  onClick={(event) => handlePopoverOpen(event, post.id, post.userId)}
+                <Typography variant="h5" component="div" sx={{ p: 1 }}>
+                  {post.title}
+                </Typography>
+                <Typography variant="body1" sx={{ p: 1, whiteSpace: "pre-line" }} dangerouslySetInnerHTML={createMarkup(post.description)} />
+              </CardContent>
+              {imageUrls.map((url, index) => (
+                <CardActionArea
+                  key={index}
+                  onClick={() => navigate(`/posts/${post.id}`)}
+                  sx={{ flexGrow: 1 }}
                 >
-                  ...
-                </Button>
-              )}
-            </Box>
-            <Typography
-              className="ml-2"
-              variant="body2"
-              color="text.secondary"
-              sx={{ p: 1 }}
-            >
-              {new Date(post.createdDate).toLocaleDateString()}
-            </Typography>
-            <Typography className="ml-2" variant="h5" component="div" sx={{ p: 1 }}>
-              {post.title}
-            </Typography>
-            <Typography
-              className="ml-2"
-              variant="body1"
-              sx={{ p: 1, whiteSpace: "pre-line" }}
-              dangerouslySetInnerHTML={createMarkup(post.description)}
-            />
-            {post.imageUrl && (
-              <CardActionArea
-                onClick={() => navigate(`/posts/${post.id}`)}
-                sx={{ flexGrow: 1 }}
-              >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={post.imageUrl}
-                  alt={post.title}
-                  sx={{ objectFit: "cover" }}
-                />
-              </CardActionArea>
-            )}
-          </Card>
-          <br></br>
-        </Box>
-      ))}
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={url}
+                    alt={post.title}
+                    sx={{ objectFit: "cover", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
+                  />
+                </CardActionArea>
+              ))}
+              <CardActions>
+                {id && post.userId === id && (
+                  <Button
+                    color="primary"
+                    onClick={() => handleUpdatePost(post.id, post.userId)}
+                  >
+                    Update
+                  </Button>
+                )}
+                {id && post.userId === id && (
+                  <Button
+                    color="secondary"
+                    onClick={() => handleDeleteButtonClick(post.id, post.userId)}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </CardActions>
+            </Card>
+          </Box>
+        );
+      })}
       <Popover
         open={openPopover}
         anchorEl={popoverAnchorEl}
@@ -416,18 +424,6 @@ export function PostPage({ id }) {
         <DialogActions>
           <Button onClick={handleCloseProfileDialog}>Close</Button>
         </DialogActions>
-      </Dialog>
-      <Dialog
-        open={createPostDialogOpen}
-        onClose={handleCloseCreatePostDialog}
-        aria-labelledby="create-post-dialog-title"
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle id="create-post-dialog-title">Create New Post</DialogTitle>
-        {/* <DialogContent>
-          {auth?.user?.id && <CreatePostPage userId={auth.user.id} />} 
-        </DialogContent> */}
       </Dialog>
     </Box>
   );

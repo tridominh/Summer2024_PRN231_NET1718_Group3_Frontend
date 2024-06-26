@@ -219,7 +219,7 @@ export function Profile({ token, setToken }) {
                     </form>
                 </DialogContent>
             </Dialog>
-            <Box className="credit-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
+        {/*<Box className="credit-info-wrapper" sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, maxWidth: 800, mx: 'auto', marginTop: 3 }}>
                 <Typography variant="h4" sx={{ fontWeight: "bold" }} gutterBottom>
                     CREDITS
                 </Typography>
@@ -236,7 +236,7 @@ export function Profile({ token, setToken }) {
 
 
             <AddCreditDialog open={openCredit} handleClose={handleOpenCredit} userId={userInfo.id} />
-
+        */}
         </>
     );
 }

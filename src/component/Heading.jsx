@@ -22,7 +22,7 @@ const moderatorPages = [
 ];
 const studentPages = ["Request", "Schedule", "Newsfeed"];
 const tutorPages = ["Student Request", "Schedule", "Newsfeed", "Create Post", "Pending Post"];
-const settings = ["Profile", "Dashboard", "Logout"];
+const settings = ["Profile", "Credit", "Dashboard", "Logout"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
   const navigate = useNavigate();
@@ -264,6 +264,9 @@ function Heading({ token, setToken, removeToken, userRole }) {
                         navigate(getProfileLink());
                       } else if (setting === "Dashboard") {
                         navigate("/admin/dashboard");
+                      }
+                       else if (setting === "Credit") {
+                        navigate("/credit");
                       }
                     }}
                   >

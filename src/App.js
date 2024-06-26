@@ -30,6 +30,7 @@ import FeedbackList from './pages/student/FeedbackList.jsx';
 import FeedbackItem from './pages/student/FeedbackItem';
 import FeedbackForm from './pages/student/FeedbackForm';
 import UpdatePostPage from './pages/tutor/UpdatePostPage';
+import { CreditPage } from "./pages/CreditPage";
 
 
 function App() {
@@ -95,6 +96,12 @@ function App() {
             path="ProfileTutor"
             element={
               <ProfileTutor token={token} setToken={setToken} />
+            }
+          />
+          <Route
+            path="Credit"
+            element={
+              <CreditPage userId={id} />
             }
           />
           {/* Student paths */}

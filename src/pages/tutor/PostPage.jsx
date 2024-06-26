@@ -21,6 +21,8 @@ import {
   UpdatePost,
 } from "../../services/ApiServices/PostService";
 import { GetUserInfo } from "../../services/ApiServices/UserService";
+// import { AuthContext } from "../context/AuthProvider";
+import { CreatePostPage } from './CreatePostPage'; 
 
 export function PostPage({ id }) {
   const [posts, setPosts] = useState([]);
@@ -34,6 +36,16 @@ export function PostPage({ id }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for delete confirmation dialog
   const [postIdToDelete, setPostIdToDelete] = useState(null); // State to store the postId to delete
   const navigate = useNavigate();
+  // const { auth } = useContext(AuthContext);
+  const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
+ 
+  const handleOpenCreatePostDialog = () => {
+    setCreatePostDialogOpen(true);
+  };
+
+  const handleCloseCreatePostDialog = () => {
+    setCreatePostDialogOpen(false);
+  };
 
   const fetchPosts = async () => {
     try {
@@ -404,6 +416,18 @@ export function PostPage({ id }) {
         <DialogActions>
           <Button onClick={handleCloseProfileDialog}>Close</Button>
         </DialogActions>
+      </Dialog>
+      <Dialog
+        open={createPostDialogOpen}
+        onClose={handleCloseCreatePostDialog}
+        aria-labelledby="create-post-dialog-title"
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle id="create-post-dialog-title">Create New Post</DialogTitle>
+        {/* <DialogContent>
+          {auth?.user?.id && <CreatePostPage userId={auth.user.id} />} 
+        </DialogContent> */}
       </Dialog>
     </Box>
   );

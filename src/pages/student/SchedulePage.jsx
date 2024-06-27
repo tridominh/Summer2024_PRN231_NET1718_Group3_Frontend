@@ -6,6 +6,7 @@ import listPlugin from '@fullcalendar/list';
 import { GetAllSchedulesOfUser } from '../../services/ApiServices/ScheduleService';
 import { useEffect, useState } from 'react';
 import moment from 'moment/moment';
+import { CircularProgress } from '@mui/material';
 
 export function SchedulePage({ token }) {
   
@@ -144,6 +145,7 @@ export function SchedulePage({ token }) {
   return (
     
     <div className='w-full'>
+
         {/*JSON.stringify(schedules)*/}
         <FullCalendar
           plugins={[ dayGridPlugin, timeGridPlugin, listPlugin ]}

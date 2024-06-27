@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-    Button,
-    Card,
-    CardContent,
-    Container,
-    Grid,
-    Snackbar,
-    Typography,
-    Tabs,
-    Tab,
-    Box,
-} from "@mui/material";
+import { Button, Card, CardContent, Container, Grid, Snackbar, Typography, Tabs, Tab, Box, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
 import parseJwt from "../../services/parseJwt";
 import {
     ApplyToBooking,
@@ -20,6 +8,8 @@ import {
     GetAllBookings,
 } from "../../services/ApiServices/BookingService";
 import { GetAllBookingUsers } from "../../services/ApiServices/BookingUserService";
+import { GetUserInfo } from "../../services/ApiServices/UserService";
+import { GetAllSubjects } from "../../services/ApiServices/SubjectService";
 
 function a11yProps(index) {
     return {
@@ -37,10 +27,51 @@ export default function TutorRequestsPage() {
     const [allBookings, setAllBookings] = useState([]);
     const [appliedBookings, setAppliedBookings] = useState([]);
     const [approvedBookings, setApprovedBookings] = useState([]);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogOpens, setDialogOpens] = useState(false);
+    const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
+    const [selectedBooking, setSelectedBooking] = useState(null);
+
+    const handleOpenDialog = async (booking) => {
+        try {
+            const studentUser = booking.bookingUsers.find(user => user.role === "STUDENT");
+            if (!studentUser) {
+                throw new Error("No student user found for this booking");
+            }
+            const response = await GetUserInfo(studentUser.userId);
+            setSelectedStudentProfile(response);
+            setDialogOpen(true);
+        } catch (error) {
+            console.error("Error fetching student profile:", error);
+        }
+    };
+
+    const handleOpenBookingDetailDialog = async (booking) => {
+        try {
+            const studentUser = booking.bookingUsers.find(user => user.role === "STUDENT");
+            if (!studentUser) {
+                throw new Error("No student user found for this booking");
+            }
+            const response = await GetUserInfo(studentUser.userId);
+            setSelectedBooking(booking);
+            setDialogOpens(true);
+        } catch (error) {
+            console.error("Error fetching student profile:", error);
+        }
+    };
+
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+        setDialogOpens(false);
+        setSelectedStudentProfile(null);
+        setSelectedBooking(null);
+    };
 
     useEffect(() => {
         fetchBookings();
     }, []);
+
 
     async function fetchBookings() {
         try {
@@ -115,10 +146,33 @@ export default function TutorRequestsPage() {
         return date.toLocaleDateString("en-CA");
     };
 
+    const formatPrice = (price, currency) => {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
+    };
+
     const handleApply = async (bookingId) => {
         try {
             const token = localStorage.getItem("token");
             const userId = Number(parseJwt(token).nameid);
+
+            const bookingToApply = bookings.find(booking => booking.id === bookingId);
+            if (!bookingToApply) {
+                throw new Error(`Booking with ID ${bookingId} not found.`);
+            }
+
+            const tutorInfo = await GetUserInfo(userId);
+            if (!tutorInfo) {
+                throw new Error(`User information not found for user ID ${userId}.`);
+            }
+
+            const tutorSubjectIds = tutorInfo.credentials.map(credential => credential.subjectId);
+
+            const tutorHasCredential = tutorSubjectIds.includes(bookingToApply.subjectId);
+            if (!tutorHasCredential) {
+                setSnackbarMessage("You don't have credentials for this subject to apply");
+                setSnackbarOpen(true);
+                return;
+            }
 
             const applyBookingDto = {
                 bookingId: bookingId,
@@ -166,6 +220,7 @@ export default function TutorRequestsPage() {
 
             setBookings(updatedBookings);
             setSnackbarMessage("Application canceled successfully");
+            fetchBookings();
             setSnackbarOpen(true);
         } catch (error) {
             console.error("Error canceling application:", error);
@@ -183,17 +238,10 @@ export default function TutorRequestsPage() {
     const renderBookings = (filteredBookings) => {
         return filteredBookings.map((booking, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card
-                    style={{ height: "295px" }}
-                    className="p-4 border border-black rounded-md shadow-md mt-5"
-                >
+                <Card style={{ height: "350px" }} className="p-4 border border-black rounded-md shadow-md mt-5">
                     <CardContent>
                         <div className="mb-2">
-                            <Typography
-                                sx={{ fontWeight: "bold" }}
-                                className="text-center"
-                                color="text.secondary"
-                            >
+                            <Typography sx={{ fontWeight: "bold" }} className="text-center" color="text.secondary">
                                 <strong>Subject: </strong>
                                 {booking.subjectName}
                             </Typography>
@@ -213,7 +261,7 @@ export default function TutorRequestsPage() {
                         </Typography>
                         <Typography color="text.secondary">
                             <strong>Price Per Slot: </strong>
-                            {booking.pricePerSlot}
+                            {formatPrice(booking.pricePerSlot, "VND")}
                         </Typography>
                         <Typography color="text.secondary">
                             <strong>Description: </strong>
@@ -223,27 +271,40 @@ export default function TutorRequestsPage() {
                         <Typography color="text.secondary">
                             <strong>Status: </strong> {booking.status}
                         </Typography>
-                        <Typography
-                            color="blue"
-                            textAlign={"right"}
-                            className="mt-2 underline"
-                        ></Typography>
-                        <Typography
-                            color="blue"
-                            textAlign={"right"}
-                            className="mt-2 underline"
-                        ></Typography>
-                        {/*JSON.stringify(booking)*/}
+
+                        <Typography color="blue" textAlign={"right"} className="mt-2 underline">
+                            <div onClick={() => handleOpenBookingDetailDialog(booking)} style={{ cursor: "pointer" }}>
+                                View Booking Details
+                            </div>
+                        </Typography>
+                        <Typography color="blue" textAlign={"right"} className="mt-2 underline">
+                            <div onClick={() => handleOpenDialog(booking)} style={{ cursor: "pointer" }}>
+                                View Profile Student
+                            </div>
+                        </Typography>
+
                         {!booking.tutorApproved && !booking.tutorApplied ? (
-                            <Button
-                                sx={{ mt: 2 }}
-                                className="start-80"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleApply(booking.id)}
-                            >
-                                Apply
-                            </Button>
+                            booking.status !== "CANCELLED" ? (
+                                <Button
+                                    sx={{ mt: 2 }}
+                                    className="start-80"
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleApply(booking.id)}
+                                >
+                                    Apply
+                                </Button>
+                            ) : (
+                                <Button
+                                    sx={{ mt: 2 }}
+                                    className="start-80"
+                                    variant="contained"
+                                    color="primary"
+                                    disabled
+                                >
+                                    Apply
+                                </Button>
+                            )
                         ) : (
                             !booking.tutorApproved &&
                             booking.tutorApplied && (
@@ -273,6 +334,8 @@ export default function TutorRequestsPage() {
         ));
     };
 
+
+
     return (
         <Container maxWidth="max-w-7xl mx-auto p-4" className="my-3">
             <Typography
@@ -297,7 +360,7 @@ export default function TutorRequestsPage() {
             </Box>
 
             <Box role="tabpanel" hidden={tabValue !== 0}>
-                <Grid  container spacing={3}>
+                <Grid container spacing={3}>
                     {renderBookings(allBookings)}
                 </Grid>
             </Box>
@@ -313,6 +376,88 @@ export default function TutorRequestsPage() {
                     {renderBookings(approvedBookings)}
                 </Grid>
             </Box>
+
+            <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+                <DialogTitle>Student Profile</DialogTitle>
+                <DialogContent>
+                    {selectedStudentProfile ? (
+                        <DialogContentText>
+                            <Typography>
+                                <strong>Name:</strong> {selectedStudentProfile.userName}
+                            </Typography>
+                            <Typography>
+                                <strong>Email:</strong> {selectedStudentProfile.email}
+                            </Typography>
+                            <Typography>
+                                <strong>Phone:</strong> {selectedStudentProfile.phoneNumber}
+                            </Typography>
+                            <Typography>
+                                <strong>Address:</strong> {selectedStudentProfile.address}
+                            </Typography>
+                            <Typography>
+                                <strong>Gender:</strong> {selectedStudentProfile.gender}
+                            </Typography>
+                        </DialogContentText>
+                    ) : (
+                        <DialogContentText>Loading...</DialogContentText>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={dialogOpens} onClose={handleCloseDialog}>
+                <DialogTitle>Booking Details</DialogTitle>
+                <DialogContent>
+                    {selectedBooking && (
+                        <CardContent>
+                            <div className="mb-2">
+                                <Typography
+                                    sx={{ fontWeight: "bold" }}
+                                    className="text-center"
+                                    color="text.secondary"
+                                >
+                                    <strong>Subject: </strong>
+                                    {selectedBooking.subjectName}
+                                </Typography>
+                            </div>
+                            <Typography color="text.secondary">
+                                <strong>Create Date: </strong>{" "}
+                                {convertToDate(selectedBooking.createdDate)}
+                            </Typography>
+
+                            <Typography color="text.secondary">
+                                <strong>Grade: </strong>
+                                {selectedBooking.levelName}
+                            </Typography>
+                            <Typography color="text.secondary">
+                                <strong>Slot per week: </strong>
+                                {selectedBooking.numOfSlots}
+                            </Typography>
+                            <Typography color="text.secondary">
+                                <strong>Price Per Slot: </strong>
+                                {formatPrice(selectedBooking.pricePerSlot, "VND")}
+                            </Typography>
+                            <Typography color="text.secondary">
+                                <strong>Description: </strong>
+                                {selectedBooking.description}
+                            </Typography>
+
+                            <Typography color="text.secondary">
+                                <strong>Status: </strong> {selectedBooking.status}
+                            </Typography>
+                        </CardContent>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <Snackbar
                 open={snackbarOpen}

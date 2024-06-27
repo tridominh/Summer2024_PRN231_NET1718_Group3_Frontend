@@ -33,8 +33,8 @@ export function PostPage({ id }) {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
   const [currentPostId, setCurrentPostId] = useState(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for delete confirmation dialog
-  const [postIdToDelete, setPostIdToDelete] = useState(null); // State to store the postId to delete
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); 
+  const [postIdToDelete, setPostIdToDelete] = useState(null); 
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
@@ -42,19 +42,19 @@ export function PostPage({ id }) {
       const data = await GetAllPost();
       console.log(data);
       const activePosts = data.filter((post) => post.status === "ACTIVE");
-      activePosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate)); // Sắp xếp bài viết
-  
+      activePosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+
       setPosts(activePosts);
-  
+
       const userPromises = activePosts.map((post) => GetUserInfo(post.userId));
       const usersData = await Promise.all(userPromises);
       const usersMap = usersData.reduce((acc, user) => {
         acc[user.id] = user;
         return acc;
       }, {});
-  
+
       setUsers(usersMap);
-  
+
     } catch (err) {
       if (err.response && err.response.data) {
         setError(
@@ -83,7 +83,7 @@ export function PostPage({ id }) {
   };
 
   const handlePopoverOpen = (event, postId, userId) => {
-    if (id && userId === id) {
+    if (id && userId == id) {
       console.log("Popover opened for postId:", postId);
       setPopoverAnchorEl(event.currentTarget);
       setCurrentPostId(postId);
@@ -98,21 +98,14 @@ export function PostPage({ id }) {
     setCurrentPostId(null);
   };
 
-  const handleUpdatePost = async (postId, userId) => {
+  const handleUpdatePost = (postId, userId) => {
     if (id && userId === id) {
-      try {
-        await UpdatePost(postId);
-        console.log(`Post with ID ${postId} updated successfully.`);
-      } catch (error) {
-        console.error("Error updating post:", error);
-      } finally {
-        handlePopoverClose();
-      }
+      navigate(`/update-post/${postId}`);
     }
   };
 
   const handleDeleteButtonClick = (postId, userId) => {
-    if (id && userId === id) {
+    if (id && userId == id) {
       setPostIdToDelete(postId);
       setDeleteDialogOpen(true);
     }
@@ -121,6 +114,7 @@ export function PostPage({ id }) {
   const handleDeleteConfirm = async () => {
     try {
       await DeletePost(postIdToDelete);
+      setPopoverAnchorEl(null);
       console.log(`Post with ID ${postIdToDelete} deleted successfully.`);
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -239,7 +233,8 @@ export function PostPage({ id }) {
                       {users[post.userId]?.userName}
                     </Typography>
                   </Box>
-                  {id && post.userId === id && (
+                  
+                  {id && post.userId == id && (
                     <Button
                       style={{
                         fontSize: "20px",
@@ -277,25 +272,7 @@ export function PostPage({ id }) {
                     sx={{ objectFit: "cover", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
                   />
                 </CardActionArea>
-              ))}
-              <CardActions>
-                {id && post.userId === id && (
-                  <Button
-                    color="primary"
-                    onClick={() => handleUpdatePost(post.id, post.userId)}
-                  >
-                    Update
-                  </Button>
-                )}
-                {id && post.userId === id && (
-                  <Button
-                    color="secondary"
-                    onClick={() => handleDeleteButtonClick(post.id, post.userId)}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </CardActions>
+              ))} 
             </Card>
           </Box>
         );

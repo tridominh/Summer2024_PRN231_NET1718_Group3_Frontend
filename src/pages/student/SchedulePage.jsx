@@ -6,6 +6,7 @@ import listPlugin from '@fullcalendar/list';
 import { GetAllSchedulesOfUser } from '../../services/ApiServices/ScheduleService';
 import { useEffect, useState } from 'react';
 import moment from 'moment/moment';
+import { CircularProgress } from '@mui/material';
 
 export function SchedulePage({ token }) {
   
@@ -98,14 +99,14 @@ export function SchedulePage({ token }) {
                     allDay: false
                 });
                 slotsAdded++;
-                if(!existingDates.includes(m.format('YYYY-MM-DD'))){
-                    events.push({
-                        title: subjectName,
-                        start: m.format('YYYY-MM-DD'),
-                        allDay: true
-                    });
-                    existingDates.push(m.format('YYYY-MM-DD'));
-                }
+                // if(!existingDates.includes(m.format('YYYY-MM-DD'))){
+                //     events.push({
+                //         title: subjectName,
+                //         start: m.format('YYYY-MM-DD'),
+                //         allDay: true
+                //     });
+                //     existingDates.push(m.format('YYYY-MM-DD'));
+                // }
             }
         }
 
@@ -144,6 +145,7 @@ export function SchedulePage({ token }) {
   return (
     
     <div className='w-full'>
+
         {/*JSON.stringify(schedules)*/}
         <FullCalendar
           plugins={[ dayGridPlugin, timeGridPlugin, listPlugin ]}
@@ -162,6 +164,28 @@ export function SchedulePage({ token }) {
           events={events}
           dayMaxEvents={3}
           eventDisplay='auto'
+          eventContent = {(arg) => {
+            // Create the event time string
+            // let eventTimeString = '';
+            // if (arg.event.start && arg.event.end) {
+            //     let startTime = moment(arg.event.start).format("HH:mm");
+            //     let endTime = moment(arg.event.end).format("HH:mm");
+            //     eventTimeString = startTime - endTime+"";
+            // } else if (arg.event.start) {
+            //     let startTime = moment(arg.event.start).format("HH:mm");
+            //     eventTimeString = startTime+"";
+            // }
+            let startTime = moment(arg.event.start).format("HH:mm");
+            let endTime = moment(arg.event.end).format("HH:mm");
+
+            // Combine the title and time string
+            let titleWithTime = document.createElement('div');
+            titleWithTime.innerHTML = `<span style="color: blue; font-weight: bold">${startTime} - ${endTime}</span><b style="margin-left: 5px">${arg.event.title}</b>`;
+            
+            // Create the event content
+            let arrayOfDomNodes = [ titleWithTime ];
+            return { domNodes: arrayOfDomNodes };
+        }}
         />
     </div>
   )

@@ -26,3 +26,11 @@ export async function GetAllByTypeTransaction(type) {
     );
     return response.data;
   }
+
+  export async function GetAllTransactionByUserId(id) {
+    const response = await axios.get(
+        `${getEndpoint()}/api/Transaction/GetAllTransactionByUserId?userId=${id}`,
+        ngrokSkipWarning
+    );
+    return response.data;
+  }

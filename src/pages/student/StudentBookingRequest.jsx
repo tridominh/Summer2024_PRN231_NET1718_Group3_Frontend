@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BookingDetails from "../../component/BookingDetails";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { GetAllBookings } from "../../services/ApiServices/BookingService";
 
 const steps = [
@@ -27,17 +27,28 @@ export default function StudentBookingRequest({ userId }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  let location = useLocation();
 
 
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState(new Set());
   const [booking, setBooking] = useState(null);
+  let { openSnack, snackMessage } = location.state || { openSnack: false, snackMessage:"" };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setOpenSnackbar(false);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    navigate("/student/booking/" + id);
+    openSnack = false;
+    snackMessage = "";
   };
 
   useEffect(() => {
@@ -128,6 +139,17 @@ export default function StudentBookingRequest({ userId }) {
           </Box>
         </React.Fragment>
       )}
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+        message={snackMessage}
+        action={
+          <Button color="inherit" size="small" onClick={handleSnackClose}>
+            Close
+          </Button>
+        }
+      />
       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert
           onClose={handleSnackbarClose}

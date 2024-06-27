@@ -22,7 +22,7 @@ const moderatorPages = [
 ];
 const studentPages = ["Request", "Schedule", "Newsfeed"];
 const tutorPages = ["Student Request", "Schedule", "Newsfeed", "Create Post", "Pending Post"];
-const settings = ["Profile", "Credit", "Dashboard", "Logout"];
+const settings = ["Credit"];
 
 function Heading({ token, setToken, removeToken, userRole }) {
   const navigate = useNavigate();
@@ -253,19 +253,21 @@ function Heading({ token, setToken, removeToken, userRole }) {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    navigate(getProfileLink());
+                  }}
+                >
+                  <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
+
                 {settings.map((setting) => (
                   <MenuItem
                     key={setting}
                     onClick={() => {
                       handleCloseUserMenu();
-                      if (setting === "Logout") {
-                        logout();
-                      } else if (setting === "Profile") {
-                        navigate(getProfileLink());
-                      } else if (setting === "Dashboard") {
-                        navigate("/admin/dashboard");
-                      }
-                       else if (setting === "Credit") {
+                      if (setting === "Credit") {
                         navigate("/credit");
                       }
                     }}
@@ -273,6 +275,15 @@ function Heading({ token, setToken, removeToken, userRole }) {
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))}
+
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    logout();
+                  }}
+                >
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
               </Menu>
             </Box>
           )}

@@ -173,7 +173,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
                 onClick={() => setOpenConfirmPayment(true)}
                 variant="contained"
                 color="primary"
-                disabled={acceptedBooking.length === 0}
+                disabled={acceptedBooking.length === 0 || booking.status === "PAID"}
               >
                 Pay bill
               </Button>

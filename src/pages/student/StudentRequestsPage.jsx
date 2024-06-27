@@ -55,6 +55,7 @@ export default function StudentRequestsPage() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const requestsPerPage = 6;
+  const [snackbarOpening, setSnackbarOpening] = useState(false);
 
   useEffect(() => {
     async function fetchRequests() {
@@ -146,7 +147,13 @@ export default function StudentRequestsPage() {
           return { ...tutor, user: profile };
         });
         const tutorsWithPosts = await Promise.all(tutorInfoPromises);
-        setAppliedTutors(tutorsWithPosts);
+        const tutorsWithActivePosts = tutorsWithPosts.map((tutor) => ({
+          ...tutor,
+          activePostsCount: tutor.user.posts.filter(post => post.status === "ACTIVE").length,
+        }));
+        console.log(tutorsWithActivePosts);
+        setAppliedTutors(tutorsWithActivePosts);
+        // setAppliedTutors(tutorsWithPosts);
         setSelectedBooking(booking);
         setDialogOpen(true);
       } else {
@@ -171,14 +178,15 @@ export default function StudentRequestsPage() {
         tutorId: tutor.userId,
       };
 
+      await AcceptTutor(acceptTutorDto);
+      setSnackbarMessage("Accept tutor successfully");
+      setSnackbarOpening(true);
+      
+      navigate(`/student/booking/${acceptTutorDto.bookingId}`, {state: { openSnack: true, snackMessage: "Accept tutor successfully" }});
       await SendStatusMailApproveTeaching({
         email: tutor.user.email,
         status: "APPROVED",
       });
-
-      await AcceptTutor(acceptTutorDto);
-
-      navigate(`/student/booking/${acceptTutorDto.bookingId}`);
     } catch (error) {
       console.error("Error in handleAccept:", error);
       if (error.response) {
@@ -217,13 +225,15 @@ export default function StudentRequestsPage() {
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
+    setSnackbarOpening(false);
   };
 
   const handleCancel = async (bookingId) => {
     try {
       await UpdateBookingStatus({
-        bookingId: bookingId, 
-        status: "CANCELLED"});
+        bookingId: bookingId,
+        status: "CANCELLED"
+      });
       setSnackbarMessage("Booking cancelled successfully");
       setSnackbarOpen(true);
 
@@ -316,18 +326,28 @@ export default function StudentRequestsPage() {
               <strong>Status: </strong> {request.status}
             </Typography>
             <div className="flex justify-between mt-3">
-              {request.status === "PENDING" && (
+              {(request.status === "PAID") && (
                 <Button
                   variant="outlined"
                   color="secondary"
                   onClick={() => handleCancel(request.id)}
-                  disabled={request.bookingUsers.filter(bookingUser => bookingUser.role == "TUTOR").length > 0}
+                  disabled
                 >
                   Cancel
                 </Button>
               )}
+              {(request.status === "PENDING" || request.status === "APPROVED") &&(
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleCancel(request.id)}
+                >
+                  Cancel
+                </Button>
+              )
+              }
               <div>
-                {request.status !== "PAID" && request.status !== "CANCELLED"  && (
+                { request.status !== "CANCELLED" && (
                   <Typography
                     color="blue"
                     textAlign={"right"}
@@ -342,17 +362,32 @@ export default function StudentRequestsPage() {
                   </Typography>
                 )}
                 <Typography
-                  color="blue"
-                  textAlign={"right"}
-                  className="mt-2 underline"
-                >
-                  <div
-                    onClick={() => handleOpenDialog(request)}
-                    style={{ cursor: "pointer" }}
+                    color="blue"
+                    textAlign={"right"}
+                    className="mt-2 underline"
+                    hidden={request.status === "CANCELLED"}
                   >
-                    Tutors Requests
-                  </div>
-                </Typography>
+                    <div
+                      style={{ cursor: "pointer" }}
+                      
+                    >
+                      View Schedule
+                    </div>
+                  </Typography>
+                { request.status !== "CANCELLED" && (
+                  <Typography
+                    color="blue"
+                    textAlign={"right"}
+                    className="mt-2 underline"
+                  >
+                    <div
+                      onClick={() => handleOpenDialog(request)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Tutors Requests
+                    </div>
+                  </Typography>
+                )}
               </div>
             </div>
           </CardContent>
@@ -488,21 +523,21 @@ export default function StudentRequestsPage() {
             </Typography>
           ) : (
             appliedTutors.map((tutor, index) => (
-              <DialogContentText
+              <><DialogContentText
                 key={index}
                 id={`tutor-${index}`}
                 className="flex justify-between"
               >
                 <span
                   onClick={() => handleOpenProfileDialog(tutor.user.id)}
-                  className="cursor-pointer text-blue-500"
+                  className="cursor-pointer w-full flex text-blue-500"
                 >
-                  {`${index + 1}. ${tutor.user.userName}`}
-                  {tutor.user.posts.length > 0 &&
-                    tutor.user.posts.some(
-                      (post) => post.status === "ACTIVE",
-                    ) && (
-                      <Tooltip title="Tutors have contributed to improving students' knowledge.">
+                  <span className="">{`${index + 1}. ${tutor.user.userName}`}</span>
+                  <span>{tutor.activePostsCount > 0 &&
+                    (Array.from({ length: parseInt(1) }, (_, index) => index + 1).map((_, index) => (
+                      <Tooltip
+                        title={`Tutors have contributed to improving students' knowledge with ${tutor.activePostsCount} post(s).`}
+                      >
                         <StarIcon
                           className="mb-1"
                           style={{
@@ -511,20 +546,25 @@ export default function StudentRequestsPage() {
                           }}
                         />
                       </Tooltip>
-                    )}
+                    )))
+                  }</span>
                 </span>
                 <div className="mb-3">
                   <Button
                     onClick={() => handleAccept(tutor)}
                     variant="contained"
                     color="primary"
-                    disabled={selectedBooking.status === "PAID"}
+                    disabled={selectedBooking.status === "PAID" || selectedBooking.status === "APPROVED"}
                     sx={{ ml: 1 }}
                   >
                     Accept
                   </Button>
+                 
                 </div>
+                
               </DialogContentText>
+              <div className="w-full flex justify-center">
+              </div></>
             ))
           )}
         </DialogContent>
@@ -624,6 +664,19 @@ export default function StudentRequestsPage() {
           </Button>
         }
       />
+
+<Snackbar
+        open={snackbarOpening}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        action={
+          <Button color="inherit" size="small" onClick={handleCloseSnackbar}>
+            Close
+          </Button>
+        }
+      />
+
     </Container>
   );
 }

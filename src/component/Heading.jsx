@@ -20,7 +20,7 @@ const moderatorPages = [
   "Manage Posts",
   "Newsfeed",
 ];
-const studentPages = ["Request", "Schedule", "Newsfeed"];
+const studentPages = ["Request", "Schedule", "Newsfeed", "Add Feedback"];
 const tutorPages = ["Student Request", "Schedule", "Newsfeed", "Create Post", "Pending Post"];
 const settings = ["Credit"];
 
@@ -50,6 +50,8 @@ function Heading({ token, setToken, removeToken, userRole }) {
         navigate("/create-post");
       } else if (page === "Newsfeed") {
         navigate("/newsfeed");
+      } else if (page === "Add Feedback") {
+        navigate("/student/feedback/add"); 
       } else if (page === "Manage Posts") {
         navigate("/manage-posts");
       } else if (page === "Tutor Application Requests") {

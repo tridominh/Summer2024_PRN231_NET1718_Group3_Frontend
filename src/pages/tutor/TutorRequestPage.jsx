@@ -154,40 +154,48 @@ export default function TutorRequestsPage() {
         try {
             const token = localStorage.getItem("token");
             const userId = Number(parseJwt(token).nameid);
-
+    
             const bookingToApply = bookings.find(booking => booking.id === bookingId);
             if (!bookingToApply) {
                 throw new Error(`Booking with ID ${bookingId} not found.`);
             }
-
+    
             const tutorInfo = await GetUserInfo(userId);
             if (!tutorInfo) {
                 throw new Error(`User information not found for user ID ${userId}.`);
             }
-
-            const tutorSubjectIds = tutorInfo.credentials.map(credential => credential.subjectId);
-
-            const tutorHasCredential = tutorSubjectIds.includes(bookingToApply.subjectId);
-            if (!tutorHasCredential) {
+    
+            const matchingCredentials = tutorInfo.credentials.filter(
+                credential => credential.subjectId === bookingToApply.subjectId
+            );
+    
+            if (matchingCredentials.length === 0 || matchingCredentials.every(credential => credential.status === "Pending")) {
                 setSnackbarMessage("You don't have credentials for this subject to apply");
                 setSnackbarOpen(true);
                 return;
             }
-
+    
+            const hasActiveCredential = matchingCredentials.some(credential => credential.status === "Accepted");
+            if (!hasActiveCredential) {
+                setSnackbarMessage("You don't have credentials for this subject to apply");
+                setSnackbarOpen(true);
+                return;
+            }
+    
             const applyBookingDto = {
                 bookingId: bookingId,
                 userId: userId,
             };
-
+    
             await ApplyToBooking(applyBookingDto);
-
+    
             const updatedBookings = bookings.map((booking) => {
                 if (booking.id === bookingId) {
                     return { ...booking, tutorApplied: true };
                 }
                 return booking;
             });
-
+    
             setBookings(updatedBookings);
             setSnackbarMessage(
                 "Applied successfully, please wait for student response"
@@ -198,6 +206,7 @@ export default function TutorRequestsPage() {
             console.error("Error applying to booking:", error);
         }
     };
+    
 
     const handleCancel = async (bookingId) => {
         try {
@@ -284,50 +293,59 @@ export default function TutorRequestsPage() {
                         </Typography>
 
                         {!booking.tutorApproved && !booking.tutorApplied ? (
-                            booking.status !== "CANCELLED" ? (
-                                <Button
-                                    sx={{ mt: 2 }}
-                                    className="start-80"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => handleApply(booking.id)}
-                                >
-                                    Apply
-                                </Button>
-                            ) : (
-                                <Button
-                                    sx={{ mt: 2 }}
-                                    className="start-80"
-                                    variant="contained"
-                                    color="primary"
-                                    disabled
-                                >
-                                    Apply
-                                </Button>
-                            )
-                        ) : (
-                            !booking.tutorApproved &&
-                            booking.tutorApplied && (
-                                <>
-                                    <Button
-                                        sx={{ mt: 2, mr: 1 }}
-                                        variant="contained"
-                                        color="primary"
-                                        disabled
-                                    >
-                                        Applied
-                                    </Button>
-                                    <Button
-                                        sx={{ mt: 2 }}
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => handleCancel(booking.id)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </>
-                            )
-                        )}
+    booking.status === "CANCELLED" ? (
+        <Button
+            sx={{ mt: 2 }}
+            className="start-80"
+            variant="contained"
+            color="primary"
+            disabled
+        >
+            Apply
+        </Button>
+    ) : booking.status === "PENDING" ? (
+        <Button
+            sx={{ mt: 2 }}
+            className="start-80"
+            variant="contained"
+            color="primary"
+            onClick={() => handleApply(booking.id)}
+        >
+            Apply
+        </Button>
+    ) : (
+        <Button
+            sx={{ mt: 2 }}
+            className="start-80"
+            variant="contained"
+            color="primary"
+            disabled
+        >
+            Apply
+        </Button>
+    )
+) : (
+    <>
+        <Button
+            sx={{ mt: 2, mr: 1 }}
+            variant="contained"
+            color="primary"
+            disabled
+        >
+            Applied
+        </Button>
+        <Button
+            sx={{ mt: 2 }}
+            variant="contained"
+            color="secondary"
+            onClick={() => handleCancel(booking.id)}
+            disabled={booking.status === "APPROVED" || booking.status === "CANCELLED"}
+        >
+            Cancel
+        </Button>
+    </>
+)}
+
                     </CardContent>
                 </Card>
             </Grid>

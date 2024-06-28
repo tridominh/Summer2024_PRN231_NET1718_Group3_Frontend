@@ -68,6 +68,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     numOfWeeks: 0,
     duration: "01:00",
     pricePerSlot: 0,
+    startDate: new Date().toISOString().split("T")[0],
   });
   const [subjects, setSubjects] = useState([]);
   const [levels, setLevels] = useState([]);
@@ -85,6 +86,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     numOfWeeks: "",
     pricePerSlot: "",
     schedule: "",
+    startDate: "",
   });
 
   useEffect(() => {
@@ -133,6 +135,10 @@ export default function BookingRequestForm({ token, setNotLogin }) {
       errors.level = "Level is required.";
     }
 
+    if (!formData.startDate) {
+      errors.startDate = "Start Date is required";
+    }
+
     if (formData.numOfWeeks <= 0) {
       errors.numOfWeeks = "Number of weeks must be greater than zero.";
     }
@@ -172,6 +178,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
       userId: Number(parseJwt(token).nameid),
       subjectId: formData.subject,
       levelId: formData.level,
+      startDate: formData.startDate,
       numOfSlots: formData.numOfWeeks * schedules.length,
       pricePerSlot: formData.pricePerSlot,
       description: formData.description,
@@ -319,6 +326,20 @@ export default function BookingRequestForm({ token, setNotLogin }) {
         <Typography sx={{ fontWeight: "bold" }} align="left" variant="body1">
           Schedule
         </Typography>
+        <TextField
+          label="Choose Start Date"
+          type="date"
+          name="startDate"
+          value={formData.startDate}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+          className="bg-gray-50"
+          error={errors.startDate}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
         <TextField
           name="numOfWeeks"
           fullWidth

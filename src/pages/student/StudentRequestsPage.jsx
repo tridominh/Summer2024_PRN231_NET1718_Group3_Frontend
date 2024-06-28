@@ -149,7 +149,9 @@ export default function StudentRequestsPage() {
         const tutorsWithPosts = await Promise.all(tutorInfoPromises);
         const tutorsWithActivePosts = tutorsWithPosts.map((tutor) => ({
           ...tutor,
-          activePostsCount: tutor.user.posts.filter(post => post.status === "ACTIVE").length,
+          activePostsCount: tutor.user.posts.filter(
+            (post) => post.status === "ACTIVE",
+          ).length,
         }));
         console.log(tutorsWithActivePosts);
         setAppliedTutors(tutorsWithActivePosts);
@@ -181,8 +183,10 @@ export default function StudentRequestsPage() {
       await AcceptTutor(acceptTutorDto);
       setSnackbarMessage("Accept tutor successfully");
       setSnackbarOpening(true);
-      
-      navigate(`/student/booking/${acceptTutorDto.bookingId}`, {state: { openSnack: true, snackMessage: "Accept tutor successfully" }});
+
+      navigate(`/student/booking/${acceptTutorDto.bookingId}`, {
+        state: { openSnack: true, snackMessage: "Accept tutor successfully" },
+      });
       await SendStatusMailApproveTeaching({
         email: tutor.user.email,
         status: "APPROVED",
@@ -232,7 +236,7 @@ export default function StudentRequestsPage() {
     try {
       await UpdateBookingStatus({
         bookingId: bookingId,
-        status: "CANCELLED"
+        status: "CANCELLED",
       });
       setSnackbarMessage("Booking cancelled successfully");
       setSnackbarOpen(true);
@@ -246,31 +250,31 @@ export default function StudentRequestsPage() {
       const cancelledResponse = await GetAllBookingsByStatus("CANCELLED");
 
       const allPendingBookings = pendingResponse.data.sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
       );
       const allPaidBookings = paidResponse.data.sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
       );
       const allCancelledBookings = cancelledResponse.data.sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
       );
 
       const studentPendingBookings = allPendingBookings.filter(
         (booking) =>
           booking.bookingUsers[0].userId === userId &&
-          booking.bookingUsers[0].role === "STUDENT"
+          booking.bookingUsers[0].role === "STUDENT",
       );
 
       const studentPaidBookings = allPaidBookings.filter(
         (booking) =>
           booking.bookingUsers[0].userId === userId &&
-          booking.bookingUsers[0].role === "STUDENT"
+          booking.bookingUsers[0].role === "STUDENT",
       );
 
       const studentCancelledBookings = allCancelledBookings.filter(
         (booking) =>
           booking.bookingUsers[0].userId === userId &&
-          booking.bookingUsers[0].role === "STUDENT"
+          booking.bookingUsers[0].role === "STUDENT",
       );
 
       setRequests({
@@ -326,7 +330,7 @@ export default function StudentRequestsPage() {
               <strong>Status: </strong> {request.status}
             </Typography>
             <div className="flex justify-between mt-3">
-              {(request.status === "PAID") && (
+              {request.status === "PAID" && (
                 <Button
                   variant="outlined"
                   color="secondary"
@@ -336,7 +340,8 @@ export default function StudentRequestsPage() {
                   Cancel
                 </Button>
               )}
-              {(request.status === "PENDING" || request.status === "APPROVED") &&(
+              {(request.status === "PENDING" ||
+                request.status === "APPROVED") && (
                 <Button
                   variant="outlined"
                   color="secondary"
@@ -344,10 +349,9 @@ export default function StudentRequestsPage() {
                 >
                   Cancel
                 </Button>
-              )
-              }
+              )}
               <div>
-                { request.status !== "CANCELLED" && (
+                {request.status !== "CANCELLED" && (
                   <Typography
                     color="blue"
                     textAlign={"right"}
@@ -362,19 +366,14 @@ export default function StudentRequestsPage() {
                   </Typography>
                 )}
                 <Typography
-                    color="blue"
-                    textAlign={"right"}
-                    className="mt-2 underline"
-                    hidden={request.status === "CANCELLED"}
-                  >
-                    <div
-                      style={{ cursor: "pointer" }}
-                      
-                    >
-                      View Schedule
-                    </div>
-                  </Typography>
-                { request.status !== "CANCELLED" && (
+                  color="blue"
+                  textAlign={"right"}
+                  className="mt-2 underline"
+                  hidden={request.status === "CANCELLED"}
+                >
+                  <div style={{ cursor: "pointer" }}>View Schedule</div>
+                </Typography>
+                {request.status !== "CANCELLED" && (
                   <Typography
                     color="blue"
                     textAlign={"right"}
@@ -523,48 +522,54 @@ export default function StudentRequestsPage() {
             </Typography>
           ) : (
             appliedTutors.map((tutor, index) => (
-              <><DialogContentText
-                key={index}
-                id={`tutor-${index}`}
-                className="flex justify-between"
-              >
-                <span
-                  onClick={() => handleOpenProfileDialog(tutor.user.id)}
-                  className="cursor-pointer w-full flex text-blue-500"
+              <>
+                <DialogContentText
+                  key={index}
+                  id={`tutor-${index}`}
+                  className="flex justify-between"
                 >
-                  <span className="">{`${index + 1}. ${tutor.user.userName}`}</span>
-                  <span>{tutor.activePostsCount > 0 &&
-                    (Array.from({ length: parseInt(1) }, (_, index) => index + 1).map((_, index) => (
-                      <Tooltip
-                        title={`Tutors have contributed to improving students' knowledge with ${tutor.activePostsCount} post(s).`}
-                      >
-                        <StarIcon
-                          className="mb-1"
-                          style={{
-                            color: "red",
-                            marginLeft: "5px",
-                          }}
-                        />
-                      </Tooltip>
-                    )))
-                  }</span>
-                </span>
-                <div className="mb-3">
-                  <Button
-                    onClick={() => handleAccept(tutor)}
-                    variant="contained"
-                    color="primary"
-                    disabled={selectedBooking.status === "PAID" || selectedBooking.status === "APPROVED"}
-                    sx={{ ml: 1 }}
+                  <span
+                    onClick={() => handleOpenProfileDialog(tutor.user.id)}
+                    className="cursor-pointer w-full flex text-blue-500"
                   >
-                    Accept
-                  </Button>
-                 
-                </div>
-                
-              </DialogContentText>
-              <div className="w-full flex justify-center">
-              </div></>
+                    <span className="">{`${index + 1}. ${tutor.user.userName}`}</span>
+                    <span>
+                      {tutor.activePostsCount > 0 &&
+                        Array.from(
+                          { length: parseInt(1) },
+                          (_, index) => index + 1,
+                        ).map((_, index) => (
+                          <Tooltip
+                            title={`Tutors have contributed to improving students' knowledge with ${tutor.activePostsCount} post(s).`}
+                          >
+                            <StarIcon
+                              className="mb-1"
+                              style={{
+                                color: "red",
+                                marginLeft: "5px",
+                              }}
+                            />
+                          </Tooltip>
+                        ))}
+                    </span>
+                  </span>
+                  <div className="mb-3">
+                    <Button
+                      onClick={() => handleAccept(tutor)}
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        selectedBooking.status === "PAID" ||
+                        selectedBooking.status === "APPROVED"
+                      }
+                      sx={{ ml: 1 }}
+                    >
+                      Accept
+                    </Button>
+                  </div>
+                </DialogContentText>
+                <div className="w-full flex justify-center"></div>
+              </>
             ))
           )}
         </DialogContent>
@@ -665,7 +670,7 @@ export default function StudentRequestsPage() {
         }
       />
 
-<Snackbar
+      <Snackbar
         open={snackbarOpening}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
@@ -676,7 +681,6 @@ export default function StudentRequestsPage() {
           </Button>
         }
       />
-
     </Container>
   );
 }

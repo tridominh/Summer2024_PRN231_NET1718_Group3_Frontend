@@ -16,9 +16,14 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
-import { formatPrice } from "../services/utils";
-import { CheckCreditService, PayService, TransferMoney } from "../services/ApiServices/VnpayService";
-import { AcceptTutor, UpdateBookingStatus } from "../services/ApiServices/BookingService";
+import { formatDate, formatPrice } from "../services/utils";
+import {
+  CheckCreditService,
+  PayService,
+  TransferMoney,
+} from "../services/ApiServices/VnpayService";
+import { UpdateBookingStatus } from "../services/ApiServices/BookingService";
+import { GetUserInfo } from "../services/ApiServices/UserService";
 
 export default function BookingDetails({ booking, userId, handleNext }) {
   const navigate = useNavigate();
@@ -26,20 +31,33 @@ export default function BookingDetails({ booking, userId, handleNext }) {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [openConfirmCredit, setOpenConfirmCredit] = useState(false);
   const [needCredit, setNeedCredit] = useState(0);
-  const [acceptedBooking, setAcceptedBooking] = useState([]);
+  const [acceptedTutors, setAcceptedTutors] = useState([]);
+  const [tutorProfile, setTutorProfile] = useState();
 
   useEffect(() => {
+    async function fetchTutorProfile() {
+      const acceptedTutor = booking?.bookingUsers?.find(
+        (bookingUser) =>
+          bookingUser.role === "TUTOR" && bookingUser.status === "APPROVED",
+      );
+      const tutorProfile = await GetUserInfo(acceptedTutor?.userId);
+      setTutorProfile(tutorProfile);
+    }
+
     if (booking) {
-      // Lọc ra danh sách tutor đã được chấp nhận
       const acceptedTutors = booking?.bookingUsers?.filter(
         (bookingUser) =>
-          bookingUser.role === "TUTOR" && bookingUser.status === "APPROVED"
+          bookingUser.role === "TUTOR" && bookingUser.status === "APPROVED",
       );
-      setAcceptedBooking(acceptedTutors);
+      setAcceptedTutors(acceptedTutors);
+
+      fetchTutorProfile();
     }
   }, [booking]);
 
-  const tutorId = booking?.bookingUsers?.find((bookingUser) => bookingUser.role === "TUTOR")?.userId;
+  const tutorId = booking?.bookingUsers?.find(
+    (bookingUser) => bookingUser.role === "TUTOR",
+  )?.userId;
 
   const handleCloseConfirmPayment = () => {
     setOpenConfirmPayment(false);
@@ -96,7 +114,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
       });
       await UpdateBookingStatus({
         bookingId: booking.id,
-        status: "PAID"
+        status: "PAID",
       });
       setOpenSnackbar(true);
       handleNext();
@@ -112,7 +130,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
 
   return (
     <Box component="section" p={4}>
-      <div >
+      <div>
         <Typography variant="h4" align="center" color="primary" gutterBottom>
           Booking Details
         </Typography>
@@ -124,12 +142,16 @@ export default function BookingDetails({ booking, userId, handleNext }) {
           </Typography>
         </Box>
       )}
-      {acceptedBooking.length === 0 && (
+      {acceptedTutors.length === 0 && (
         <Box display="flex" flexDirection="column" alignItems="center" my={3}>
           <Typography variant="h6" align="center" gutterBottom>
             You haven't approved any tutors yet.
           </Typography>
-          <Button onClick={() => navigate("/student/requests")} variant="contained" color="primary">
+          <Button
+            onClick={() => navigate("/student/requests")}
+            variant="contained"
+            color="primary"
+          >
             Go to Requests
           </Button>
         </Box>
@@ -140,7 +162,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
           spacing={2}
           justifyContent="center"
           alignItems="center"
-          style={{ minHeight: '25vh' }}
+          style={{ minHeight: "25vh" }}
         >
           <Grid item xs={12} sm={8} md={6}>
             <Card className="p-4 border border-black rounded-md shadow-md">
@@ -152,16 +174,33 @@ export default function BookingDetails({ booking, userId, handleNext }) {
                   Level: <strong>{booking.levelName}</strong>
                 </Typography>
                 <Typography color="textSecondary">
+                  Start Date: <strong>{formatDate(booking.startDate)}</strong>
+                </Typography>
+
+                <Typography color="textSecondary">
                   Number Of Slots: <strong>{booking.numOfSlots}</strong>
                 </Typography>
                 <Typography color="textSecondary">
-                  Price Per Slot: <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
+                  Price Per Slot:{" "}
+                  <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
                 </Typography>
                 <Typography color="textSecondary">
-                  Total Price: <strong>{formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")}</strong>
+                  Total Price:{" "}
+                  <strong>
+                    {formatPrice(
+                      booking.pricePerSlot * booking.numOfSlots,
+                      "VND",
+                    )}
+                  </strong>
                 </Typography>
                 <Typography color="textSecondary">
                   Description: <strong>{booking.description}</strong>
+                </Typography>
+                <Typography color="textSecondary">
+                  Your Tutor:{" "}
+                  <strong>
+                    {tutorProfile ? tutorProfile.userName : "No Information"}
+                  </strong>
                 </Typography>
                 <Typography color="textSecondary">
                   Status: <strong>{booking.status}</strong>
@@ -173,7 +212,9 @@ export default function BookingDetails({ booking, userId, handleNext }) {
                 onClick={() => setOpenConfirmPayment(true)}
                 variant="contained"
                 color="primary"
-                disabled={acceptedBooking.length === 0 || booking.status === "PAID"}
+                disabled={
+                  acceptedTutors.length === 0 || booking.status === "PAID"
+                }
               >
                 Pay bill
               </Button>
@@ -186,7 +227,9 @@ export default function BookingDetails({ booking, userId, handleNext }) {
         <DialogTitle>Confirm Payment</DialogTitle>
         <DialogContent>
           <Typography variant="body1">
-            This will use {formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")} of your credit balance.
+            This will use{" "}
+            {formatPrice(booking.pricePerSlot * booking.numOfSlots, "VND")} of
+            your credit balance.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -203,7 +246,8 @@ export default function BookingDetails({ booking, userId, handleNext }) {
         <DialogTitle>Insufficient Credit</DialogTitle>
         <DialogContent>
           <Typography variant="body1">
-            Do you want to add {formatPrice(needCredit, "VND")} to your credit balance?
+            Do you want to add {formatPrice(needCredit, "VND")} to your credit
+            balance?
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -216,7 +260,11 @@ export default function BookingDetails({ booking, userId, handleNext }) {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
         <Alert
           onClose={handleSnackbarClose}
           severity="success"

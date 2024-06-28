@@ -7,8 +7,10 @@ const AddFeedback = ({ userId }) => {
   const [feedback, setFeedback] = useState({
     tutorId: '',
     studentId: '',
+    SubjectName:  '',
+    LevelName:  '',
     content: '',
-    rating: 0, // Initialize rating as 0
+    rating: 0,
   });
 
   const [error, setError] = useState('');
@@ -47,6 +49,8 @@ const AddFeedback = ({ userId }) => {
       setFeedback({
         tutorId: '',
         studentId: '',
+        SubjectName: '',
+        LevelName:  '',
         content: '',
         rating: 0, // Reset rating to 0
       });
@@ -64,7 +68,7 @@ const AddFeedback = ({ userId }) => {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Tutor ID"
+          label="Tutor"
           type="number"
           name="tutorId"
           value={feedback.tutorId}
@@ -73,12 +77,24 @@ const AddFeedback = ({ userId }) => {
           fullWidth
           margin="normal"
         />
-        {/* Student ID is now hidden and set automatically */}
         <TextField
           type="hidden"
           name="studentId"
           value={userId}
-          onChange={handleChange}
+        />
+        <TextField
+          label="Subject"
+          name="SubjectName"
+          fullWidth
+          margin="normal"
+          value={feedback.SubjectName}
+        />
+        <TextField 
+          label="Level"
+          name="LevelName"
+          fullWidth
+          margin="normal"
+          value={feedback.LevelName}
         />
         <TextField
           label="Content"
@@ -101,7 +117,7 @@ const AddFeedback = ({ userId }) => {
             activeColor="#ffd700"
           />
         </Box>
-        <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mt: 2 }}>
+        <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mt: 2, mb: 7 }}>
           Add Feedback
         </Button>
       </form>

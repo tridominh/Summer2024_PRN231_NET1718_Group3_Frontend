@@ -57,7 +57,7 @@ function App() {
             element={<PendingPost userId={id} />}
           />
           <Route
-            path="/feedback/add"
+            path="student/feedback/add"
             element={<AddFeedback userId={id}/>}
           />
           <Route

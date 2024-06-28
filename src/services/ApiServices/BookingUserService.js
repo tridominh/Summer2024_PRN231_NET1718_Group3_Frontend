@@ -52,3 +52,11 @@ export async function DeleteBookingUser(id) {
   );
   return response.data;
 }
+
+export async function GetBookingUserByUserIdFeedback(id) {
+  const response = await axios.get(
+    `${getEndpoint()}/api/BookingUser/GetBookingUserByUserIdFeedback?id=${id}`,
+    ngrokSkipWarning,
+  );
+  return response.data;
+}

@@ -78,7 +78,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
   const addCredit = async () => {
     try {
       let payDto = {
-        userId: userId,
+        userId: parseInt(userId),
         amount: needCredit,
         orderInfo: "Add Credit",
       };
@@ -100,14 +100,14 @@ export default function BookingDetails({ booking, userId, handleNext }) {
   const processPayment = async () => {
     try {
       let payDto = {
-        userId: userId,
+        userId: parseInt(userId),
         amount: booking.pricePerSlot * booking.numOfSlots,
         orderInfo: "Booking Payment",
       };
       const response = await CheckCreditService(payDto);
       setOpenConfirmPayment(false);
       await TransferMoney({
-        userId: userId,
+        userId: parseInt(userId),
         receiverId: tutorId,
         amount: booking.pricePerSlot * booking.numOfSlots,
         orderInfo: "Booking Payment",

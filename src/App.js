@@ -26,12 +26,11 @@ import { PostPage } from "./pages/tutor/PostPage.jsx";
 import PendingPost from "./pages/tutor/PendingPost.jsx";
 import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
 import { AdminProfile } from "./pages/admin/AdminProfile.jsx";
-import FeedbackList from './pages/student/FeedbackList.jsx';
-import FeedbackItem from './pages/student/FeedbackItem';
-import FeedbackForm from './pages/student/FeedbackForm';
 import UpdatePostPage from './pages/tutor/UpdatePostPage';
 import { CreditPage } from "./pages/CreditPage";
-
+import AddFeedback from './pages/student/AddFeedback.jsx';
+import FeedbackList from './pages/student/FeedbackList.jsx';
+import UpdateFeedback from './pages/student/UpdateFeedback.jsx';
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -58,30 +57,16 @@ function App() {
             element={<PendingPost userId={id} />}
           />
           <Route
-      path="/feedback"
-      element={
-        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
-          <FeedbackList />
-        </PrivateRoute>
-      }
-    />
+            path="/feedback/add"
+            element={<AddFeedback userId={id}/>}
+          />
+          <Route
+            path="/feedback"
+            element={<FeedbackList/>}
+          />
+          
      <Route path="/update-post/:postId" element={<UpdatePostPage userId={id}/>} />
-    <Route
-      path="/feedback/:id"
-      element={
-        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
-          <FeedbackItem/>
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/feedback/add"
-      element={
-        <PrivateRoute roles={["Admin", "Moderator", "Student", "Tutor"]}>
-          <FeedbackForm />
-        </PrivateRoute>
-      }
-    />
+     <Route path="/feedback/update/:id" element={<UpdateFeedback userId={id}/>} />
           <Route
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}

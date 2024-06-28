@@ -8,8 +8,8 @@ const AddFeedback = ({ userId }) => {
   const [feedback, setFeedback] = useState({
     tutorId: '',
     studentId: userId,
-    SubjectName: '',
-    LevelName: '',
+    subjectName: '',
+    levelName: '',
     content: '',
     rating: 0,
   });
@@ -35,14 +35,14 @@ const AddFeedback = ({ userId }) => {
 
   const handleTutorChange = (event) => {
     const tutorId = event.target.value;
-    const selectedBooking = bookingUsers.find(bu => bu.userId === tutorId);
+    const selectedBooking = bookingUsers.find(bu => bu.bookingId === tutorId);
 
     setSelectedTutor(tutorId);
     setFeedback({
       ...feedback,
       tutorId,
-      SubjectName: selectedBooking.booking.subject.name,
-      LevelName: selectedBooking.booking.level.levelName
+      subjectName: selectedBooking.booking.subject.name,
+      levelName: selectedBooking.booking.level.levelName,
     });
   };
 
@@ -70,7 +70,7 @@ const AddFeedback = ({ userId }) => {
       // Append userId to feedback as StudentId
       const feedbackWithStudentId = {
         ...feedback,
-        studentId: userId, // Append userId as StudentId
+        studentId: parseInt(userId), // Append userId as StudentId
       };
 
       const response = await addFeedbackService(feedbackWithStudentId);
@@ -101,30 +101,30 @@ const AddFeedback = ({ userId }) => {
           <InputLabel>Tutor</InputLabel>
           <Select value={selectedTutor} onChange={handleTutorChange}>
             {bookingUsers.map(bu => (
-              <MenuItem key={bu.userId} value={bu.userId}>
-                {bu.user.fullName}
+              <MenuItem key={bu.userId} value={bu.bookingId}>
+                {bu.user.userName}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-        {/* <TextField
+         <TextField
           type="hidden"
           name="studentId"
           value={userId}
-        /> */}
+        />
         <TextField
           label="Subject"
-          name="SubjectName"
+          name="subjectName"
           fullWidth
           margin="normal"
-          value={feedback.SubjectName}
+          value={feedback.subjectName}
         />
         <TextField 
           label="Level"
-          name="LevelName"
+          name="levelName"
           fullWidth
           margin="normal"
-          value={feedback.LevelName}
+          value={feedback.levelName}
         />
         <TextField
           label="Content"

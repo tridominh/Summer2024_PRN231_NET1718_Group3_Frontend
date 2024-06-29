@@ -62,11 +62,11 @@ function App() {
           />
           <Route
             path="/feedback"
-            element={<FeedbackList/>}
+            element={<FeedbackList userId={id}/>}
           />
           
      <Route path="/update-post/:postId" element={<UpdatePostPage userId={id}/>} />
-     <Route path="/feedback/update/:id" element={<UpdateFeedback userId={id}/>} />
+     <Route path="student/feedback/update/:id" element={<UpdateFeedback userId={id}/>} />
           <Route
             path="Profile"
             element={<Profile token={token} setToken={setToken} />}

@@ -147,6 +147,7 @@ export default function BookingRequestForm({ token, setNotLogin }) {
     for (let schedule of schedules) {
       if (isOverlapping(existingSchedules, schedule)) {
         errors.schedule = "Overlapping schedule. Please choose another time";
+        break;
       }
     }
 

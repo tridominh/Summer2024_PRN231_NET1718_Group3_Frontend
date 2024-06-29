@@ -37,8 +37,8 @@ export function isOverlapping(existingSchedules, newSchedule) {
 
     if (
       newSchedule.dayOfWeek === schedule.dayOfWeek &&
-      newStartTime <= endTime &&
-      newEndTime >= startTime
+      newStartTime < endTime &&
+      newEndTime > startTime
     ) {
       return true;
     }

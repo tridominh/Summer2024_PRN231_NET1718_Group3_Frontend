@@ -54,13 +54,14 @@ export async function UpdateBookingStatus(updateBookingDto) {
   const response = await axios.put(
     `${getEndpoint()}/api/Booking/UpdateStatus`,
     updateBookingDto,
-  {
-    headers: {
+    {
+      headers: {
         "bypass-tunnel-reminder": "true",
-        "accept": 'application/json;odata.metadata=minimal;odata.streaming=true',
-        "Content-Type": 'application/json;odata.metadata=minimal;odata.streaming=true'
-    }
-}
+        accept: "application/json;odata.metadata=minimal;odata.streaming=true",
+        "Content-Type":
+          "application/json;odata.metadata=minimal;odata.streaming=true",
+      },
+    },
   );
 
   return response.data.data;
@@ -103,4 +104,43 @@ export async function CancelApplication(cancelApplicationDto) {
   );
 
   return response.data;
+}
+
+export function calculateCompletedDate(booking) {
+  console.log(booking);
+  const dayOfWeekMap = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  };
+
+  // Parse the start date
+  let startDate = new Date(booking.startDate);
+  let numOfSlots = booking.numOfSlots;
+
+  // Extract the schedule days
+  let scheduleDays = booking.schedules.map(
+    (schedule) => dayOfWeekMap[schedule.dayOfWeek],
+  );
+
+  // Initialize the slot counter
+  let slotsCount = 0;
+
+  // Loop until the required number of slots is reached
+  while (slotsCount < numOfSlots) {
+    // Check if the current day is in the schedule
+    if (scheduleDays.includes(startDate.getDay())) {
+      slotsCount++;
+    }
+    // Move to the next day if slotsCount is still less than the required number
+    if (slotsCount < numOfSlots) {
+      startDate.setDate(startDate.getDate() + 1);
+    }
+  }
+
+  return startDate;
 }

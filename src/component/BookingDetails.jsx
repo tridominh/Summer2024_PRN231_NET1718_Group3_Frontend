@@ -13,6 +13,9 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
@@ -22,8 +25,12 @@ import {
   PayService,
   TransferMoney,
 } from "../services/ApiServices/VnpayService";
-import { UpdateBookingStatus } from "../services/ApiServices/BookingService";
+import {
+  UpdateBookingStatus,
+  calculateCompletedDate,
+} from "../services/ApiServices/BookingService";
 import { GetUserInfo } from "../services/ApiServices/UserService";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function BookingDetails({ booking, userId, handleNext }) {
   const navigate = useNavigate();
@@ -33,6 +40,7 @@ export default function BookingDetails({ booking, userId, handleNext }) {
   const [needCredit, setNeedCredit] = useState(0);
   const [acceptedTutors, setAcceptedTutors] = useState([]);
   const [tutorProfile, setTutorProfile] = useState();
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     async function fetchTutorProfile() {
@@ -58,6 +66,10 @@ export default function BookingDetails({ booking, userId, handleNext }) {
   const tutorId = booking?.bookingUsers?.find(
     (bookingUser) => bookingUser.role === "TUTOR",
   )?.userId;
+
+  const toggleAccordion = () => {
+    setExpanded(!expanded);
+  };
 
   const handleCloseConfirmPayment = () => {
     setOpenConfirmPayment(false);
@@ -176,10 +188,14 @@ export default function BookingDetails({ booking, userId, handleNext }) {
                 <Typography color="textSecondary">
                   Start Date: <strong>{formatDate(booking.startDate)}</strong>
                 </Typography>
-
                 <Typography color="textSecondary">
                   Number Of Slots: <strong>{booking.numOfSlots}</strong>
                 </Typography>
+                <Typography color="textSecondary">
+                  Completed Date:
+                  <strong>{formatDate(calculateCompletedDate(booking))}</strong>
+                </Typography>
+
                 <Typography color="textSecondary">
                   Price Per Slot:{" "}
                   <strong>{formatPrice(booking.pricePerSlot, "VND")}</strong>
@@ -206,6 +222,36 @@ export default function BookingDetails({ booking, userId, handleNext }) {
                   Status: <strong>{booking.status}</strong>
                 </Typography>
               </CardContent>
+              <Accordion
+                className="border border-black"
+                onClick={toggleAccordion}
+                expanded={expanded}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography variant="h6" color="textSecondary">
+                    Schedule
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {booking.schedules.map((schedule, index) => (
+                    <Box key={index} mt={2}>
+                      <Typography color="textSecondary">
+                        Day: <strong>{schedule.dayOfWeek}</strong>
+                      </Typography>
+                      <Typography color="textSecondary">
+                        Time: <strong>{schedule.startTime}</strong>
+                      </Typography>
+                      <Typography color="textSecondary">
+                        Duration: <strong>{schedule.duration}</strong>
+                      </Typography>
+                    </Box>
+                  ))}
+                </AccordionDetails>
+              </Accordion>
             </Card>
             <Box mt={2} textAlign="center">
               <Button

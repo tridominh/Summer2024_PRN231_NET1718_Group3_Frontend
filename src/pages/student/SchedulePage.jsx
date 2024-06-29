@@ -14,7 +14,7 @@ export function SchedulePage({ token }) {
   const [events, setEvents] = useState([]);
 
   const days = {
-    Sundays: 0,
+    Sunday: 0,
     Monday: 1,
     Tuesday: 2,
     Wednesday: 3,
@@ -27,16 +27,17 @@ export function SchedulePage({ token }) {
     let data = null;
     try {
       data = await GetAllSchedulesOfUser(id);
-      const schedules = data.filter(
+      data = data.filter(
         (x) =>
           x.booking.status.toUpperCase() === "PAID" ||
           x.booking.status.toUpperCase() === "TRANSFERRED",
       );
-      console.log(schedules);
-      setSchedules(schedules);
+      console.log(data);
+      setSchedules(data);
+
       let eventList = [];
       let existingDates = [];
-      for (let d of schedules) {
+      for (let d of data) {
         //if(!d) continue;
         //console.log(d);
         const tutor = d.booking.bookingUsers?.filter(
@@ -62,9 +63,7 @@ export function SchedulePage({ token }) {
         //console.log(splitDaysOfWeek(d.dayOfWeek));
         //console.log(e);
       }
-      //console.log(eventList);
-      // setEvents(eventList);
-      setEvents(...events);
+      setEvents(eventList);
     } catch (err) {
       console.log(err);
       if (err.response.data.message) {
@@ -99,7 +98,7 @@ export function SchedulePage({ token }) {
     //console.log(dayOfWeek);
 
     for (let m = start; slotsAdded < numOfSlot; m.add(1, "days")) {
-      if (dayOfWeek == m.day()) {
+      if (dayOfWeek === m.day()) {
         const startDateTime = moment(m.format("YYYY-MM-DD") + "T" + startTime);
         const endDateTime = startDateTime
           .clone()
@@ -128,31 +127,31 @@ export function SchedulePage({ token }) {
     return events;
   };
 
-  const formatDate = (timestamp) => {
-    return moment(timestamp).format("YYYY-MM-DD");
-  };
-
-  const splitDaysOfWeek = (daysOfWeek) => {
-    if (!daysOfWeek) {
-      return [];
-    }
-    return daysOfWeek.split(", ").map(Number);
-  };
-
-  const filteredEvents = (events) => {
-    return events.filter((event) => {
-      var eventDate = moment(event.start); // Assumes `event.start` is in a parsable date format
-      var currentMonthStart = moment().startOf("month");
-      var currentMonthEnd = moment().endOf("month");
-
-      return eventDate.isBetween(
-        currentMonthStart,
-        currentMonthEnd,
-        null,
-        "[]",
-      );
-    });
-  };
+  // const formatDate = (timestamp) => {
+  //   return moment(timestamp).format("YYYY-MM-DD");
+  // };
+  //
+  // const splitDaysOfWeek = (daysOfWeek) => {
+  //   if (!daysOfWeek) {
+  //     return [];
+  //   }
+  //   return daysOfWeek.split(", ").map(Number);
+  // };
+  //
+  // const filteredEvents = (events) => {
+  //   return events.filter((event) => {
+  //     var eventDate = moment(event.start); // Assumes `event.start` is in a parsable date format
+  //     var currentMonthStart = moment().startOf("month");
+  //     var currentMonthEnd = moment().endOf("month");
+  //
+  //     return eventDate.isBetween(
+  //       currentMonthStart,
+  //       currentMonthEnd,
+  //       null,
+  //       "[]",
+  //     );
+  //   });
+  // };
 
   useEffect(() => {
     fetchSchedules();

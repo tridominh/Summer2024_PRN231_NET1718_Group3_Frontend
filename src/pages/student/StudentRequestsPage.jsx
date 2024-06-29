@@ -365,14 +365,14 @@ export default function StudentRequestsPage() {
                     </div>
                   </Typography>
                 )}
-                <Typography
-                  color="blue"
-                  textAlign={"right"}
-                  className="mt-2 underline"
-                  hidden={request.status === "CANCELLED"}
-                >
-                  <div style={{ cursor: "pointer" }}>View Schedule</div>
-                </Typography>
+                {/* <Typography */}
+                {/*   color="blue" */}
+                {/*   textAlign={"right"} */}
+                {/*   className="mt-2 underline" */}
+                {/*   hidden={request.status === "CANCELLED"} */}
+                {/* > */}
+                {/*   <div style={{ cursor: "pointer" }}>View Schedule</div> */}
+                {/* </Typography> */}
                 {request.status !== "CANCELLED" && (
                   <Typography
                     color="blue"
